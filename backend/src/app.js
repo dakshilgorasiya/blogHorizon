@@ -30,8 +30,10 @@ app.use(cookieParser());
 
 // route imports
 import userRouter from "./routes/user.routes.js";
+import blogRouter from "./routes/blog.routes.js";
 
 // routes declarations
 app.use("/api/v1/users", userRouter);
+app.use("/api/v1/blogs", blogRouter);
 
 export { app };
