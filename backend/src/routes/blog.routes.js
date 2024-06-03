@@ -27,4 +27,6 @@ router.route("/createBlog").post(
   createBlog
 );
 
+router.route("/getAllBlogs").get(verifyJWT, getAllBlogs);
+
 export default router;

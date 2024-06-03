@@ -101,7 +101,69 @@ const createBlog = asyncHandler(async (req, res) => {
     .json(new ApiResponse(201, createdBlog, "Blog created successfully"));
 });
 
-const getAllBlogs = asyncHandler(async (req, res) => {});
+const getAllBlogs = asyncHandler(async (req, res) => {
+  // get pagination details from the query
+  // get blogs with user details
+  // use pagination to limit the number of blogs
+  // send the response
+
+  const page = parseInt(req.body.page) || 1;
+  const limit = parseInt(req.body.limit) || 10;
+
+  try {
+    // let blogs = Blog.aggregate();
+
+    let blogs = Blog.aggregate([
+      {
+        $lookup: {
+          from: "users",
+          localField: "owner",
+          foreignField: "_id",
+          as: "owner",
+          pipeline: [
+            {
+              $project: {
+                _id: 1,
+                userName: 1,
+                avatar: 1,
+              },
+            },
+          ],
+        },
+      },
+      {
+        $unwind: "$owner",
+      },
+      {
+        $project: {
+          title: 1,
+          tag: 1,
+          category: 1,
+          thumbnail: 1,
+          owner: 1,
+          createdAt: 1,
+        },
+      },
+    ]);
+
+    const options = {
+      page,
+      limit,
+    };
+
+    await Blog.aggregatePaginate(blogs, options)
+      .then(function (result) {
+        return res
+          .status(200)
+          .json(new ApiResponse(200, result, "Blogs fetched successfully"));
+      })
+      .catch(function (error) {
+        throw new ApiError(500, error.message);
+      });
+  } catch (error) {
+    throw new ApiError(500, error.message);
+  }
+});
 
 const getBlogById = asyncHandler(async (req, res) => {});
 
