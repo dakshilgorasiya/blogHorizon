@@ -3,6 +3,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { User } from "../models/user.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import { Blog } from "../models/blog.model.js";
 import jwt from "jsonwebtoken";
 
 const generateAccessAndRefreshToken = async (userId) => {
@@ -249,6 +250,47 @@ const updateBio = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, user, "Bio updated successfully"));
 });
 
+const makeBlogFavorite = asyncHandler(async (req, res) => {
+  // get blog id from frontend
+  // get user from request
+  // check if blog exists
+  // check if blog is already favorite
+  // add blog to favorite list
+  // return response
+
+  const { blogId } = req.body;
+
+  if (!blogId) {
+    throw new ApiError(400, "Blog id is required");
+  }
+
+  const blog = await Blog.findById(blogId);
+
+  if (!blog) {
+    throw new ApiError(404, "Blog not found");
+  }
+
+  const user = await User.findById(req.user._id);
+
+  if (!user.favorite) {
+    user.favorite = [];
+  }
+
+  if (user.favorite.includes(blogId)) {
+    throw new ApiError(400, "Blog already favorite");
+  }
+
+  user.favorite.push(blogId);
+
+  await user.save({
+    validateBeforeSave: false,
+  });
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, user, "Blog added to favorite successfully"));
+});
+
 export {
   registerUser,
   loginUser,
@@ -256,4 +298,5 @@ export {
   getCurrentUser,
   updateAvatar,
   updateBio,
+  makeBlogFavorite,
 };

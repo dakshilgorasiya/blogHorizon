@@ -4,6 +4,7 @@ import {
   loginUser,
   logoutUser,
   getCurrentUser,
+  makeBlogFavorite,
   updateAvatar,
   updateBio,
 } from "../controllers/user.controller.js";
@@ -42,5 +43,7 @@ router.route("/update-avatar").patch(
 );
 
 router.route("/update-bio").post(verifyJWT, updateBio);
+
+router.route("/makeBlogFavorite").post(verifyJWT, makeBlogFavorite);
 
 export default router;
