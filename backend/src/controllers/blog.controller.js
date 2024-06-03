@@ -104,10 +104,15 @@ const createBlog = asyncHandler(async (req, res) => {
 });
 
 const getAllBlogs = asyncHandler(async (req, res) => {
+  // get category and sort from the request body
   // get pagination details from the query
   // get blogs with user details
   // use pagination to limit the number of blogs
   // send the response
+
+  const category = req.body.category || null;
+
+  const sortCriteria = req.body.sort || "createdAt";
 
   const page = parseInt(req.body.page) || 1;
   const limit = parseInt(req.body.limit) || 10;
@@ -115,39 +120,92 @@ const getAllBlogs = asyncHandler(async (req, res) => {
   try {
     // let blogs = Blog.aggregate();
 
-    let blogs = Blog.aggregate([
-      {
-        $lookup: {
-          from: "users",
-          localField: "owner",
-          foreignField: "_id",
-          as: "owner",
-          pipeline: [
-            {
-              $project: {
-                _id: 1,
-                userName: 1,
-                avatar: 1,
-              },
-            },
-          ],
-        },
-      },
-      {
-        $unwind: "$owner",
-      },
-      {
-        $project: {
-          title: 1,
-          tag: 1,
-          category: 1,
-          thumbnail: 1,
-          owner: 1,
-          createdAt: 1,
-        },
-      },
-    ]);
+    let blogs;
 
+    if (!category) {
+      blogs = Blog.aggregate([
+        {
+          $sort: {
+            [sortCriteria]: -1,
+          },
+        },
+        {
+          $lookup: {
+            from: "users",
+            localField: "owner",
+            foreignField: "_id",
+            as: "owner",
+            pipeline: [
+              {
+                $project: {
+                  _id: 1,
+                  userName: 1,
+                  avatar: 1,
+                },
+              },
+            ],
+          },
+        },
+        {
+          $unwind: "$owner",
+        },
+        {
+          $project: {
+            title: 1,
+            tag: 1,
+            category: 1,
+            thumbnail: 1,
+            owner: 1,
+            createdAt: 1,
+            view: 1,
+          },
+        },
+      ]);
+    } else {
+      blogs = Blog.aggregate([
+        {
+          $match: {
+            category: category,
+          },
+        },
+        {
+          $sort: {
+            [sortCriteria]: -1,
+          },
+        },
+        {
+          $lookup: {
+            from: "users",
+            localField: "owner",
+            foreignField: "_id",
+            as: "owner",
+            pipeline: [
+              {
+                $project: {
+                  _id: 1,
+                  userName: 1,
+                  avatar: 1,
+                },
+              },
+            ],
+          },
+        },
+        {
+          $unwind: "$owner",
+        },
+        {
+          $project: {
+            title: 1,
+            tag: 1,
+            category: 1,
+            thumbnail: 1,
+            owner: 1,
+            createdAt: 1,
+            view: 1,
+          },
+        },
+      ]);
+    }
     const options = {
       page,
       limit,
@@ -170,6 +228,7 @@ const getAllBlogs = asyncHandler(async (req, res) => {
 const getBlogById = asyncHandler(async (req, res) => {
   // get blog id from the request params
   // get blog with user details
+  // update view of blog
   // update history of the user
   // send the response
 
@@ -254,6 +313,18 @@ const getBlogById = asyncHandler(async (req, res) => {
   if (!blog) {
     throw new ApiError(404, "Blog not found");
   }
+
+  const updatedBlog = await Blog.findByIdAndUpdate(
+    new mongoose.Types.ObjectId(blogId),
+    {
+      $inc: {
+        view: 1,
+      },
+    },
+    {
+      new: true,
+    }
+  );
 
   const user = await User.findById(req.user._id);
 
@@ -522,6 +593,7 @@ const getFavoriteBlogs = asyncHandler(async (req, res) => {
           category: 1,
           thumbnail: 1,
           owner: 1,
+          view: 1,
           createdAt: 1,
         },
       },
@@ -580,7 +652,7 @@ const getHistoryBlogs = asyncHandler(async (req, res) => {
       $unwind: "$historyBlog.owner",
     },
     {
-      $project: { 
+      $project: {
         historyBlog: {
           _id: 1,
           title: 1,
@@ -588,6 +660,7 @@ const getHistoryBlogs = asyncHandler(async (req, res) => {
           category: 1,
           thumbnail: 1,
           owner: 1,
+          view: 1,
           createdAt: 1,
         },
       },
