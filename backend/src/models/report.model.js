@@ -15,10 +15,6 @@ const reportSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    comment: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Comment",
-    },
     isSolved: {
       type: Boolean,
       default: false,
