@@ -7,8 +7,6 @@ const createReport = asyncHandler(async (req, res) => {});
 
 const getReports = asyncHandler(async (req, res) => {});
 
-const getReportById = asyncHandler(async (req, res) => {});
-
 const markReportAsResolved = asyncHandler(async (req, res) => {});
 
-export { createReport, getReports, getReportById, markReportAsResolved };
+export { createReport, getReports,  markReportAsResolved };
