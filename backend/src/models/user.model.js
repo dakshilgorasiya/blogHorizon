@@ -90,9 +90,31 @@ userSchema.pre("save", async function (next) {
 
 // Middleware to hash accessToken before saving
 userSchema.pre("save", function (next) {
-  if (!this.isModified("accessToken")) return next();
+  if (!this.isModified("refreshToken")) return next();
+
+  if (!this.refreshToken) {
+    next();
+  }
 
   this.refreshToken = generateHash(this.refreshToken);
+  next();
+});
+
+// Middleware to hash resetPasswordToken before saving and set expiry
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("resetPasswordToken")) return next();
+
+  if (!this.resetPasswordToken) {
+    next();
+  }
+
+  this.resetPasswordToken = crypto
+    .createHash("sha256")
+    .update(this.resetPasswordToken)
+    .digest("hex");
+
+  this.resetPasswordTokenExpiry = Date.now() + 10 * 60 * 1000; // 10 minutes
+
   next();
 });
 
@@ -103,9 +125,9 @@ userSchema.methods.isPasswordCorrect = async function (password) {
 
 // Method to comare refreshToken
 userSchema.methods.compareRefreshToken = function (refreshToken) {
-  const hash = generateHash(refreshToken);
+  const hash = crypto.createHash("sha256").update(refreshToken).digest("hex");
   return this.refreshToken === hash;
-}
+};
 
 // Method to generate access token
 userSchema.methods.generateAccessToken = function () {
@@ -133,15 +155,9 @@ userSchema.methods.generateRefreshToken = function () {
   );
 };
 
-// Method to generate resetPasswordToken and resetPasswordTokenExpiry
+// Method to generate resetPasswordToken
 userSchema.methods.generateResetPasswordToken = async function () {
   const resetToken = crypto.randomBytes(32).toString("hex");
-  this.resetPasswordToken = crypto
-    .createHash("sha256")
-    .update(resetToken)
-    .digest("hex");
-  this.resetPasswordTokenExpiry = Date.now() + 10 * 60 * 1000;
-  await this.save({ validateBeforeSave: false });
   return resetToken;
 };
 

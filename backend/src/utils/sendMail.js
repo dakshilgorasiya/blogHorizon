@@ -1,7 +1,7 @@
 import nodeMailer from "nodemailer";
 
 //* Utility function to send email
-const sendMail = async ({ to, subject, content }) => {
+const sendMail = async ({ to, subject, content, isHtml = false }) => {
   // create a transporter
   const transporter = nodeMailer.createTransport({
     service: "gmail",
@@ -15,10 +15,10 @@ const sendMail = async ({ to, subject, content }) => {
 
   // send mail with defined transport object
   const mailOptions = {
-    from: process.env.SMTP_EMAIL,
+    from: "Blog Horizon " + process.env.SMTP_EMAIL,
     to,
     subject,
-    text: content,
+    [isHtml ? "html" : "text"]: content,
   };
 
   // send mail

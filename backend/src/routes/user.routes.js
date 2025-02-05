@@ -7,6 +7,9 @@ import {
   makeBlogFavorite,
   updateAvatar,
   updateBio,
+  renewAccessToken,
+  forgotPassword,
+  resetPassword,
 } from "../controllers/user.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
 import { verifyAccessToken } from "../middlewares/auth.middleware.js";
@@ -25,24 +28,30 @@ router.route("/register").post(
 
 router.route("/login").post(loginUser);
 
+router.route("/renew-access-token").post(renewAccessToken);
+
+router.route("/forgot-password").post(forgotPassword);
+
+router.route("/reset-password/:resetToken").post(resetPassword);
+
 // secure route
-// router.route("/logout").post(verifyJWT, logoutUser);
+router.route("/logout").post(verifyAccessToken, logoutUser);
 
-// router.route("/current-user").get(verifyJWT, getCurrentUser);
+router.route("/current-user").get(verifyAccessToken, getCurrentUser);
 
-// router.route("/update-avatar").patch(
-//   verifyJWT,
-//   upload.fields([
-//     {
-//       name: "avatar",
-//       maxCount: 1,
-//     },
-//   ]),
-//   updateAvatar
-// );
+router.route("/update-avatar").patch(
+  verifyAccessToken,
+  upload.fields([
+    {
+      name: "avatar",
+      maxCount: 1,
+    },
+  ]),
+  updateAvatar
+);
 
-// router.route("/update-bio").post(verifyJWT, updateBio);
+router.route("/update-bio").post(verifyAccessToken, updateBio);
 
-// router.route("/makeBlogFavorite").post(verifyJWT, makeBlogFavorite);
+router.route("/makeBlogFavorite").post(verifyAccessToken, makeBlogFavorite);
 
 export default router;

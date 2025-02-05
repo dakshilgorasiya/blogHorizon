@@ -6,6 +6,7 @@ import { User } from "../models/user.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { Blog } from "../models/blog.model.js";
 import { COOKIE_CONFIG, BLOG_CATEGORY } from "../constants.js";
+import crypto from "crypto";
 import jwt from "jsonwebtoken";
 
 //* controller for user registration
@@ -42,7 +43,7 @@ const registerUser = asyncHandler(async (req, res) => {
   }
 
   // check for avatar
-  const avatarLocalPath = req.files?.avatar[0]?.path;
+  const avatarLocalPath = req?.files?.avatar[0]?.path;
 
   if (!avatarLocalPath) {
     throw new ApiError(400, "Avatar file is required");
@@ -123,11 +124,9 @@ const loginUser = asyncHandler(async (req, res) => {
   const accessToken = await user.generateAccessToken();
   const refreshToken = await user.generateRefreshToken();
 
-  user.refreshAccessToken = refreshToken;
+  user.refreshToken = refreshToken;
 
-  await user.save({
-    validateBeforeSave: false,
-  });
+  await user.save();
 
   const responseUser = {
     ...user._doc,
@@ -150,109 +149,109 @@ const loginUser = asyncHandler(async (req, res) => {
 });
 
 const logoutUser = asyncHandler(async (req, res) => {
-  // get user from request
-  // remove refresh token from database
   // clear cookies
+  // remove refresh token from database
+  const user = req.user;
 
-  await User.findByIdAndUpdate(
-    req.user._id,
-    {
-      $unset: {
-        refreshToken: 1,
-      },
-    },
-    {
-      new: true,
-    }
-  );
+  user.refreshToken = undefined;
 
-  const options = {
-    httpOnly: true,
-    secure: true,
-  };
+  await user.save({
+    validateBeforeSave: false,
+  });
 
   return res
     .status(200)
-    .clearCookie("accessToken", options)
-    .clearCookie("refreshToken", options)
-    .json(new ApiResponse(200, {}, "User logged out successfully"));
+    .clearCookie("refreshToken", COOKIE_CONFIG)
+    .json(
+      new ApiResponse({
+        statusCode: 200,
+        data: {},
+        message: "User logged out successfully",
+      })
+    );
 });
 
 const getCurrentUser = asyncHandler(async (req, res) => {
+  // remove password and refreshtoken field from response
+  const responseUser = {
+    ...req.user._doc,
+    password: undefined,
+    refreshToken: undefined,
+  };
+
   return res.status(200).json(
-    new ApiResponse(
-      200,
-      {
-        user: req.user,
-      },
-      "User details fetched successfully"
-    )
+    new ApiResponse({
+      statusCode: 200,
+      data: responseUser,
+      message: "User details fetched successfully",
+    })
   );
 });
 
 const updateAvatar = asyncHandler(async (req, res) => {
   // check for avatar
-  // get user from request
-  // upload it on cloudinary
-  // update user avatar
-  // return response
-
-  const avatarLocalPath = req.files?.avatar[0]?.path;
+  const avatarLocalPath = req?.files?.avatar[0]?.path;
 
   if (!avatarLocalPath) {
     throw new ApiError(400, "Avatar file is required");
   }
 
+  // upload it on cloudinary
   const avatar = await uploadOnCloudinary(avatarLocalPath);
 
   if (!avatar) {
     throw new ApiError(500, "Avatar upload failed");
   }
 
-  const user = await User.findByIdAndUpdate(
-    req.user._id,
-    {
-      $set: {
-        avatar: avatar.url,
-      },
-    },
-    {
-      new: true,
-    }
-  ).select("-password --refreshToken");
+  // update user avatar
+  const user = req?.user;
+  user.avatar = avatar.url;
 
-  return res
-    .status(200)
-    .json(new ApiResponse(200, user, "Avatar updated successfully"));
+  await user.save();
+
+  const responseUser = {
+    ...user._doc,
+    password: undefined,
+    refreshToken: undefined,
+  };
+
+  // return response
+  return res.status(200).json(
+    new ApiResponse({
+      statusCode: 200,
+      data: responseUser,
+      message: "Avatar updated successfully",
+    })
+  );
 });
 
 const updateBio = asyncHandler(async (req, res) => {
   // get bio from frontend
-  // get user from request
-  // update user bio
-  // return response
-
   const { bio } = req.body;
 
   if (!bio) {
     throw new ApiError(400, "Bio is required");
   }
 
-  const user = await User.findByIdAndUpdate(
-    req.user._id,
-    {
-      $set: {
-        bio,
-      },
-    },
-    {
-      new: true,
-    }
-  ).select("-password --refreshToken");
+  // get user from request and update user bio
+  const user = req?.user;
+  user.bio = bio;
+  await user.save();
 
-  return res
-    .status(200)
-    .json(new ApiResponse(200, user, "Bio updated successfully"));
+  const responseUser = {
+    ...user._doc,
+    password: undefined,
+    refreshToken: undefined,
+  };
+
+  // return response
+  return res.status(200).json(
+    new ApiResponse({
+      statusCode: 200,
+      data: responseUser,
+      message: "Bio updated successfully",
+    })
+  );
 });
 
 const makeBlogFavorite = asyncHandler(async (req, res) => {
@@ -306,7 +305,10 @@ const renewAccessToken = asyncHandler(async (req, res) => {
   }
 
   // decode refresh token
-  const decodedToken = jwt.verify(refreshToken, process.env.JWT_SECRET);
+  const decodedToken = jwt.verify(
+    refreshToken,
+    process.env.REFRESH_TOKEN_SECRET
+  );
 
   // find user by id
   const user = await User.findById(decodedToken._id);
@@ -363,18 +365,37 @@ const forgotPassword = asyncHandler(async (req, res) => {
   // generate reset token
   const resetToken = await user.generateResetPasswordToken();
 
-  // send email with reset token
-  const resetUrl = `${req.protocol}://${req.get(
-    "host"
-  )}/api/v1/user/reset-password/${resetToken}`;
+  // save reset token and expiry in db
+  user.resetPasswordToken = resetToken;
+  await user.save({
+    validateBeforeSave: false,
+  });
 
-  const message = `Forgot your password? Submit a PATCH request with your new password and passwordConfirm to: ${resetUrl}.\nIf you didn't forget your password, please ignore this email!`;
+  // send email with reset token
+  const resetUrl = `${process.env.FRONTEND_URL}:${process.env.FRONTEND_PORT}/reset-password/${resetToken}`;
+
+  const htmlContent = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px; background-color: #f9f9f9;">
+      <h2 style="text-align: center; color: #333;">Password Reset Request</h2>
+      <p>Hi <b>${user.name || "User"}</b>,</p>
+      <p>You requested to reset your password. Click the button below to reset it:</p>
+      <div style="text-align: center;">
+        <a href="${resetUrl}" 
+           style="display: inline-block; padding: 12px 20px; font-size: 16px; color: #fff; background-color: #007bff; text-decoration: none; border-radius: 5px;">
+          Reset Password
+        </a>
+      </div>
+      <p>If you didn’t request a password reset, please ignore this email.</p>
+      <p>Thanks, <br/> <b>BlogHorizon Team</b></p>
+    </div>
+  `;
 
   try {
     await sendMail({
       to: user.email,
-      subject: "Reset password of your blogHorizon account",
-      content: message,
+      subject: "Reset Password - BlogHorizon",
+      content: htmlContent,
+      isHtml: true,
     });
     // return response
     return res.status(200).json(
@@ -403,9 +424,14 @@ const resetPassword = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Reset token is required");
   }
 
+  const hashedToken = crypto
+    .createHash("sha256")
+    .update(resetToken)
+    .digest("hex");
+
   // get user from reset token and check expiry
   const user = await User.findOne({
-    resetPasswordToken: resetToken,
+    resetPasswordToken: hashedToken,
     resetPasswordTokenExpiry: { $gt: Date.now() },
   });
 
