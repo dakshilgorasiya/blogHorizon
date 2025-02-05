@@ -2,8 +2,12 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 
+// express app
 const app = express();
 
+// middlewares
+
+// to allow cross origin requests
 app.use(
   cors({
     origin: process.env.CORS_ORIGIN,
@@ -11,12 +15,14 @@ app.use(
   })
 );
 
+// to parse json data in the request body
 app.use(
   express.json({
     limit: "16kb",
   })
 );
 
+// to parse form data in the request body
 app.use(
   express.urlencoded({
     extended: true,
@@ -24,8 +30,10 @@ app.use(
   })
 );
 
+// to serve static files
 app.use(express.static("public"));
 
+// to parse cookies in the request headers
 app.use(cookieParser());
 
 // route imports
@@ -37,11 +45,11 @@ import commentRouter from "./routes/comment.routes.js";
 import likeRouter from "./routes/like.routes.js";
 
 // routes declarations
-app.use("/api/v1/users", userRouter);
-app.use("/api/v1/blogs", blogRouter);
-app.use("/api/v1/reports", reportRouter);
-app.use("/api/v1/follows", followRouter);
-app.use("/api/v1/comments", commentRouter);
-app.use("/api/v1/likes", likeRouter);
+app.use("/api/v1/user", userRouter);
+app.use("/api/v1/blog", blogRouter);
+app.use("/api/v1/report", reportRouter);
+app.use("/api/v1/follow", followRouter);
+app.use("/api/v1/comment", commentRouter);
+app.use("/api/v1/like", likeRouter);
 
 export { app };

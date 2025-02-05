@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 
+//* Define the schema for the follow model
 const followSchema = new mongoose.Schema(
   {
     followedBy: {

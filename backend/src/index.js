@@ -3,6 +3,7 @@ import { app } from "./app.js";
 import connectDB from "./db/index.js";
 dotenv.config({ path: "./.env" });
 
+// connect to the database and start the server
 connectDB()
   .then(() => {
     app.listen(process.env.PORT || 8000, () => {

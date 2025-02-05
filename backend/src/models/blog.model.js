@@ -1,6 +1,8 @@
 import mongoose from "mongoose";
-import aggregatePaginate  from "mongoose-aggregate-paginate-v2";
+import aggregatePaginate from "mongoose-aggregate-paginate-v2";
+import { BLOG_CATEGORY } from "../constants.js";
 
+//* Define the schema for the blog model
 const blogSchema = new mongoose.Schema(
   {
     title: {
@@ -12,39 +14,35 @@ const blogSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
+    // cloudinary url
     thumbnail: {
       type: String,
       required: true,
     },
+    // markup for the blog
     markup: [
       {
         type: String,
       },
     ],
+    // cloudinary urls
     photos: [
       {
-        type: String, // cloudinary url
+        type: String,
       },
     ],
+    // category of the blog
     category: {
       type: String,
       required: true,
-      enum: [
-        // TODO: add more categories
-        "Technology",
-        "Business",
-        "Health",
-        "Entertainment",
-        "Science",
-        "Sports",
-        "Education",
-        "Lifestyle",
-      ],
+      enum: BLOG_CATEGORY,
     },
+    // number of users read the blog
     view: {
       type: Number,
       default: 0,
     },
+    // hashtags for the blog
     tag: [
       {
         type: String,
@@ -55,6 +53,7 @@ const blogSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// Add pagination plugin to the schema to enable pagination
 blogSchema.plugin(aggregatePaginate);
 
 export const Blog = mongoose.model("Blog", blogSchema);
