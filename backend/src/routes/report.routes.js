@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { verifyJWT } from "../middlewares/auth.middleware.js";
+import { verifyAccessToken } from "../middlewares/auth.middleware.js";
 import {
   createReport,
   getReports,
@@ -8,10 +8,10 @@ import {
 
 const router = Router();
 
-router.route("/createReport").post(verifyJWT, createReport);
+// router.route("/createReport").post(verifyJWT, createReport);
 
-router.route("/getReports").get(verifyJWT, getReports);
+// router.route("/getReports").get(verifyJWT, getReports);
 
-router.route("/markReportAsResolved").post(verifyJWT, markReportAsResolved);
+// router.route("/markReportAsResolved").post(verifyJWT, markReportAsResolved);
 
 export default router;

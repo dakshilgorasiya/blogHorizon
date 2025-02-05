@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { generateHash } from "../utils/generateHash.js";
+import crypto from "crypto";
 
 //* Define the schema for the user model
 const userSchema = new mongoose.Schema(
@@ -45,6 +46,14 @@ const userSchema = new mongoose.Schema(
         ref: "Blog",
       },
     ],
+    interests: {
+      type: [String],
+      validate: {
+        validator: (v) => v && v.length >= 3,
+        message: "At least 3 interests are required",
+      },
+      required: true,
+    },
     bio: {
       type: String,
       default: "",
@@ -60,6 +69,12 @@ const userSchema = new mongoose.Schema(
     // refresh token to generate new access token
     refreshToken: {
       type: String,
+    },
+    resetPasswordToken: {
+      type: String,
+    },
+    resetPasswordTokenExpiry: {
+      type: Date,
     },
   },
   { timestamps: true }
@@ -86,6 +101,12 @@ userSchema.methods.isPasswordCorrect = async function (password) {
   return await bcrypt.compare(password, this.password);
 };
 
+// Method to comare refreshToken
+userSchema.methods.compareRefreshToken = function (refreshToken) {
+  const hash = generateHash(refreshToken);
+  return this.refreshToken === hash;
+}
+
 // Method to generate access token
 userSchema.methods.generateAccessToken = function () {
   return jwt.sign(
@@ -110,6 +131,18 @@ userSchema.methods.generateRefreshToken = function () {
       expiresIn: process.env.REFRESH_TOKEN_EXPIRY,
     }
   );
+};
+
+// Method to generate resetPasswordToken and resetPasswordTokenExpiry
+userSchema.methods.generateResetPasswordToken = async function () {
+  const resetToken = crypto.randomBytes(32).toString("hex");
+  this.resetPasswordToken = crypto
+    .createHash("sha256")
+    .update(resetToken)
+    .digest("hex");
+  this.resetPasswordTokenExpiry = Date.now() + 10 * 60 * 1000;
+  await this.save({ validateBeforeSave: false });
+  return resetToken;
 };
 
 export const User = mongoose.model("User", userSchema);

@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import { ApiError } from "./utils/ApiError.js";
 
 // express app
 const app = express();
@@ -51,5 +52,13 @@ app.use("/api/v1/report", reportRouter);
 app.use("/api/v1/follow", followRouter);
 app.use("/api/v1/comment", commentRouter);
 app.use("/api/v1/like", likeRouter);
+
+// error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  return res
+    .status(err.statusCode || 500)
+    .json(new ApiError(err.statusCode, err.message));
+});
 
 export { app };
