@@ -5,6 +5,7 @@ import { Blog } from "../models/blog.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import mongoose from "mongoose";
 import { User } from "../models/user.model.js";
+import { BLOG_CATEGORY } from "../constants.js";
 
 const createBlog = asyncHandler(async (req, res) => {
   // check if the user is logged in
@@ -674,6 +675,16 @@ const getHistoryBlogs = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, history, "History blogs fetched successfully"));
 });
 
+const getInterests = asyncHandler(async (req, res) => {
+  return res.status(200).json(
+    new ApiResponse({
+      statusCode: 200,
+      data: BLOG_CATEGORY,
+      message: "Interests fetched successfully",
+    })
+  );
+});
+
 export {
   createBlog,
   getAllBlogs,
@@ -683,4 +694,5 @@ export {
   deleteBlog,
   getFavoriteBlogs,
   getHistoryBlogs,
+  getInterests,
 };

@@ -8,6 +8,7 @@ import {
   deleteBlog,
   getFavoriteBlogs,
   getHistoryBlogs,
+  getInterests,
 } from "../controllers/blog.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
 import { verifyAccessToken } from "../middlewares/auth.middleware.js";
@@ -55,5 +56,7 @@ const router = Router();
 // router.route("/getFavoriteBlogs").get(verifyJWT, getFavoriteBlogs);
 
 // router.route("/getHistoryBlogs").get(verifyJWT, getHistoryBlogs);
+
+router.route("/getInterests").get(getInterests);
 
 export default router;

@@ -14,6 +14,21 @@ export const BLOG_CATEGORY = [
   "Sports",
   "Education",
   "Lifestyle",
+  "Travel",
+  "Food & Cooking",
+  "Finance & Investing",
+  "Parenting",
+  "Relationships & Dating",
+  "Personal Development",
+  "Career & Jobs",
+  "Fashion & Beauty",
+  "Environment & Sustainability",
+  "Photography",
+  "Gaming",
+  "History",
+  "Psychology & Mental Health",
+  "DIY & Crafts",
+  "Automobiles & Vehicles",
 ];
 
 export const COOKIE_CONFIG = {
