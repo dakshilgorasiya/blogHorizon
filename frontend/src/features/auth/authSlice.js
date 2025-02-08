@@ -15,6 +15,7 @@ const authSlice = createSlice({
       // login
       .addCase(login.pending, (state, action) => {
         state.loading = true;
+        state.error = null;
       })
       .addCase(login.fulfilled, (state, action) => {
         state.loading = false;
@@ -29,6 +30,7 @@ const authSlice = createSlice({
       // logout
       .addCase(logout.pending, (state, action) => {
         state.loading = true;
+        state.error = null;
       })
       .addCase(logout.fulfilled, (state, action) => {
         state.loading = false;
@@ -43,6 +45,7 @@ const authSlice = createSlice({
       // register
       .addCase(register.pending, (state, action) => {
         state.loading = true;
+        state.error = null;
       })
       .addCase(register.fulfilled, (state, action) => {
         state.loading = false;

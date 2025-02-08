@@ -15,13 +15,51 @@ function Register() {
 
   const [avatarPreview, setAvatarPreview] = useState(null);
 
-  const error = useSelector((state) => state.auth.error);
+  const [passwordFormat, setPasswordFormat] = useState({
+    hasNumber: false,
+    hasUpperCase: false,
+    hasLowerCase: false,
+    hasSpecialChar: false,
+    hasLength: false,
+  });
+
+  const [passwordMatch, setPasswordMatch] = useState(true);
+
+  const [error, setError] = useState(null);
+
+  const apiError = useSelector((state) => state.auth.error);
 
   const loading = useSelector((state) => state.auth.loading);
 
   const interests = useSelector((state) => state.constants.interests);
 
   const dispatch = useDispatch();
+
+  const handlePasswordChange = (e) => {
+    const password = e.target.value;
+    const hasNumber = /\d/.test(password);
+    const hasUpperCase = /[A-Z]/.test(password);
+    const hasLowerCase = /[a-z]/.test(password);
+    const hasSpecialChar = /[^A-Za-z0-9]/.test(password);
+    const hasLength = password.length >= 8;
+
+    setPasswordFormat({
+      hasNumber,
+      hasUpperCase,
+      hasLowerCase,
+      hasSpecialChar,
+      hasLength,
+    });
+  };
+
+  const handleConfirmPasswordChange = (e) => {
+    const confirmPassword = e.target.value;
+    const password = formData.password;
+    setPasswordMatch(confirmPassword === password);
+    if (confirmPassword == "") {
+      setPasswordMatch(true);
+    }
+  };
 
   const handleChange = (e) => {
     setFormData({
@@ -57,6 +95,24 @@ function Register() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    if (!passwordMatch) {
+      setError("Passwords do not match");
+      return;
+    }
+
+    if (
+      formData.userName == "" ||
+      formData.email == "" ||
+      formData.password == "" ||
+      formData.confirmPassword == "" ||
+      formData.avatar == null ||
+      formData.interests.length == 0
+    ) {
+      setError("All fields are required");
+      return;
+    }
+
     const data = new FormData();
     for (const key in formData) {
       data.append(key, formData[key]);
@@ -108,11 +164,69 @@ function Register() {
                   type="password"
                   name="password"
                   className="border border-gray-600 rounded-lg block box-border w-full p-1 px-3 hover:border-gray-800 hover:border-2"
-                  onChange={handleChange}
+                  onChange={(e) => {
+                    handleChange(e);
+                    handlePasswordChange(e);
+                  }}
                 />
+
+                <div className="flex items-center gap-2 mt-2">
+                  <ul className="list-disc list-inside ml-6">
+                    <li
+                      className={`text-sm ${
+                        passwordFormat.hasLength
+                          ? "hidden"
+                          : "marker: text-red-500"
+                      }`}
+                    >
+                      {" "}
+                      At least 8 characters long
+                    </li>
+                    <li
+                      className={`text-sm ${
+                        passwordFormat.hasUpperCase
+                          ? "hidden"
+                          : "marker: text-red-500"
+                      }`}
+                    >
+                      {" "}
+                      At least one uppercase letter
+                    </li>
+                    <li
+                      className={`text-sm ${
+                        passwordFormat.hasLowerCase
+                          ? "hidden"
+                          : "marker: text-red-500"
+                      }`}
+                    >
+                      {" "}
+                      At least one lowercase letter
+                    </li>
+                    <li
+                      className={`text-sm ${
+                        passwordFormat.hasNumber
+                          ? "hidden"
+                          : "marker: text-red-500"
+                      }`}
+                    >
+                      {" "}
+                      At least one number
+                    </li>
+                    <li
+                      className={`text-sm ${
+                        passwordFormat.hasSpecialChar
+                          ? "hidden"
+                          : "marker: text-red-500"
+                      }`}
+                    >
+                      {" "}
+                      At least one special character
+                    </li>
+                  </ul>
+                </div>
               </div>
 
-              <div className="mb-4 box-border">
+              <div className="mb-4 mt-8 box-border">
                 <label
                   className="text-lg inline-block"
                   htmlFor="confirmPassword"
@@ -124,8 +238,23 @@ function Register() {
                   type="password"
                   name="confirmPassword"
                   className="border border-gray-600 rounded-lg block box-border w-full p-1 px-3 hover:border-gray-800 hover:border-2"
-                  onChange={handleChange}
+                  onChange={(e) => {
+                    handleChange(e);
+                    handleConfirmPasswordChange(e);
+                  }}
                 />
+
+                <div className="flex items-center gap-2 mt-2">
+                  <ul className="list-item list-inside ml-6">
+                    <li
+                      className={`text-sm ${
+                        passwordMatch ? "hidden" : "marker: text-red-500"
+                      }`}
+                    >
+                      Confirm password should match password
+                    </li>
+                  </ul>
+                </div>
               </div>
 
               <div className="mb-4 box-border">
@@ -188,13 +317,19 @@ function Register() {
                 </ul>
               </div>
 
-              <div className="flex justify-center my-10">
-                {error && (
-                  <p className="text-red-500 font-medium text-md">{error}</p>
-                )}
-              </div>
+              {!error && apiError && (
+                <div className="flex justify-center my-10">
+                  <p className="text-red-500 font-medium text-md">{apiError}</p>
+                </div>
+              )}
 
-              <div className="flex justify-center mb-10">
+              {error && (
+                <div className="flex justify-center mt-10">
+                  <p className="text-red-500 font-medium text-md">{error}</p>
+                </div>
+              )}
+
+              <div className="flex justify-center mt-14 mb-10">
                 {loading ? (
                   <button
                     className="bg-gray-800 hover:bg-highlight text-white font-bold py-2 px-4 rounded-lg shadow-md"

@@ -14,6 +14,7 @@ const constantsSlice = createSlice({
     builder
       .addCase(getInterests.pending, (state, action) => {
         state.loading = true;
+        state.error = null;
       })
       .addCase(getInterests.fulfilled, (state, action) => {
         state.loading = false;

@@ -13,7 +13,6 @@ import fs from "fs";
 //* controller for user registration
 const registerUser = asyncHandler(async (req, res) => {
   // get user details from frontend
-  console.log("Request Body", req.body);
 
   const { userName, email, password, bio = "", interests } = req.body;
 
@@ -21,14 +20,16 @@ const registerUser = asyncHandler(async (req, res) => {
 
   // validation - not empty
   if (!userName || !email || !password || interestsList.length === 0) {
-    if (req?.files?.avatar[0]?.path) fs.unlinkSync(req?.files?.avatar[0]?.path);
+    if (req?.files && req?.files?.avatar && req?.files?.avatar[0]?.path)
+      fs.unlinkSync(req?.files?.avatar[0]?.path);
+
     throw new ApiError(400, "All fields are required");
   }
 
   // check for valid categories
   for (let interest of interestsList) {
     if (!BLOG_CATEGORY.includes(interest)) {
-      if (req?.files?.avatar[0]?.path)
+      if (req?.files && req?.files?.avatar && req?.files?.avatar[0]?.path)
         fs.unlinkSync(req?.files?.avatar[0]?.path);
       throw new ApiError(400, "Invalid interest category");
     }
@@ -36,7 +37,8 @@ const registerUser = asyncHandler(async (req, res) => {
 
   // check for minimum 3 interests
   if (interestsList.length < 3) {
-    if (req?.files?.avatar[0]?.path) fs.unlinkSync(req?.files?.avatar[0]?.path);
+    if (req?.files && req?.files?.avatar && req?.files?.avatar[0]?.path)
+      fs.unlinkSync(req?.files?.avatar[0]?.path);
     throw new ApiError(400, "At least 3 interests are required");
   }
 
@@ -46,7 +48,8 @@ const registerUser = asyncHandler(async (req, res) => {
   });
 
   if (existedUser) {
-    if (req?.files?.avatar[0]?.path) fs.unlinkSync(req?.files?.avatar[0]?.path);
+    if (req?.files && req?.files?.avatar && req?.files?.avatar[0]?.path)
+      fs.unlinkSync(req?.files?.avatar[0]?.path);
     throw new ApiError(409, "User already exists");
   }
 
