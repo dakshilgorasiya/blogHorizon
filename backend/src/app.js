@@ -2,7 +2,8 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import { ApiError } from "./utils/ApiError.js";
-import { logger } from "./utils/logger.js"
+import { ApiResponse } from "./utils/ApiResponse.js";
+import { logger } from "./utils/logger.js";
 
 // express app
 const app = express();
@@ -41,14 +42,13 @@ app.use(cookieParser());
 // Middleware to log each request
 app.use((req, res, next) => {
   logger.info({
-      message: 'Incoming request',
-      method: req.method,
-      url: req.originalUrl,
-      ip: req.ip
+    message: "Incoming request",
+    method: req.method,
+    url: req.originalUrl,
+    ip: req.ip,
   });
   next();
 });
-
 
 // route imports
 import userRouter from "./routes/user.routes.js";
@@ -69,13 +69,19 @@ app.use("/api/v1/like", likeRouter);
 // Error handling middleware
 app.use((err, req, res, next) => {
   logger.error({
-      message: err.message,
-      status: err.status || 500,
-      stack: err.stack
+    message: err.message,
+    status: err.statusCode || 500,
+    stack: err.stack,
   });
 
-  res.status(err.status || 500).json({ error: err.message });
+  res.status(err.statusCode || 500).json(
+    new ApiResponse({
+      statusCode: err.statusCode || 500,
+      message: err.message,
+      data: null,
+      success: false,
+    })
+  );
 });
-
 
 export { app };

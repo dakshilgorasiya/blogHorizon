@@ -149,16 +149,30 @@ const loginUser = asyncHandler(async (req, res) => {
 });
 
 const logoutUser = asyncHandler(async (req, res) => {
-  // clear cookies
-  // remove refresh token from database
-  const user = req.user;
+  // get refresh token from cookie
+  const refreshToken = req?.cookies?.refreshToken;
+
+  if (!refreshToken) {
+    throw new ApiError(401, "Refresh token not found");
+  }
+
+  // find user by id
+
+  const decodedToken = jwt.verify(
+    refreshToken,
+    process.env.REFRESH_TOKEN_SECRET
+  );
+
+  const user = await User.findById(decodedToken._id);
 
   user.refreshToken = undefined;
 
+  // remove refresh token from database
   await user.save({
     validateBeforeSave: false,
   });
 
+  // clear cookies
   return res
     .status(200)
     .clearCookie("refreshToken", COOKIE_CONFIG)

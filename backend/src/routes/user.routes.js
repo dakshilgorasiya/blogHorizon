@@ -34,8 +34,8 @@ router.route("/forgot-password").post(forgotPassword);
 
 router.route("/reset-password/:resetToken").post(resetPassword);
 
+router.route("/logout").post(logoutUser);
 // secure route
-router.route("/logout").post(verifyAccessToken, logoutUser);
 
 router.route("/current-user").get(verifyAccessToken, getCurrentUser);
 

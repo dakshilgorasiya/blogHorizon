@@ -1,16 +1,25 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { Login, Register } from "./components";
+import { useDispatch, useSelector } from "react-redux";
+import { logout } from "./features/auth/authReducers.js";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const dispatch = useDispatch();
 
   return (
     <>
-      <h1>Hii</h1>
+      <div className="p-0 m-0">
+        <Login />
+      </div>
+      <button
+        onClick={(e) => {
+          e.preventDefault();
+          dispatch(logout());
+        }}
+      >
+        Logout
+      </button>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
