@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { login } from "../../features/auth/authReducers.js";
+import { Link } from "react-router-dom";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -26,8 +27,11 @@ function Login() {
           <div className="mt-20 p-3">
             <form onSubmit={handleSubmit}>
               <div className="mb-8">
-                <label className="text-lg block">Email</label>
+                <label className="text-lg inline-block" htmlFor="email">
+                  Email
+                </label>
                 <input
+                  id="email"
                   type="email"
                   className="border border-gray-600 rounded-lg block box-border w-full p-1 px-3 hover:border-gray-800 hover:border-2"
                   onChange={(e) => {
@@ -37,8 +41,11 @@ function Login() {
               </div>
 
               <div className="mb-4 box-border">
-                <label className="text-lg block">Password</label>
+                <label className="text-lg inline-block" htmlFor="password">
+                  Password
+                </label>
                 <input
+                  id="password"
                   type="password"
                   className="border border-gray-600 rounded-lg block box-border w-full p-1 px-3 hover:border-gray-800 hover:border-2"
                   onChange={(e) => {
@@ -69,6 +76,15 @@ function Login() {
                     Login
                   </button>
                 )}
+              </div>
+
+              <div className="flex justify-center">
+                <p>
+                  Don't have an account?{" "}
+                  <Link to="/register" className="text-highlight">
+                    Register here
+                  </Link>
+                </p>
               </div>
             </form>
           </div>

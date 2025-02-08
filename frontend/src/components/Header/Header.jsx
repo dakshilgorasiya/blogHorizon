@@ -1,0 +1,37 @@
+import React from "react";
+import { Link } from "react-router-dom";
+import {useDispatch} from "react-redux"; 
+import {logout} from "../../features/auth/authReducers.js"
+
+function Header() {
+  const dispatch = useDispatch();
+  return (
+    <>
+      <Link to="/login">
+        <button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700 mx-5">
+          Login
+        </button>
+      </Link>
+      <Link to="/register">
+        <button className="bg-blue-500 text-white px-4 py-2 mx-5 rounded hover:bg-blue-700">
+          Register
+        </button>
+      </Link>
+      <Link to="/forgot-password">
+        <button className="bg-blue-500 text-white px-4 py-2 mx-5 rounded hover:bg-blue-700">
+          Forgot Password
+        </button>
+      </Link>
+      <Link to="/reset-password/1245">
+        <button className="bg-blue-500 text-white px-4 py-2 mx-5 rounded hover:bg-blue-700">
+          Reset Password
+        </button>
+      </Link>
+      <button className="bg-blue-500 text-white px-4 py-2 mx-5 rounded hover:bg-blue-700" onClick={() => dispatch(logout())}>
+        Logout
+        </button>
+    </>
+  );
+}
+
+export default Header;

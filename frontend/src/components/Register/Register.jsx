@@ -1,6 +1,8 @@
-import React, { useState, useId } from "react";
+import React, { useState, useId, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { register } from "../../features/auth/authReducers.js";
+import { getInterests } from "../../features/constants/constantsReducers.js";
+import { Link } from "react-router-dom";
 
 function Register() {
   const [formData, setFormData] = useState({
@@ -27,13 +29,31 @@ function Register() {
 
   const [error, setError] = useState(null);
 
-  const apiError = useSelector((state) => state.auth.error);
+  const authError = useSelector((state) => state.auth.error);
+
+  const interestsError = useSelector((state) => state.constants.error);
 
   const loading = useSelector((state) => state.auth.loading);
 
   const interests = useSelector((state) => state.constants.interests);
 
+  const interestsLoading = useSelector((state) => state.constants.loading);
+
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (interests.length === 0) {
+      dispatch(getInterests());
+    }
+  }, []);
+
+  useEffect(() => {
+    if (authError) {
+      setError(authError);
+    } else if (interestsError) {
+      setError(interestsError);
+    }
+  }, [authError, interestsError]);
 
   const handlePasswordChange = (e) => {
     const password = e.target.value;
@@ -95,6 +115,19 @@ function Register() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    if (
+      !passwordFormat.hasNumber ||
+      !passwordFormat.hasUpperCase ||
+      !passwordFormat.hasLowerCase ||
+      !passwordFormat.hasSpecialChar ||
+      !passwordFormat.hasLength
+    ) {
+      setError(
+        "Password is not strong enough."
+      );
+      return;
+    }
 
     if (!passwordMatch) {
       setError("Passwords do not match");
@@ -315,13 +348,14 @@ function Register() {
                     </li>
                   ))}
                 </ul>
+                {interestsLoading && (
+                  <div className="flex justify-center mt-4">
+                    <p className="text-gray-600 font-medium text-md">
+                      Loading interests...
+                    </p>
+                  </div>
+                )}
               </div>
-
-              {!error && apiError && (
-                <div className="flex justify-center my-10">
-                  <p className="text-red-500 font-medium text-md">{apiError}</p>
-                </div>
-              )}
 
               {error && (
                 <div className="flex justify-center mt-10">
@@ -329,7 +363,7 @@ function Register() {
                 </div>
               )}
 
-              <div className="flex justify-center mt-14 mb-10">
+              <div className="flex justify-center my-8">
                 {loading ? (
                   <button
                     className="bg-gray-800 hover:bg-highlight text-white font-bold py-2 px-4 rounded-lg shadow-md"
@@ -345,6 +379,15 @@ function Register() {
                     Register
                   </button>
                 )}
+              </div>
+
+              <div className="flex justify-center">
+                <p>
+                  Already have an account?{" "}
+                  <Link to="/login" className="text-highlight">
+                    Login here
+                  </Link>
+                </p>
               </div>
             </form>
           </div>

@@ -465,13 +465,13 @@ const resetPassword = asyncHandler(async (req, res) => {
   }
 
   // update password
-  const { password, passwordConfirm } = req?.body;
+  const { password, confirmPassword } = req?.body;
 
-  if (!password && !passwordConfirm) {
+  if (!password && !confirmPassword) {
     throw new ApiError(400, "Password and passwordConfirm are required");
   }
 
-  if (password !== passwordConfirm) {
+  if (password !== confirmPassword) {
     throw new ApiError(400, "Password and passwordConfirm do not match");
   }
 

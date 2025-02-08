@@ -13,17 +13,7 @@ function App() {
 
   return (
     <>
-      <div className="p-0 m-0">
-        <Register />
-      </div>
-      {/* <button
-        onClick={(e) => {
-          e.preventDefault();
-          dispatch(logout());
-        }}
-      >
-        Logout
-      </button> */}
+      HOME
     </>
   );
 }
