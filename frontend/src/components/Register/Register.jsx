@@ -1,6 +1,6 @@
 import React, { useState, useId, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { register } from "../../features/auth/authReducers.js";
+import { register, verifyOtp } from "../../features/auth/authReducers.js";
 import { getInterests } from "../../features/constants/constantsReducers.js";
 import { Link } from "react-router-dom";
 
@@ -29,6 +29,10 @@ function Register() {
 
   const [error, setError] = useState(null);
 
+  const [otp, setOtp] = useState("");
+
+  const [otpSent, setOtpSent] = useState(false);
+
   const authError = useSelector((state) => state.auth.error);
 
   const interestsError = useSelector((state) => state.constants.error);
@@ -38,6 +42,8 @@ function Register() {
   const interests = useSelector((state) => state.constants.interests);
 
   const interestsLoading = useSelector((state) => state.constants.loading);
+
+  const user = useSelector((state) => state.auth.user);
 
   const dispatch = useDispatch();
 
@@ -54,6 +60,12 @@ function Register() {
       setError(interestsError);
     }
   }, [authError, interestsError]);
+
+  useEffect(() => {
+    if (user) {
+      setOtpSent(true);
+    }
+  }, [user]);
 
   const handlePasswordChange = (e) => {
     const password = e.target.value;
@@ -113,8 +125,19 @@ function Register() {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSendOtp = (e) => {
     e.preventDefault();
+
+    if (
+      formData.userName == "" ||
+      formData.email == "" ||
+      formData.password == "" ||
+      formData.confirmPassword == "" ||
+      formData.avatar == null
+    ) {
+      setError("All fields are required");
+      return;
+    }
 
     if (
       !passwordFormat.hasNumber ||
@@ -123,9 +146,7 @@ function Register() {
       !passwordFormat.hasSpecialChar ||
       !passwordFormat.hasLength
     ) {
-      setError(
-        "Password is not strong enough."
-      );
+      setError("Password is not strong enough.");
       return;
     }
 
@@ -134,15 +155,8 @@ function Register() {
       return;
     }
 
-    if (
-      formData.userName == "" ||
-      formData.email == "" ||
-      formData.password == "" ||
-      formData.confirmPassword == "" ||
-      formData.avatar == null ||
-      formData.interests.length == 0
-    ) {
-      setError("All fields are required");
+    if (formData.interests.length < 3) {
+      setError("Please select at three one interest");
       return;
     }
 
@@ -152,6 +166,17 @@ function Register() {
     }
     data.delete("confirmPassword");
     dispatch(register(data));
+    setError(null);
+  };
+
+  const handleOtpChange = (e) => {
+    setOtp(e.target.value);
+  };
+
+  const handleOtpSubmit = (e) => {
+    e.preventDefault();
+    dispatch(verifyOtp({ otp: otp, email: formData.email }));
+    setError(null);
   };
 
   return (
@@ -161,7 +186,7 @@ function Register() {
           <h1 className="text-4xl text-center font-extrabold mt-8">Register</h1>
 
           <div className="mt-20 p-3">
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSendOtp}>
               <div className="mb-8">
                 <label className="text-lg inline-block" htmlFor="userName">
                   Username
@@ -357,29 +382,85 @@ function Register() {
                 )}
               </div>
 
+              {otpSent && (
+                <div className="flex justify-center my-8">
+                  <p className="text-green-600 font-medium text-md text-center">
+                    Your account has been created. Please enter the OTP sent to
+                    your email.
+                  </p>
+                </div>
+              )}
+
+              {otpSent && (
+                <div className="mb-4 box-border">
+                  <label className="text-lg inline-block" htmlFor="otp">
+                    OTP
+                  </label>
+                  <input
+                    id="otp"
+                    type="text"
+                    name="otp"
+                    className="border border-gray-600 rounded-lg block box-border w-full p-1 px-3 hover:border-gray-800 hover:border-2"
+                    onChange={handleOtpChange}
+                  />
+                </div>
+              )}
+
               {error && (
                 <div className="flex justify-center mt-10">
                   <p className="text-red-500 font-medium text-md">{error}</p>
                 </div>
               )}
 
-              <div className="flex justify-center my-8">
-                {loading ? (
-                  <button
-                    className="bg-gray-800 hover:bg-highlight text-white font-bold py-2 px-4 rounded-lg shadow-md"
-                    disabled
-                  >
-                    Loading...
-                  </button>
-                ) : (
-                  <button
-                    type="submit"
-                    className="bg-gray-800 hover:bg-highlight text-white font-bold py-2 px-4 rounded-lg shadow-md"
-                  >
-                    Register
-                  </button>
-                )}
-              </div>
+              {!otpSent && (
+                <div className="flex justify-center my-8">
+                  {loading ? (
+                    <button
+                      className="bg-gray-800 hover:bg-highlight text-white font-bold py-2 px-4 rounded-lg shadow-md"
+                      disabled
+                    >
+                      Loading...
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={(e) => handleSendOtp(e)}
+                      className="bg-gray-800 hover:bg-highlight text-white font-bold py-2 px-4 rounded-lg shadow-md"
+                    >
+                      Send OTP
+                    </button>
+                  )}
+                </div>
+              )}
+
+              {otpSent && (
+                <div className="flex justify-center my-8">
+                  {loading ? (
+                    <button
+                      className="bg-gray-800 hover:bg-highlight text-white font-bold py-2 px-4 rounded-lg shadow-md"
+                      disabled
+                    >
+                      Loading...
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={(e) => handleOtpSubmit(e)}
+                      className="bg-gray-800 hover:bg-highlight text-white font-bold py-2 px-4 rounded-lg shadow-md"
+                    >
+                      Verify OTP
+                    </button>
+                  )}
+                </div>
+              )}
+
+              {user.accessToken && (
+                <div className="flex justify-center my-8">
+                  <p className="text-green-600 font-medium text-md text-center">
+                    OTP verified successfully. Redirecting to home page...
+                  </p>
+                </div>
+              )}
 
               <div className="flex justify-center">
                 <p>

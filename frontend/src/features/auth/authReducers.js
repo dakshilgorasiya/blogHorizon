@@ -38,3 +38,16 @@ export const register = createAsyncThunk("auth/register", async (data) => {
     throw new Error(error.response?.data?.message || "Something went wrong");
   }
 });
+
+export const verifyOtp = createAsyncThunk("auth/verifyOtp", async (data) => {
+  try {
+    const response = await axios
+      .post(`${server}/user/verify-otp`, data, {
+        withCredentials: true,
+      })
+      .then((res) => res.data);
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || "Something went wrong");
+  }
+});

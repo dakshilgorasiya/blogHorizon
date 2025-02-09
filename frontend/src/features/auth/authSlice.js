@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { login, logout, register } from "./authReducers.js";
+import { login, logout, register, verifyOtp } from "./authReducers.js";
 
 const initialState = {
   user: null,
@@ -53,6 +53,21 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(register.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+
+      // verifyOtp
+      .addCase(verifyOtp.pending, (state, action) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(verifyOtp.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user.accessToken = action.payload.accessToken;
+        state.error = null;
+      })
+      .addCase(verifyOtp.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       });

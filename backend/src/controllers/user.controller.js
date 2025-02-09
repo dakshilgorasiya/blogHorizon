@@ -96,6 +96,8 @@ const registerUser = asyncHandler(async (req, res) => {
     </div>
 `;
 
+  console.log(otp);
+
   try {
     await sendMail({
       to: user.email,
@@ -117,15 +119,13 @@ const registerUser = asyncHandler(async (req, res) => {
   };
 
   // return response and save refreshToken in cookie
-  return res
-    .status(200)
-    .json(
-      new ApiResponse({
-        statusCode: 201,
-        data: responseUser,
-        message: "User registered successfully",
-      })
-    );
+  return res.status(200).json(
+    new ApiResponse({
+      statusCode: 201,
+      data: responseUser,
+      message: "User registered successfully",
+    })
+  );
 });
 
 const loginUser = asyncHandler(async (req, res) => {
@@ -601,7 +601,77 @@ const googleOauth = asyncHandler(async (req, res) => {
   }
 });
 
-const verifyOtp = asyncHandler(async (req, res) => {});
+const verifyOtp = asyncHandler(async (req, res) => {
+  // get email, otp from frontend
+  const { email, otp } = req.body;
+
+  if (!email || !otp) {
+    throw new ApiError(400, "Email and OTP are required");
+  }
+
+  // get user using email
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+
+  if(!user.otp) {
+    throw new ApiError(400, "OTP not generated");
+  }
+
+  if (user.otpAttempts === 0) {
+    throw new ApiError(400, "OTP attempts exceeded");
+  }
+
+  // check if otp matches
+  if (!user.compareOtp(otp)) {
+    user.otpAttempts -= 1;
+    await user.save({
+      validateBeforeSave: false,
+    });
+    throw new ApiError(400, "Invalid OTP");
+  }
+
+  // check if otp is expired
+  if (user.otpExpiry < Date.now()) {
+    user.otp = undefined;
+    user.otpAttempts = undefined;
+    user.otpExpiry = undefined;
+    await user.save();
+    throw new ApiError(400, "OTP expired");
+  }
+
+  // update emailVerified field
+  user.emailVerified = true;
+
+  // generate access token and refresh token
+  const accessToken = await user.generateAccessToken();
+  const refreshToken = await user.generateRefreshToken();
+  user.refreshToken = refreshToken;
+
+  // remove otp fields from user
+  user.otp = undefined;
+  user.otpAttempts = undefined;
+  user.otpExpiry = undefined;
+
+  // save user
+  await user.save();
+
+  // return response
+  return res
+    .status(200)
+    .cookie("refreshToken", refreshToken, COOKIE_CONFIG)
+    .json(
+      new ApiResponse({
+        statusCode: 200,
+        data: {
+          accessToken,
+        },
+        message: "OTP verified successfully",
+      })
+    );
+});
 
 export {
   registerUser,
@@ -615,4 +685,5 @@ export {
   forgotPassword,
   resetPassword,
   googleOauth,
+  verifyOtp,
 };
