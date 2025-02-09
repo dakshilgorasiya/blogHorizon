@@ -76,6 +76,24 @@ const userSchema = new mongoose.Schema(
     resetPasswordTokenExpiry: {
       type: Date,
     },
+    emailVerified: {
+      type: Boolean,
+      default: false,
+    },
+    profileCompleted: {
+      type: Boolean,
+      default: false,
+    },
+    otp: {
+      type: String,
+    },
+    otpExpiry: {
+      type: Date,
+    },
+    otpAttempts: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true }
 );
@@ -118,6 +136,21 @@ userSchema.pre("save", async function (next) {
   next();
 });
 
+// Middleware to hash otp before saving and set expiry
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("otp")) return next();
+
+  if (!this.otp) {
+    next();
+  }
+
+  this.otp = crypto.createHash("sha256").update(this.otp).digest("hex");
+
+  this.otpExpiry = Date.now() + 10 * 60 * 1000; // 10 minutes
+
+  next();
+});
+
 // Method to check if the password is correct
 userSchema.methods.isPasswordCorrect = async function (password) {
   return await bcrypt.compare(password, this.password);
@@ -127,6 +160,12 @@ userSchema.methods.isPasswordCorrect = async function (password) {
 userSchema.methods.compareRefreshToken = function (refreshToken) {
   const hash = crypto.createHash("sha256").update(refreshToken).digest("hex");
   return this.refreshToken === hash;
+};
+
+// Method to compare otp
+userSchema.methods.compareOtp = function (otp) {
+  const hash = crypto.createHash("sha256").update(otp).digest("hex");
+  return this.otp === hash;
 };
 
 // Method to generate access token
@@ -159,6 +198,12 @@ userSchema.methods.generateRefreshToken = function () {
 userSchema.methods.generateResetPasswordToken = async function () {
   const resetToken = crypto.randomBytes(32).toString("hex");
   return resetToken;
+};
+
+// Method to generate otp
+userSchema.methods.generateOtp = function () {
+  const otp = Math.floor(100000 + Math.random() * 900000).toString(); // 6 digit otp
+  return otp;
 };
 
 export const User = mongoose.model("User", userSchema);

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { login } from "../../features/auth/authReducers.js";
 import { Link } from "react-router-dom";
+import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -16,6 +17,20 @@ function Login() {
   const handleSubmit = (e) => {
     e.preventDefault();
     dispatch(login({ email, password }));
+  };
+
+  const handleLoginSuccess = (response) => {
+    const token = response.credential;
+
+    console.log(token);
+
+    if (!token) {
+      console.error("NO TOKEN RECEIVED");
+    }
+  };
+
+  const handleLoginFailure = (response) => {
+    console.log(response);
   };
 
   return (
@@ -77,6 +92,19 @@ function Login() {
                   </button>
                 )}
               </div>
+
+              <GoogleOAuthProvider
+                clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}
+              >
+                <div className="mb-10">
+                  <h1 className="text-center text-lg font-bold">OR</h1>
+                  <GoogleLogin
+                    onSuccess={handleLoginSuccess}
+                    onError={handleLoginFailure}
+                    text="continue_with"
+                  />
+                </div>
+              </GoogleOAuthProvider>
 
               <div className="flex justify-center">
                 <p>

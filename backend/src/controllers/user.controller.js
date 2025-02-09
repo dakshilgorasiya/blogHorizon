@@ -9,6 +9,7 @@ import { COOKIE_CONFIG, BLOG_CATEGORY } from "../constants.js";
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
 import fs from "fs";
+import { OAuth2Client } from "google-auth-library";
 
 //* controller for user registration
 const registerUser = asyncHandler(async (req, res) => {
@@ -75,30 +76,49 @@ const registerUser = asyncHandler(async (req, res) => {
     bio,
     interests: interestsList,
     avatar: avatar.url,
+    profileCompleted: true,
   });
 
-  // generate accessToken and refreshToken
-  const accessToken = await user.generateAccessToken();
-  const refreshToken = await user.generateRefreshToken();
-
-  // save refreshToken to database
-  user.refreshToken = refreshToken;
+  // generate otp and save in db
+  const otp = user.generateOtp();
+  user.otp = otp;
+  user.otpAttempts = 3;
   await user.save({
     validateBeforeSave: false,
   });
+
+  const htmlContent = `
+    <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #ddd; border-radius: 5px; max-width: 400px; text-align: center; background-color: #f9f9f9;">
+        <h2 style="color: #333;">Your OTP Code</h2>
+        <p style="font-size: 16px; color: #555;">Use the following OTP to complete your verification process:</p>
+        <p style="font-size: 24px; font-weight: bold; color: #2d89ef; margin: 10px 0;">${otp}</p>
+        <p style="font-size: 14px; color: #777;">This OTP is valid for a limited time. Do not share it with anyone.</p>
+    </div>
+`;
+
+  try {
+    await sendMail({
+      to: user.email,
+      subject: "OTP Code - BlogHorizon",
+      content: htmlContent,
+      isHtml: true,
+    });
+  } catch (error) {
+    throw new ApiError(500, "Email sending failed");
+  }
 
   // remove password and refreshtoken field from response
   const responseUser = {
     ...user._doc,
     password: undefined,
-    refreshToken: undefined,
-    accessToken,
+    otp: undefined,
+    otpAttempts: undefined,
+    otpExpiry: undefined,
   };
 
   // return response and save refreshToken in cookie
   return res
     .status(200)
-    .cookie("refreshToken", refreshToken, COOKIE_CONFIG)
     .json(
       new ApiResponse({
         statusCode: 201,
@@ -406,7 +426,7 @@ const forgotPassword = asyncHandler(async (req, res) => {
       <p>You requested to reset your password. Click the button below to reset it:</p>
       <div style="text-align: center;">
         <a href="${resetUrl}" 
-           style="display: inline-block; padding: 12px 20px; font-size: 16px; color: #fff; background-color: #007bff; text-decoration: none; border-radius: 5px;">
+          style="display: inline-block; padding: 12px 20px; font-size: 16px; color: #fff; background-color: #007bff; text-decoration: none; border-radius: 5px;">
           Reset Password
         </a>
       </div>
@@ -492,6 +512,97 @@ const resetPassword = asyncHandler(async (req, res) => {
   );
 });
 
+const googleOauth = asyncHandler(async (req, res) => {
+  const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
+  const { token } = req.body;
+
+  if (!token) {
+    throw new ApiError(400, "Google token is required");
+  }
+
+  try {
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+
+    const payload = ticket.getPayload();
+
+    if (!payload) {
+      throw new ApiError(400, "Google token verification failed");
+    }
+
+    const { email, name, picture } = payload;
+
+    const user = await User.findOne({ email });
+
+    if (user) {
+      const accessToken = await user.generateAccessToken();
+      const refreshToken = await user.generateRefreshToken();
+
+      user.refreshToken = refreshToken;
+      await user.save({
+        validateBeforeSave: false,
+      });
+
+      const responseUser = {
+        ...user._doc,
+        password: undefined,
+        refreshToken: undefined,
+        accessToken,
+      };
+
+      return res
+        .status(200)
+        .cookie("refreshToken", refreshToken, COOKIE_CONFIG)
+        .json(
+          new ApiResponse({
+            statusCode: 200,
+            data: responseUser,
+            message: "User logged in successfully",
+          })
+        );
+    } else {
+      const newUser = await User.create({
+        userName: name,
+        email: email,
+        avatar: picture,
+      });
+
+      const accessToken = await newUser.generateAccessToken();
+      const refreshToken = await newUser.generateRefreshToken();
+
+      newUser.refreshToken = refreshToken;
+      await newUser.save({
+        validateBeforeSave: false,
+      });
+
+      const responseUser = {
+        ...newUser._doc,
+        password: undefined,
+        refreshToken: undefined,
+        accessToken,
+      };
+
+      return res
+        .status(200)
+        .cookie("refreshToken", refreshToken, COOKIE_CONFIG)
+        .json(
+          new ApiResponse({
+            statusCode: 201,
+            data: responseUser,
+            message: "User registered successfully",
+          })
+        );
+    }
+  } catch (error) {
+    throw new ApiError(400, "Google token verification failed");
+  }
+});
+
+const verifyOtp = asyncHandler(async (req, res) => {});
+
 export {
   registerUser,
   loginUser,
@@ -503,4 +614,5 @@ export {
   renewAccessToken,
   forgotPassword,
   resetPassword,
+  googleOauth,
 };

@@ -10,6 +10,7 @@ import {
   renewAccessToken,
   forgotPassword,
   resetPassword,
+  googleOauth,
 } from "../controllers/user.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
 import { verifyAccessToken } from "../middlewares/auth.middleware.js";
@@ -35,7 +36,6 @@ router.route("/forgot-password").post(forgotPassword);
 router.route("/reset-password/:resetToken").post(resetPassword);
 
 router.route("/logout").post(logoutUser);
-// secure route
 
 router.route("/current-user").get(verifyAccessToken, getCurrentUser);
 
@@ -53,5 +53,7 @@ router.route("/update-avatar").patch(
 router.route("/update-bio").post(verifyAccessToken, updateBio);
 
 router.route("/makeBlogFavorite").post(verifyAccessToken, makeBlogFavorite);
+
+router.route("/google-oauth").post(googleOauth);
 
 export default router;
