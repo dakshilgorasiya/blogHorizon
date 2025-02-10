@@ -1,36 +1,103 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { login } from "../../features/auth/authReducers.js";
-import { Link } from "react-router-dom";
+import { login, verifyOtp } from "../../features/auth/authReducers.js";
+import { setUser, setErrorMessage } from "../../features/auth/authSlice.js";
+import { Link, useNavigate } from "react-router-dom";
 import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
+import axios from "axios";
+import { server } from "../../constants.js";
 
 function Login() {
+  const navigate = useNavigate();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const error = useSelector((state) => state.auth.error);
+  const [otp, setOtp] = useState("");
+
+  const [otpSent, setOtpSent] = useState(false);
+
+  const [error, setError] = useState(null);
+
+  const apiError = useSelector((state) => state.auth.error);
 
   const loading = useSelector((state) => state.auth.loading);
 
+  const user = useSelector((state) => state.auth.user);
+
   const dispatch = useDispatch();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    dispatch(login({ email, password }));
-  };
+  useEffect(() => {
+    if (apiError) {
+      setError(apiError);
+    }
+  }, [apiError]);
 
-  const handleLoginSuccess = (response) => {
+  const handleLoginSuccess = async (response) => {
     const token = response.credential;
-
-    console.log(token);
 
     if (!token) {
       console.error("NO TOKEN RECEIVED");
+    }
+
+    try {
+      const response = await axios
+        .post(
+          `${server}/user/google-oauth`,
+          { token },
+          {
+            withCredentials: true,
+          }
+        )
+        .then((res) => res.data);
+
+      dispatch(setUser(response.data));
+
+      if (!response.data.isProfileComplete) {
+        navigate("/complete-profile");
+      } else {
+        navigate("/");
+      }
+    } catch (err) {
+      console.log(err.response.data.message);
+      dispatch(
+        setErrorMessage(err.response?.data?.message || "Something went wrong")
+      );
     }
   };
 
   const handleLoginFailure = (response) => {
     console.log(response);
+  };
+
+  useEffect(() => {
+    if (user) {
+      setOtpSent(true);
+    }
+  }, [user]);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    if (!email || !password) {
+      setError("Please fill all the fields");
+      return;
+    }
+
+    setError(null);
+
+    dispatch(login({ email, password }));
+  };
+
+  const handleOtpChange = (e) => {
+    setOtp(e.target.value);
+  };
+
+  const handleOtpSubmit = (e) => {
+    e.preventDefault();
+    setError(null);
+    dispatch(verifyOtp({ otp: otp, email: email }));
+    setError(null);
   };
 
   return (
@@ -69,29 +136,84 @@ function Login() {
                 />
               </div>
 
-              <div className="flex justify-center my-10">
-                {error && (
-                  <p className="text-red-500 font-medium text-md">{error}</p>
-                )}
-              </div>
+              {otpSent && (
+                <div className="flex justify-center my-8">
+                  <p className="text-green-600 font-medium text-md text-center">
+                    OTP sent to your email
+                  </p>
+                </div>
+              )}
 
-              <div className="flex justify-center mb-10">
-                {loading ? (
-                  <button
-                    className="bg-gray-800 hover:bg-highlight text-white font-bold py-2 px-4 rounded-lg shadow-md"
-                    disabled
-                  >
-                    Loading...
-                  </button>
-                ) : (
-                  <button
-                    type="submit"
-                    className="bg-gray-800 hover:bg-highlight text-white font-bold py-2 px-4 rounded-lg shadow-md"
-                  >
-                    Login
-                  </button>
-                )}
-              </div>
+              {otpSent && (
+                <div className="mb-4 box-border">
+                  <label className="text-lg inline-block" htmlFor="otp">
+                    OTP
+                  </label>
+                  <input
+                    id="otp"
+                    type="text"
+                    name="otp"
+                    className="border border-gray-600 rounded-lg block box-border w-full p-1 px-3 hover:border-gray-800 hover:border-2"
+                    onChange={handleOtpChange}
+                  />
+                </div>
+              )}
+
+              {error && (
+                <div className="flex justify-center m-10">
+                  <p className="text-red-500 font-medium text-md">{error}</p>
+                </div>
+              )}
+
+              {!otpSent && (
+                <div className="flex justify-center mb-10">
+                  {loading ? (
+                    <button
+                      className="bg-gray-800 hover:bg-highlight text-white font-bold py-2 px-4 rounded-lg shadow-md"
+                      disabled
+                    >
+                      Loading...
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={(e) => handleSubmit(e)}
+                      className="bg-gray-800 hover:bg-highlight text-white font-bold py-2 px-4 rounded-lg shadow-md"
+                    >
+                      Send OTP
+                    </button>
+                  )}
+                </div>
+              )}
+
+              {otpSent && (
+                <div className="flex justify-center mb-10">
+                  {loading ? (
+                    <button
+                      className="bg-gray-800 hover:bg-highlight text-white font-bold py-2 px-4 rounded-lg shadow-md"
+                      disabled
+                    >
+                      Loading...
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={(e) => handleOtpSubmit(e)}
+                      className="bg-gray-800 hover:bg-highlight text-white font-bold py-2 px-4 rounded-lg shadow-md"
+                    >
+                      Login
+                    </button>
+                  )}
+                </div>
+              )}
+
+              {user?.accessToken && (
+                <div className="flex justify-center my-8">
+                  <p className="text-green-600 font-medium text-md text-center">
+                    OTP verified successfully. Redirecting to home page...
+                  </p>
+                </div>
+              )}
 
               <GoogleOAuthProvider
                 clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}

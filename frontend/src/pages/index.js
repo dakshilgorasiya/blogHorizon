@@ -1,6 +1,7 @@
 import Login from "./LoginPage";
 import Register from "./RegisterPage";
-import ForgotPasswordPage from "./ForgotPasswordPage";
-import ResetPasswordPage from "./ResetPasswordPage";
+import ForgotPassword from "./ForgotPasswordPage";
+import ResetPassword from "./ResetPasswordPage";
+import CompleteProfile from "./CompleteProfilePage";
 
-export { Login, Register, ForgotPasswordPage as ForgotPassword, ResetPasswordPage as ResetPassword };
+export { Login, Register, ForgotPassword, ResetPassword, CompleteProfile };

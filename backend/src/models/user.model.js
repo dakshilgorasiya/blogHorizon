@@ -30,7 +30,6 @@ const userSchema = new mongoose.Schema(
     // encrypted password
     password: {
       type: String,
-      required: true,
     },
     // history of blogs read by the user
     history: [
@@ -48,11 +47,6 @@ const userSchema = new mongoose.Schema(
     ],
     interests: {
       type: [String],
-      validate: {
-        validator: (v) => v && v.length >= 3,
-        message: "At least 3 interests are required",
-      },
-      required: true,
     },
     bio: {
       type: String,

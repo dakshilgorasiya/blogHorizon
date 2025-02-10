@@ -11,7 +11,13 @@ import {
   createRoutesFromElements,
 } from "react-router-dom";
 import { Header, Footer } from "./components";
-import { Login, Register, ForgotPassword, ResetPassword } from "./pages";
+import {
+  Login,
+  Register,
+  ForgotPassword,
+  ResetPassword,
+  CompleteProfile,
+} from "./pages";
 import Layout from "./Layout.jsx";
 
 const router = createBrowserRouter(
@@ -22,6 +28,7 @@ const router = createBrowserRouter(
       <Route path="/register" element={<Register />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password/:token" element={<ResetPassword />} />
+      <Route path="/complete-profile" element={<CompleteProfile />} />
     </Route>
   )
 );

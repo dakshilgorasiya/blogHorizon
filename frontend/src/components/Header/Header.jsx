@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import {useDispatch} from "react-redux"; 
-import {logout} from "../../features/auth/authReducers.js"
+import { useDispatch } from "react-redux";
+import { logout } from "../../features/auth/authReducers.js";
 
 function Header() {
   const dispatch = useDispatch();
@@ -27,9 +27,17 @@ function Header() {
           Reset Password
         </button>
       </Link>
-      <button className="bg-blue-500 text-white px-4 py-2 mx-5 rounded hover:bg-blue-700" onClick={() => dispatch(logout())}>
+      <button
+        className="bg-blue-500 text-white px-4 py-2 mx-5 rounded hover:bg-blue-700"
+        onClick={() => dispatch(logout())}
+      >
         Logout
+      </button>
+      <Link to="/complete-profile">
+        <button className="bg-blue-500 text-white px-4 py-2 mx-5 rounded hover:bg-blue-700">
+          Complete Profile
         </button>
+      </Link>
     </>
   );
 }

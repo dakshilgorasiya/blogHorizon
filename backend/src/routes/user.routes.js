@@ -11,7 +11,8 @@ import {
   forgotPassword,
   resetPassword,
   googleOauth,
-  verifyOtp
+  verifyOtp,
+  profileComplete
 } from "../controllers/user.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
 import { verifyAccessToken } from "../middlewares/auth.middleware.js";
@@ -58,5 +59,7 @@ router.route("/makeBlogFavorite").post(verifyAccessToken, makeBlogFavorite);
 router.route("/google-oauth").post(googleOauth);
 
 router.route("/verify-otp").post(verifyOtp);
+
+router.route("/profile-complete").post(verifyAccessToken, profileComplete);
 
 export default router;

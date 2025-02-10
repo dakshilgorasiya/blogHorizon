@@ -96,8 +96,6 @@ const registerUser = asyncHandler(async (req, res) => {
     </div>
 `;
 
-  console.log(otp);
-
   try {
     await sendMail({
       to: user.email,
@@ -151,32 +149,51 @@ const loginUser = asyncHandler(async (req, res) => {
     throw new ApiError(401, "Invalid password");
   }
 
-  // give new access and refresh token
-  const accessToken = await user.generateAccessToken();
-  const refreshToken = await user.generateRefreshToken();
+  // generate otp and save in db
+  const otp = user.generateOtp();
+  user.otp = otp;
+  user.otpAttempts = 3;
+  await user.save({
+    validateBeforeSave: false,
+  });
 
-  user.refreshToken = refreshToken;
+  const htmlContent = `
+    <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #ddd; border-radius: 5px; max-width: 400px; text-align: center; background-color: #f9f9f9;">
+        <h2 style="color: #333;">Your OTP Code</h2>
+        <p style="font-size: 16px; color: #555;">Use the following OTP to complete your verification process:</p>
+        <p style="font-size: 24px; font-weight: bold; color: #2d89ef; margin: 10px 0;">${otp}</p>
+        <p style="font-size: 14px; color: #777;">This OTP is valid for a limited time. Do not share it with anyone.</p>
+    </div>
+`;
 
-  await user.save();
+  try {
+    await sendMail({
+      to: user.email,
+      subject: "OTP Code - BlogHorizon",
+      content: htmlContent,
+      isHtml: true,
+    });
+  } catch (error) {
+    throw new ApiError(500, "Email sending failed");
+  }
 
   const responseUser = {
     ...user._doc,
     password: undefined,
+    otp: undefined,
+    otpAttempts: undefined,
+    otpExpiry: undefined,
     refreshToken: undefined,
-    accessToken,
   };
 
   // send cookie
-  return res
-    .status(200)
-    .cookie("refreshToken", refreshToken, COOKIE_CONFIG)
-    .json(
-      new ApiResponse({
-        statusCode: 200,
-        data: responseUser,
-        message: "User logged in successfully",
-      })
-    );
+  return res.status(200).json(
+    new ApiResponse({
+      statusCode: 200,
+      data: responseUser,
+      message: "User logged in successfully",
+    })
+  );
 });
 
 const logoutUser = asyncHandler(async (req, res) => {
@@ -377,6 +394,15 @@ const renewAccessToken = asyncHandler(async (req, res) => {
     validateBeforeSave: false,
   });
 
+  const responseUser = {
+    ...user._doc,
+    password: undefined,
+    refreshToken: undefined,
+    otp: undefined,
+    otpAttempts: undefined,
+    otpExpiry: undefined,
+  };
+
   // send new access token in response and save new refresh token in cookie
   return res
     .status(200)
@@ -384,9 +410,7 @@ const renewAccessToken = asyncHandler(async (req, res) => {
     .json(
       new ApiResponse({
         statusCode: 200,
-        data: {
-          accessToken,
-        },
+        data: responseUser,
         message: "Access token renewed successfully",
       })
     );
@@ -521,84 +545,62 @@ const googleOauth = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Google token is required");
   }
 
+  let ticket;
   try {
-    const ticket = await client.verifyIdToken({
+    ticket = await client.verifyIdToken({
       idToken: token,
       audience: process.env.GOOGLE_CLIENT_ID,
     });
-
-    const payload = ticket.getPayload();
-
-    if (!payload) {
-      throw new ApiError(400, "Google token verification failed");
-    }
-
-    const { email, name, picture } = payload;
-
-    const user = await User.findOne({ email });
-
-    if (user) {
-      const accessToken = await user.generateAccessToken();
-      const refreshToken = await user.generateRefreshToken();
-
-      user.refreshToken = refreshToken;
-      await user.save({
-        validateBeforeSave: false,
-      });
-
-      const responseUser = {
-        ...user._doc,
-        password: undefined,
-        refreshToken: undefined,
-        accessToken,
-      };
-
-      return res
-        .status(200)
-        .cookie("refreshToken", refreshToken, COOKIE_CONFIG)
-        .json(
-          new ApiResponse({
-            statusCode: 200,
-            data: responseUser,
-            message: "User logged in successfully",
-          })
-        );
-    } else {
-      const newUser = await User.create({
-        userName: name,
-        email: email,
-        avatar: picture,
-      });
-
-      const accessToken = await newUser.generateAccessToken();
-      const refreshToken = await newUser.generateRefreshToken();
-
-      newUser.refreshToken = refreshToken;
-      await newUser.save({
-        validateBeforeSave: false,
-      });
-
-      const responseUser = {
-        ...newUser._doc,
-        password: undefined,
-        refreshToken: undefined,
-        accessToken,
-      };
-
-      return res
-        .status(200)
-        .cookie("refreshToken", refreshToken, COOKIE_CONFIG)
-        .json(
-          new ApiResponse({
-            statusCode: 201,
-            data: responseUser,
-            message: "User registered successfully",
-          })
-        );
-    }
   } catch (error) {
     throw new ApiError(400, "Google token verification failed");
   }
+  const payload = ticket.getPayload();
+
+  if (!payload) {
+    throw new ApiError(400, "Google token verification failed");
+  }
+
+  const { email, name, picture } = payload;
+
+  let user = await User.findOne({ email });
+
+  if (!user) {
+    user = await User.create({
+      userName: name,
+      email: email,
+      avatar: picture,
+      emailVerified: true,
+    });
+  }
+
+  const accessToken = await user.generateAccessToken();
+  const refreshToken = await user.generateRefreshToken();
+
+  user.refreshToken = refreshToken;
+  await user.save({
+    validateBeforeSave: false,
+  });
+
+  const responseUser = {
+    ...user._doc,
+    password: undefined,
+    refreshToken: undefined,
+    otp: undefined,
+    otpAttempts: undefined,
+    otpExpiry: undefined,
+    accessToken,
+  };
+
+  return res
+    .status(200)
+    .cookie("refreshToken", refreshToken, COOKIE_CONFIG)
+    .json(
+      new ApiResponse({
+        statusCode: 201,
+        data: responseUser,
+        message: "User registered successfully",
+      })
+    );
 });
 
 const verifyOtp = asyncHandler(async (req, res) => {
@@ -616,7 +618,7 @@ const verifyOtp = asyncHandler(async (req, res) => {
     throw new ApiError(404, "User not found");
   }
 
-  if(!user.otp) {
+  if (!user.otp) {
     throw new ApiError(400, "OTP not generated");
   }
 
@@ -673,6 +675,71 @@ const verifyOtp = asyncHandler(async (req, res) => {
     );
 });
 
+const profileComplete = asyncHandler(async (req, res) => {
+  // get password, bio, interests from frontend
+  const { password, bio, interests } = req.body;
+
+  if (!password || !bio || !interests) {
+    throw new ApiError(400, "All fields are required");
+  }
+
+  // get user from req
+  const user = req?.user;
+
+  // check if user exists
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+
+  // check if user is verified
+  if (!user.emailVerified) {
+    throw new ApiError(401, "Email not verified");
+  }
+
+  // check if user is profile completed
+  if (user.profileCompleted) {
+    throw new ApiError(400, "Profile already completed");
+  }
+
+
+  for (let interest of interests) {
+    if (!BLOG_CATEGORY.includes(interest)) {
+      throw new ApiError(400, "Invalid interest category");
+    }
+  }
+
+  // check for minimum 3 interests
+  if (interests.length < 3) {
+    throw new ApiError(400, "At least 3 interests are required");
+  }
+
+  // update user details
+  user.password = password;
+  user.bio = bio;
+  user.interests = interests;
+  user.profileCompleted = true;
+
+  await user.save();
+
+  // return response
+  const responseUser = {
+    ...user._doc,
+    password: undefined,
+    refreshToken: undefined,
+    otp: undefined,
+    otpAttempts: undefined,
+    otpExpiry: undefined,
+  };
+
+  return res.status(200).json(
+    new ApiResponse({
+      statusCode: 200,
+      data: responseUser,
+      message: "Profile completed successfully",
+    })
+  );
+});
+
 export {
   registerUser,
   loginUser,
@@ -686,4 +753,5 @@ export {
   resetPassword,
   googleOauth,
   verifyOtp,
+  profileComplete,
 };
