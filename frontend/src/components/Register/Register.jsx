@@ -1,11 +1,13 @@
-import React, { useState, useId, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { register, verifyOtp } from "../../features/auth/authReducers.js";
 import { getInterests } from "../../features/constants/constantsReducers.js";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
 
 function Register() {
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     userName: "",
     email: "",
@@ -55,18 +57,18 @@ function Register() {
   }, []);
 
   useEffect(() => {
+    if (user?.accessToken) {
+      navigate("/");
+    }
+  }, [user])
+
+  useEffect(() => {
     if (authError) {
       setError(authError);
     } else if (interestsError) {
       setError(interestsError);
     }
   }, [authError, interestsError]);
-
-  useEffect(() => {
-    if (user) {
-      setOtpSent(true);
-    }
-  }, [user]);
 
   const handlePasswordChange = (e) => {
     const password = e.target.value;
@@ -166,8 +168,9 @@ function Register() {
       data.append(key, formData[key]);
     }
     data.delete("confirmPassword");
-    dispatch(register(data));
+    setOtpSent(true);
     setError(null);
+    dispatch(register(data));
   };
 
   const handleOtpChange = (e) => {
@@ -176,22 +179,45 @@ function Register() {
 
   const handleOtpSubmit = (e) => {
     e.preventDefault();
-    dispatch(verifyOtp({ otp: otp, email: formData.email }));
     setError(null);
+    dispatch(verifyOtp({ otp: otp, email: formData.email }));
   };
 
-  const handleLoginSuccess = (response) => {
+  const handleLoginSuccess = async (response) => {
     const token = response.credential;
-
-    console.log(token);
 
     if (!token) {
       console.error("NO TOKEN RECEIVED");
     }
+
+    try {
+      const response = await axios
+        .post(
+          `${server}/user/google-oauth`,
+          { token },
+          {
+            withCredentials: true,
+          }
+        )
+        .then((res) => res.data);
+
+      dispatch(setUser(response.data));
+
+      if (!response.data.isProfileComplete) {
+        navigate("/complete-profile");
+      } else {
+        navigate("/");
+      }
+    } catch (err) {
+      console.log(err.response.data.message);
+      dispatch(
+        setErrorMessage(err.response?.data?.message || "Something went wrong")
+      );
+    }
   };
 
   const handleLoginFailure = (response) => {
-    console.log(response);
+    setError("Something went wrong. Please try again");
   };
 
   

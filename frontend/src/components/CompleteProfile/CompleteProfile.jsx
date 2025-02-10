@@ -131,8 +131,6 @@ function CompleteProfile() {
       setError("Please select at three one interest");
       return;
     }
-
-    // TODO call api to complete profile
     setLoading(true);
 
     try {

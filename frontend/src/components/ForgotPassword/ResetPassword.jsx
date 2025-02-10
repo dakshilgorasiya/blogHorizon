@@ -1,9 +1,11 @@
 import React, { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import { server } from "../../constants.js";
 
 function ResetPassword() {
+  const navigate = useNavigate();
+
   const { token } = useParams();
 
   const [password, setPassword] = useState("");
@@ -15,6 +17,8 @@ function ResetPassword() {
   const [error, setError] = useState("");
 
   const [loading, setLoading] = useState(false);
+
+  const [success, setSuccess] = useState(false);
 
   const [passwordFormat, setPasswordFormat] = useState({
     hasNumber: false,
@@ -74,14 +78,17 @@ function ResetPassword() {
       return;
     }
 
-    
     setLoading(true);
-    
+
     try {
-      const response = await axios.post(`${server}/user/reset-password/${token}`, {
-        password,
-        confirmPassword,
-      });
+      const response = await axios.post(
+        `${server}/user/reset-password/${token}`,
+        {
+          password,
+          confirmPassword,
+        }
+      );
+      setSuccess(true);
       setLoading(false);
       setMessage(response?.data?.message);
     } catch (err) {
@@ -107,7 +114,10 @@ function ResetPassword() {
                 <input
                   id="password"
                   type="password"
-                  className="border border-gray-600 rounded-lg block box-border w-full p-1 px-3 hover:border-gray-800 hover:border-2"
+                  disabled={success}
+                  className={`border border-gray-600 rounded-lg block box-border w-full p-1 px-3 hover:border-gray-800 hover:border-2 ${
+                    success ? "hover:cursor-not-allowed" : ""
+                  }`}
                   onChange={(e) => {
                     setPassword(e.target.value);
                     handlePasswordChange(e);
@@ -179,7 +189,10 @@ function ResetPassword() {
                 <input
                   id="confirmPassword"
                   type="password"
-                  className="border border-gray-600 rounded-lg block box-border w-full p-1 px-3 hover:border-gray-800 hover:border-2"
+                  disabled={success}
+                  className={`border border-gray-600 rounded-lg block box-border w-full p-1 px-3 hover:border-gray-800 hover:border-2 ${
+                    success ? "hover:cursor-not-allowed" : ""
+                  }`}
                   onChange={(e) => {
                     setConfirmPassword(e.target.value);
                     handleConfirmPasswordChange(e);
@@ -223,13 +236,23 @@ function ResetPassword() {
                 ) : (
                   <button
                     type="submit"
-                    className="bg-gray-800 hover:bg-highlight text-white font-bold py-2 px-4 rounded-lg shadow-md"
+                    disabled={success}
+                    className={`bg-gray-800  text-white font-bold py-2 px-4 rounded-lg shadow-md ${
+                      success
+                        ? "hover:cursor-not-allowed"
+                        : "hover:bg-highlight"
+                    }`}
                   >
                     Save Password
                   </button>
                 )}
               </div>
             </form>
+            <div className="flex justify-center mb-10">
+              <Link to="/login" className="text-blue-500">
+                Password reseted successfully Click here to login
+              </Link>
+            </div>
           </div>
         </div>
       </div>

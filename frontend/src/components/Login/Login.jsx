@@ -33,6 +33,12 @@ function Login() {
     }
   }, [apiError]);
 
+  useEffect(() => {
+    if (user?.accessToken) {
+      navigate("/");
+    }
+  }, [user]);
+
   const handleLoginSuccess = async (response) => {
     const token = response.credential;
 
@@ -67,14 +73,8 @@ function Login() {
   };
 
   const handleLoginFailure = (response) => {
-    console.log(response);
+    setError("Something went wrong. Please try again");
   };
-
-  useEffect(() => {
-    if (user) {
-      setOtpSent(true);
-    }
-  }, [user]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -86,6 +86,7 @@ function Login() {
 
     setError(null);
 
+    setOtpSent(true);
     dispatch(login({ email, password }));
   };
 
@@ -97,7 +98,6 @@ function Login() {
     e.preventDefault();
     setError(null);
     dispatch(verifyOtp({ otp: otp, email: email }));
-    setError(null);
   };
 
   return (

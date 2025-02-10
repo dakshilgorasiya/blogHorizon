@@ -1,6 +1,4 @@
-import React, { useState, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
 import axios from "axios";
 import { server } from "../../constants.js";
 
@@ -13,7 +11,7 @@ function ForgotPassword() {
 
   const [message, setMessage] = useState("");
 
-  const dispatch = useDispatch();
+  const [success, setSuccess] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -37,6 +35,7 @@ function ForgotPassword() {
       if (response?.data?.success) {
         setMessage(response?.data?.message);
         setLoading(false);
+        setSuccess(true);
       } else {
         setError(response?.message);
         setLoading(false);
@@ -58,11 +57,16 @@ function ForgotPassword() {
           <div className="mt-20 p-3">
             <form onSubmit={handleSubmit}>
               <div className="mb-8">
-                <label className="text-lg inline-block" htmlFor="email">Please enter your email</label>
+                <label className="text-lg inline-block" htmlFor="email">
+                  Please enter your email
+                </label>
                 <input
-                  id= "email"
+                  id="email"
                   type="email"
-                  className="border border-gray-600 rounded-lg block box-border w-full p-1 px-3 hover:border-gray-800 hover:border-2"
+                  disabled={success}
+                  className={`border border-gray-600 rounded-lg block box-border w-full p-1 px-3 hover:border-gray-800 hover:border-2 ${
+                    success ? "hover:cursor-not-allowed" : ""
+                  }`}
                   onChange={(e) => {
                     setEmail(e.target.value);
                   }}
@@ -94,7 +98,8 @@ function ForgotPassword() {
                 ) : (
                   <button
                     type="submit"
-                    className="bg-gray-800 hover:bg-highlight text-white font-bold py-2 px-4 rounded-lg shadow-md"
+                    disabled={success}
+                    className={`bg-gray-800 text-white font-bold py-2 px-4 rounded-lg shadow-md ${success ? "hover:cursor-not-allowed" : "hover:bg-highlight"}`}
                   >
                     Send Email
                   </button>
