@@ -1,11 +1,10 @@
-import { Login, Register } from "./components";
-import { useDispatch, useSelector } from "react-redux";
-import { logout } from "./features/auth/authReducers.js";
 import { getInterests } from "./features/constants/constantsReducers.js";
 import { useEffect } from "react";
 import { setUser, setErrorMessage } from "./features/auth/authSlice.js";
 import axios from "axios";
 import { server } from "./constants.js";
+import { useDispatch } from "react-redux";
+import { CreateBlogPage } from "./pages";
 
 function App() {
   const dispatch = useDispatch();
@@ -32,7 +31,11 @@ function App() {
     fetchUser();
   }, []);
 
-  return <>HOME</>;
+  return (
+    <>
+      <CreateBlogPage />
+    </>
+  );
 }
 
 export default App;

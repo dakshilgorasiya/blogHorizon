@@ -5,6 +5,7 @@ import Footer from "./Footer/Footer";
 import ForgotPassword from "./ForgotPassword/ForgotPassword";
 import ResetPassword from "./ForgotPassword/ResetPassword";
 import CompleteProfile from "./CompleteProfile/CompleteProfile";
+import TextEditor from "./CreateBlog/TextEditor";
 
 export {
   Login,
@@ -14,4 +15,5 @@ export {
   ForgotPassword,
   ResetPassword,
   CompleteProfile,
+  TextEditor,
 };
