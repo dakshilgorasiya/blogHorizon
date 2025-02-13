@@ -6,6 +6,8 @@ import ForgotPassword from "./ForgotPassword/ForgotPassword";
 import ResetPassword from "./ForgotPassword/ResetPassword";
 import CompleteProfile from "./CompleteProfile/CompleteProfile";
 import TextEditor from "./CreateBlog/TextEditor";
+import UploadImage from "./CreateBlog/UploadImage";
+import CreateNewField from "./CreateBlog/CreateNewField";
 
 export {
   Login,
@@ -16,4 +18,6 @@ export {
   ResetPassword,
   CompleteProfile,
   TextEditor,
+  UploadImage,
+  CreateNewField,
 };

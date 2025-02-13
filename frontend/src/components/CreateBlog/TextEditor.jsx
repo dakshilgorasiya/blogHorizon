@@ -9,8 +9,14 @@ import SubScript from "@tiptap/extension-subscript";
 import Placeholder from "@tiptap/extension-placeholder";
 import { setContent } from "../../features/blog/blogSlice.js";
 import { useDispatch } from "react-redux";
+import { useEffect, useState } from "react";
 
 function TextEditor({ index }) {
+  const [isFocused, setIsFocused] = useState(false);
+
+  useEffect(() => {
+    import("@mantine/core/styles.css");
+  }, []);
   const dispatch = useDispatch();
 
   const editor = useEditor({
@@ -27,16 +33,25 @@ function TextEditor({ index }) {
       }),
     ],
     onCreate: ({ editor }) => {
+      setIsFocused(true);
       dispatch(setContent({ index, content: editor.getHTML() }));
     },
     onBlur: ({ editor }) => {
+      setIsFocused(false);
       dispatch(setContent({ index, content: editor.getHTML() }));
+    },
+    onFocus: ({ editor }) => {
+      setIsFocused(true);
     },
   });
 
   return (
     <RichTextEditor editor={editor}>
-      <RichTextEditor.Toolbar sticky stickyOffset={60}>
+      <RichTextEditor.Toolbar
+        sticky
+        stickyOffset={60}
+        className={isFocused ? "" : "hidden"}
+      >
         <RichTextEditor.ControlsGroup>
           <RichTextEditor.Bold />
           <RichTextEditor.Italic />
