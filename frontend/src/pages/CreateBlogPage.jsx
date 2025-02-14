@@ -1,5 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { TextEditor, UploadImage, CreateNewField } from "../components";
+import {
+  TextEditor,
+  UploadImage,
+  CreateNewField,
+  CodeEditor,
+} from "../components";
 import "@mantine/tiptap/styles.css";
 import { MantineProvider } from "@mantine/core";
 
@@ -17,12 +22,14 @@ function CreateBlogPage() {
   return (
     <>
       <MantineProvider>
-        <div className="w-full sm:w-3/4 m-auto border-2 border-black mt-5">
-          <div className="p-5 grid gap-5">
-            <UploadImage />
-            <TextEditor index={0} />
-            <UploadImage />
-            <TextEditor index={1} />
+        <div className="box-border sm:w-3/4 m-auto border-2 border-black mt-5 max-w-5xl">
+          <div className="p-5 grid gap-5s">
+            {/* <UploadImage /> */}
+            {/* <TextEditor index={0} /> */}
+            {/* <UploadImage /> */}
+            {/* <TextEditor index={1} /> */}
+            <CodeEditor />
+            {/* <CreateNewField options={options} actions={actions} /> */}
           </div>
         </div>
       </MantineProvider>

@@ -8,6 +8,7 @@ import CompleteProfile from "./CompleteProfile/CompleteProfile";
 import TextEditor from "./CreateBlog/TextEditor";
 import UploadImage from "./CreateBlog/UploadImage";
 import CreateNewField from "./CreateBlog/CreateNewField";
+import CodeEditor from "./CreateBlog/CodeEditor";
 
 export {
   Login,
@@ -20,4 +21,5 @@ export {
   TextEditor,
   UploadImage,
   CreateNewField,
+  CodeEditor
 };

@@ -33,7 +33,9 @@ function App() {
 
   return (
     <>
-      <CreateBlogPage />
+      <div className="p-0 m-0">
+        <CreateBlogPage />
+      </div>
     </>
   );
 }
