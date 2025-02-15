@@ -15,20 +15,15 @@ import { verifyAccessToken } from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
-// router.route("/createBlog").post(
-//   verifyJWT,
-//   upload.fields([
-//     {
-//       name: "thumbnail",
-//       maxCount: 1,
-//     },
-//     {
-//       name: "photos",
-//       maxCount: 10,
-//     },
-//   ]),
-//   createBlog
-// );
+router.route("/createBlog").post(
+  // verifyAccessToken,
+  upload.fields([
+    {
+      name: "images",
+    },
+  ]),
+  createBlog
+);
 
 // router.route("/getAllBlogs").get(verifyJWT, getAllBlogs);
 

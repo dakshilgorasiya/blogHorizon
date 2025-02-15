@@ -9,6 +9,8 @@ import TextEditor from "./CreateBlog/TextEditor";
 import UploadImage from "./CreateBlog/UploadImage";
 import CreateNewField from "./CreateBlog/CreateNewField";
 import CodeEditor from "./CreateBlog/CodeEditor";
+import CategoryInput from "./CreateBlog/CategoryInput";
+import TagsInput from "./CreateBlog/TagsInput";
 
 export {
   Login,
@@ -21,5 +23,7 @@ export {
   TextEditor,
   UploadImage,
   CreateNewField,
-  CodeEditor
+  CodeEditor,
+  CategoryInput,
+  TagsInput,
 };

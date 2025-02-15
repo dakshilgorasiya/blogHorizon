@@ -4,18 +4,22 @@ import {
   UploadImage,
   CreateNewField,
   CodeEditor,
+  CategoryInput,
+  TagsInput,
 } from "../components";
 import "@mantine/tiptap/styles.css";
 import { MantineProvider } from "@mantine/core";
 import { Trash2Icon } from "lucide-react";
-import { removeContent } from "../features/blog/blogSlice.js";
-import { useDispatch } from "react-redux";
+import { removeContent, setTitle } from "../features/blog/blogSlice.js";
+import { useDispatch, useSelector } from "react-redux";
+import axios from "axios";
+import { server } from "../constants.js";
 
 function CreateBlogPage() {
   const dispatch = useDispatch();
 
   const [index, setIndex] = useState(1);
-  const [contentType, setContentType] = useState([]);
+  const [contentType, setContentType] = useState(["image"]);
 
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -39,24 +43,84 @@ function CreateBlogPage() {
     dispatch(removeContent({ index }));
   };
 
-  const handleSubmit = () => {
-    if (contentType.length === 1) {
-      setError("Please add more content");
+  const content = useSelector((state) => state.blog.content);
+
+  const user = useSelector((state) => state.user);
+
+  const handleSubmit = async () => {
+    setError("");
+    setLoading(true);
+
+    if (content[0].data === null) {
+      setError("Please add a thumbnail");
+      setLoading(false);
       return;
     }
+
+    if (contentType.length === 1) {
+      setError("Please add more content");
+      setLoading(false);
+      return;
+    }
+
+    const formData = new FormData();
+
+    await Promise.all(
+      content.map(async (item, index) => {
+        if (item.type === "image") {
+          const response = await fetch(item.data);
+          const blob = await response.blob();
+          const file = new File([blob], `image${index}.jpg`, {
+            type: blob.type,
+          });
+          console.log("Appending file:", file);
+          formData.append("images", file);
+        }
+      })
+    );
+
+    formData.append("content", JSON.stringify(content));
+
+    // Log formData content (use for debugging)
+    console.log("FormData before sending:");
+    for (let [key, value] of formData.entries()) {
+      console.log(key, value);
+    }
+
+    try {
+      const response = await axios.post(`${server}/blog/createBlog`, formData, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      });
+      console.log(response);
+    } catch (error) {
+      console.log(error);
+    }
+
+    setLoading(false);
   };
 
   return (
     <>
+      <div className="flex justify-center sm:w-11/12 mt-10 p-5 max-w-5xl m-auto">
+        <input
+          type="text"
+          onBlur={(e) => dispatch(setTitle(e.target.value))}
+          placeholder="Title"
+          className={`w-full p-2 pl-5 text-3xl font-extrabold rounded shadow-sm shadow-gray-500`}
+        />
+      </div>
+
       <MantineProvider>
-        <div className="box-border sm:w-3/4 m-auto mt-5 max-w-5xl">
+        <div className="box-border sm:w-11/12 m-auto mt-5 max-w-5xl">
           <div className="p-5 grid gap-5">
             <UploadImage index={0} placeholder="Upload a thumbnail" />
             <div className="grid gap-5">
               {contentType.map(
                 (content, i) =>
                   i != 0 && (
-                    <div key={content.index} className="grid grid-cols-12 ">
+                    <div key={i} className="grid grid-cols-12 ">
                       {/* Left content area (Editor, Image, Code) */}
                       <div className="col-span-10">
                         {content === "text" && <TextEditor index={i} />}
@@ -101,6 +165,16 @@ function CreateBlogPage() {
           </div>
         </div>
       </MantineProvider>
+
+      <div className="sm:w-11/12 mt-10 p-5 max-w-5xl m-auto">
+        <MantineProvider>
+          <CategoryInput />
+        </MantineProvider>
+      </div>
+
+      <div className="sm:w-11/12 mt-10 p-5 max-w-5xl m-auto">
+        <TagsInput />
+      </div>
 
       {error && (
         <div className="flex justify-center m-10">
