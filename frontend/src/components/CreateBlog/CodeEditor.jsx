@@ -10,13 +10,27 @@ import { json } from "@codemirror/lang-json";
 import { dracula } from "@uiw/codemirror-theme-dracula"; // Dark mode theme
 import { EditorView } from "@codemirror/view";
 import { CodeHighlight } from "@mantine/code-highlight";
+import { setContent } from "../../features/blog/blogSlice.js";
+import { useDispatch } from "react-redux";
 
-function CodeEditor() {
+function CodeEditor({ index }) {
+  const dispatch = useDispatch();
+
   useEffect(() => {
     import("highlight.js/styles/github.css"); // Highlight.js theme
     import("@mantine/core/styles.css");
     import("@mantine/core/styles.layer.css");
-  }, []);
+    dispatch(
+      setContent({
+        index: index,
+        type: "code",
+        data: {
+          code: code,
+          language: language,
+        },
+      })
+    );
+  }, [index]);
 
   const [code, setCode] = useState("");
   const [language, setLanguage] = useState("javascript");
@@ -38,7 +52,19 @@ function CodeEditor() {
           <select
             className="bg-gray-800 text-white px-3 py-1 rounded-md border border-gray-600"
             value={language}
-            onChange={(e) => setLanguage(e.target.value)}
+            onChange={(e) => {
+              setLanguage(e.target.value);
+              dispatch(
+                setContent({
+                  index: index,
+                  type: "code",
+                  data: {
+                    code: code,
+                    language: e.target.value,
+                  },
+                })
+              );
+            }}
           >
             {Object.keys(languageExtensions).map((lang) => (
               <option key={lang} value={lang}>
@@ -65,6 +91,18 @@ function CodeEditor() {
             onChange={(value) => setCode(value)}
             basicSetup={{
               lineNumbers: false,
+            }}
+            onBlur={(e) => {
+              dispatch(
+                setContent({
+                  index: index,
+                  type: "code",
+                  data: {
+                    code: code,
+                    language: language,
+                  },
+                })
+              );
             }}
           />
         </div>

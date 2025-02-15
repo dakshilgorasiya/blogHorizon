@@ -9,10 +9,18 @@ const blogSlice = createSlice({
   initialState,
   reducers: {
     setContent: (state, action) => {
-      state.content[action.payload.index] = action.payload.content;
+      state.content[action.payload.index] = {
+        type: action.payload.type,
+        data: action.payload.data,
+      };
+    },
+    removeContent: (state, action) => {
+      const oldContent = state.content;
+      oldContent.splice(action.payload.index, 1);
+      state.content = oldContent;
     },
   },
 });
 
 export default blogSlice.reducer;
-export const { setContent } = blogSlice.actions;
+export const { setContent, removeContent } = blogSlice.actions;

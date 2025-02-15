@@ -33,12 +33,25 @@ function TextEditor({ index }) {
       }),
     ],
     onCreate: ({ editor }) => {
-      setIsFocused(true);
-      dispatch(setContent({ index, content: editor.getHTML() }));
+      setIsFocused(false);
+
+      dispatch(
+        setContent({
+          index: index,
+          type: "text",
+          data: editor.getHTML(),
+        })
+      );
     },
     onBlur: ({ editor }) => {
       setIsFocused(false);
-      dispatch(setContent({ index, content: editor.getHTML() }));
+      dispatch(
+        setContent({
+          index: index,
+          type: "text",
+          data: editor.getHTML(),
+        })
+      );
     },
     onFocus: ({ editor }) => {
       setIsFocused(true);
@@ -46,77 +59,79 @@ function TextEditor({ index }) {
   });
 
   return (
-    <RichTextEditor editor={editor}>
-      <RichTextEditor.Toolbar
-        sticky
-        stickyOffset={60}
-        className={isFocused ? "" : "hidden"}
-      >
-        <RichTextEditor.ControlsGroup>
-          <RichTextEditor.Bold />
-          <RichTextEditor.Italic />
-          <RichTextEditor.Underline />
-          <RichTextEditor.Strikethrough />
-          <RichTextEditor.ClearFormatting />
-          <RichTextEditor.Highlight />
-        </RichTextEditor.ControlsGroup>
-
-        <RichTextEditor.ControlsGroup>
-          <RichTextEditor.H1 />
-          <RichTextEditor.H2 />
-          <RichTextEditor.H3 />
-          <RichTextEditor.H4 />
-        </RichTextEditor.ControlsGroup>
-
-        <RichTextEditor.ControlsGroup>
-          <RichTextEditor.BulletList />
-          <RichTextEditor.OrderedList />
-          <RichTextEditor.Subscript />
-          <RichTextEditor.Superscript />
-        </RichTextEditor.ControlsGroup>
-
-        <RichTextEditor.ControlsGroup>
-          <RichTextEditor.Link />
-          <RichTextEditor.Unlink />
-        </RichTextEditor.ControlsGroup>
-
-        <RichTextEditor.ControlsGroup>
-          <RichTextEditor.AlignLeft />
-          <RichTextEditor.AlignCenter />
-          <RichTextEditor.AlignRight />
-          <RichTextEditor.AlignJustify />
-        </RichTextEditor.ControlsGroup>
-
-        <RichTextEditor.ControlsGroup>
-          <RichTextEditor.Undo />
-          <RichTextEditor.Redo />
-        </RichTextEditor.ControlsGroup>
-      </RichTextEditor.Toolbar>
-
-      {editor && (
-        <BubbleMenu editor={editor}>
+    <>
+      <RichTextEditor editor={editor}>
+        <RichTextEditor.Toolbar
+          sticky
+          stickyOffset={60}
+          className={isFocused ? "" : "hidden"}
+        >
           <RichTextEditor.ControlsGroup>
             <RichTextEditor.Bold />
             <RichTextEditor.Italic />
             <RichTextEditor.Underline />
+            <RichTextEditor.Strikethrough />
+            <RichTextEditor.ClearFormatting />
             <RichTextEditor.Highlight />
-            <RichTextEditor.Link />
           </RichTextEditor.ControlsGroup>
-        </BubbleMenu>
-      )}
 
-      {editor && (
-        <FloatingMenu editor={editor}>
           <RichTextEditor.ControlsGroup>
             <RichTextEditor.H1 />
             <RichTextEditor.H2 />
-            <RichTextEditor.BulletList />
+            <RichTextEditor.H3 />
+            <RichTextEditor.H4 />
           </RichTextEditor.ControlsGroup>
-        </FloatingMenu>
-      )}
 
-      <RichTextEditor.Content />
-    </RichTextEditor>
+          <RichTextEditor.ControlsGroup>
+            <RichTextEditor.BulletList />
+            <RichTextEditor.OrderedList />
+            <RichTextEditor.Subscript />
+            <RichTextEditor.Superscript />
+          </RichTextEditor.ControlsGroup>
+
+          <RichTextEditor.ControlsGroup>
+            <RichTextEditor.Link />
+            <RichTextEditor.Unlink />
+          </RichTextEditor.ControlsGroup>
+
+          <RichTextEditor.ControlsGroup>
+            <RichTextEditor.AlignLeft />
+            <RichTextEditor.AlignCenter />
+            <RichTextEditor.AlignRight />
+            <RichTextEditor.AlignJustify />
+          </RichTextEditor.ControlsGroup>
+
+          <RichTextEditor.ControlsGroup>
+            <RichTextEditor.Undo />
+            <RichTextEditor.Redo />
+          </RichTextEditor.ControlsGroup>
+        </RichTextEditor.Toolbar>
+
+        {editor && (
+          <BubbleMenu editor={editor}>
+            <RichTextEditor.ControlsGroup>
+              <RichTextEditor.Bold />
+              <RichTextEditor.Italic />
+              <RichTextEditor.Underline />
+              <RichTextEditor.Highlight />
+              <RichTextEditor.Link />
+            </RichTextEditor.ControlsGroup>
+          </BubbleMenu>
+        )}
+
+        {editor && (
+          <FloatingMenu editor={editor}>
+            <RichTextEditor.ControlsGroup>
+              <RichTextEditor.H1 />
+              <RichTextEditor.H2 />
+              <RichTextEditor.BulletList />
+            </RichTextEditor.ControlsGroup>
+          </FloatingMenu>
+        )}
+
+        <RichTextEditor.Content />
+      </RichTextEditor>
+    </>
   );
 }
 
