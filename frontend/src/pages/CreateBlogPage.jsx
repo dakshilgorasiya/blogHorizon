@@ -11,7 +11,7 @@ import {
 import "@mantine/tiptap/styles.css";
 import { MantineProvider } from "@mantine/core";
 import { Trash2Icon } from "lucide-react";
-import { removeContent, setTitle } from "../features/blog/blogSlice.js";
+import { removeContent, setTitle, resetBlog } from "../features/blog/blogSlice.js";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { server } from "../constants.js";
@@ -29,6 +29,7 @@ function CreateBlogPage() {
     if (user && !user.accessToken) {
       navigate("/login");
     }
+    dispatch(resetBlog());
   }, []);
 
   const dispatch = useDispatch();

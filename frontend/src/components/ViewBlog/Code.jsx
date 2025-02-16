@@ -1,8 +1,10 @@
 import { useEffect } from "react";
 import { CodeHighlight } from "@mantine/code-highlight";
 import { MantineProvider } from "@mantine/core";
-import { motion } from "framer-motion";
-import { Copy, CopyCheck } from "lucide-react";
+import ContentCopyTwoToneIcon from "@mui/icons-material/ContentCopyTwoTone";
+import DeleteIcon from "@mui/icons-material/Delete";
+import IconButton from "@mui/material/IconButton";
+import Tooltip from "@mui/material/Tooltip";
 
 function Code({ data }) {
   useEffect(() => {
@@ -13,19 +15,37 @@ function Code({ data }) {
 
   return (
     <MantineProvider theme={{ colorScheme: "dark" }}>
-      <div className="relative bg-neutral-800 text-white p-4 rounded-lg">
-        <button
-          onClick={() => setLiked(!liked)}
-          className="absolute top-5 right-2 bg-white text-black px-2 py-1 rounded-md shadow-md"
+      <div className="bg-neutral-800 rounded-lg flex flex-col">
+        <Tooltip
+          title="Copy"
+          className="self-end"
+          placement="left"
+          arrow
+          slotProps={{
+            popper: {
+              modifiers: [
+                {
+                  name: "offset",
+                  options: {
+                    offset: [0, -14],
+                  },
+                },
+              ],
+            },
+          }}
         >
-          <Copy size={20} />
-        </button>
+          <IconButton onClick={() => navigator.clipboard.writeText(data.code)}>
+            <ContentCopyTwoToneIcon className="text-white" />
+          </IconButton>
+        </Tooltip>
 
-        <CodeHighlight
-          code={data.code}
-          language={data.language}
-          withCopyButton={false}
-        />
+        <div className="bg-neutral-800 text-white px-6 rounded-lg pb-5">
+          <CodeHighlight
+            code={data.code}
+            language={data.language}
+            withCopyButton={false}
+          />
+        </div>
       </div>
     </MantineProvider>
   );

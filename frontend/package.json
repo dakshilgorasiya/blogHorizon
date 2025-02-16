@@ -23,6 +23,7 @@
     "@mantine/code-highlight": "^7.16.3",
     "@mantine/core": "^7.16.3",
     "@mantine/tiptap": "^7.16.3",
+    "@mui/icons-material": "^6.4.4",
     "@mui/material": "^6.4.4",
     "@react-oauth/google": "^0.12.1",
     "@reduxjs/toolkit": "^2.5.1",

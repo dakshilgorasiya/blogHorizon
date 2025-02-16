@@ -14,11 +14,13 @@ function UserDetails() {
 
   const category = useSelector((state) => state.blog.blog.category);
 
-  const tags = useSelector((state) => state.blog.blog.tags);
+  const tags = useSelector((state) => state.blog.blog.tags);  
 
-  const [liked, setLiked] = useState(false);
+  const liked = useSelector((state) => state.blog.blog.isLiked);
 
-  const [favorited, setFavorited] = useState(false);
+  const favorited = useSelector((state) => state.blog.blog.isFavorite);
+
+  const isFollowed = useSelector((state) => state.blog.blog.isFollowed);
 
   const formattedDate = new Date(createdAt).toLocaleDateString("en-GB", {
     day: "2-digit",
@@ -41,7 +43,7 @@ function UserDetails() {
               </div>
               <div>
                 <button className="bg-priary hover:bg-highlight text-white font-bold py-1 px-2 rounded-full text-xs">
-                  Follow
+                  {isFollowed ? "Following" : "Follow"}
                 </button>
               </div>
             </div>
@@ -60,7 +62,6 @@ function UserDetails() {
           <div className="flex items-center ml-3">
             <div className="flex items-center mr-5">
               <motion.button
-                onClick={() => setLiked(!liked)}
                 className="flex items-center justify-center hover:scale-110 transition-transform"
                 whileTap={{ scale: 0.9 }}
               >
@@ -88,7 +89,6 @@ function UserDetails() {
           <div className="flex items-center ml-auto">
             <div className="mr-5">
               <motion.button
-                onClick={() => setFavorited(!favorited)}
                 className="flex items-center justify-center hover:scale-110 transition-transform"
                 whileTap={{ scale: 0.9 }}
               >

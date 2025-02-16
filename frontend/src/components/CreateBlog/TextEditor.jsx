@@ -34,9 +34,6 @@ function TextEditor({ index }) {
       Placeholder.configure({
         placeholder: "Please enter text and format it as your imgination",
       }),
-      BulletList,
-      OrderedList,
-      ListItem,
     ],
     onCreate: ({ editor }) => {
       setIsFocused(false);

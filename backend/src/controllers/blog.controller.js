@@ -6,6 +6,7 @@ import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import mongoose from "mongoose";
 import { User } from "../models/user.model.js";
 import { Like } from "../models/like.model.js";
+import { Follow } from "../models/follow.model.js";
 import { BLOG_CATEGORY } from "../constants.js";
 import jwt from "jsonwebtoken";
 
@@ -362,6 +363,8 @@ const getBlogById = asyncHandler(async (req, res) => {
     } else {
       blog[0].isLiked = false;
     }
+  }else{
+    blog[0].isLiked = false;
   }
 
   // check if user has favorited the blog
@@ -374,6 +377,23 @@ const getBlogById = asyncHandler(async (req, res) => {
       }
     }
     blog[0].isFavorite = favorite;
+  }else{
+    blog[0].isFavorite = false;
+  }
+
+  // check if user follow the owner of the blog
+  if (user) {
+    const follow = await Follow.find({
+      followedBy: new mongoose.Types.ObjectId(user._id),
+      followedTo: new mongoose.Types.ObjectId(blog[0].owner._id),
+    });
+    if (follow.length > 0) {
+      blog[0].isFollowed = true;
+    } else {
+      blog[0].isFollowed = false;
+    }
+  }else{
+    blog[0].isFollowed = false;
   }
 
   // update view of blog
