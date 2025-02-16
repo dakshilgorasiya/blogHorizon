@@ -11,7 +11,7 @@ export const verifyAccessToken = asyncHandler(async (req, res, next) => {
     const authHeader = req.headers["authorization"];
     const accessToken = authHeader && authHeader.split(" ")[1];
 
-    if (!accessToken) {
+    if (!accessToken || accessToken === "null") {
       throw new ApiError(401, "Access token not found");
     }
 

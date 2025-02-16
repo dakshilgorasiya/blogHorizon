@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   TextEditor,
   UploadImage,
@@ -6,6 +6,7 @@ import {
   CodeEditor,
   CategoryInput,
   TagsInput,
+  TitleInput,
 } from "../components";
 import "@mantine/tiptap/styles.css";
 import { MantineProvider } from "@mantine/core";
@@ -14,8 +15,22 @@ import { removeContent, setTitle } from "../features/blog/blogSlice.js";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { server } from "../constants.js";
+import { useNavigate } from "react-router-dom";
 
 function CreateBlogPage() {
+  const navigate = useNavigate();
+
+  const user = useSelector((state) => state.auth.user);
+
+  useEffect(() => {
+    if (!user) {
+      navigate("/login");
+    }
+    if (user && !user.accessToken) {
+      navigate("/login");
+    }
+  }, []);
+
   const dispatch = useDispatch();
 
   const [index, setIndex] = useState(1);
@@ -43,15 +58,20 @@ function CreateBlogPage() {
     dispatch(removeContent({ index }));
   };
 
-  const content = useSelector((state) => state.blog.content);
-
-  const user = useSelector((state) => state.user);
+  const blog = useSelector((state) => state.blog.blog);
 
   const handleSubmit = async () => {
     setError("");
     setLoading(true);
 
-    if (content[0].data === null) {
+    // Error handling
+    if (blog.title === "") {
+      setError("Please add a title");
+      setLoading(false);
+      return;
+    }
+
+    if (blog.content[0].data === null) {
       setError("Please add a thumbnail");
       setLoading(false);
       return;
@@ -63,39 +83,60 @@ function CreateBlogPage() {
       return;
     }
 
+    if (blog.category === "") {
+      setError("Please add a category");
+      setLoading(false);
+      return;
+    }
+
+    if (blog.tags.length === 0) {
+      setError("Please add tags");
+      setLoading(false);
+      return;
+    }
+
+    blog.tags.map((tag) => {
+      if (tag[0] !== "#") {
+        setError("Please add tags with #");
+        setLoading(false);
+        return;
+      }
+    });
+
+    // Calling API to create blog
     const formData = new FormData();
 
     await Promise.all(
-      content.map(async (item, index) => {
+      blog.content.map(async (item, index) => {
         if (item.type === "image") {
           const response = await fetch(item.data);
           const blob = await response.blob();
           const file = new File([blob], `image${index}.jpg`, {
             type: blob.type,
           });
-          console.log("Appending file:", file);
           formData.append("images", file);
         }
       })
     );
 
-    formData.append("content", JSON.stringify(content));
-
-    // Log formData content (use for debugging)
-    console.log("FormData before sending:");
-    for (let [key, value] of formData.entries()) {
-      console.log(key, value);
-    }
+    formData.append("title", blog.title);
+    formData.append("content", JSON.stringify(blog.content));
+    formData.append("category", blog.category);
+    formData.append("tags", JSON.stringify(blog.tags));
 
     try {
       const response = await axios.post(`${server}/blog/createBlog`, formData, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          Authorization: `Bearer ${user.accessToken}`,
         },
-      });
-      console.log(response);
+      }).then((res) => res.data);
+      console.log(response)
+      navigate(`/view-blog/${response.data._id}`);
     } catch (error) {
-      console.log(error);
+      console.log(error)
+      setError(error.response.data.message);
+    } finally{
+      setLoading(false);
     }
 
     setLoading(false);
@@ -103,13 +144,8 @@ function CreateBlogPage() {
 
   return (
     <>
-      <div className="flex justify-center sm:w-11/12 mt-10 p-5 max-w-5xl m-auto">
-        <input
-          type="text"
-          onBlur={(e) => dispatch(setTitle(e.target.value))}
-          placeholder="Title"
-          className={`w-full p-2 pl-5 text-3xl font-extrabold rounded shadow-sm shadow-gray-500`}
-        />
+      <div className="sm:w-11/12 mt-10 p-5 max-w-5xl m-auto">
+        <TitleInput />
       </div>
 
       <MantineProvider>

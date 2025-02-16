@@ -22,6 +22,9 @@ const blogSlice = createSlice({
   name: "blog",
   initialState,
   reducers: {
+    resetBlog: (state, action) => {
+      state.blog = initialState.blog;
+    },
     setContent: (state, action) => {
       state.blog.content[action.payload.index] = {
         type: action.payload.type,
@@ -46,5 +49,5 @@ const blogSlice = createSlice({
 });
 
 export default blogSlice.reducer;
-export const { setContent, removeContent, setTitle, setCategory, setTags } =
+export const { setContent, removeContent, setTitle, setCategory, setTags, resetBlog } =
   blogSlice.actions;

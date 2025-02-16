@@ -17,6 +17,7 @@ import {
   ForgotPassword,
   ResetPassword,
   CompleteProfile,
+  ViewBlog,
 } from "./pages";
 import Layout from "./Layout.jsx";
 
@@ -29,6 +30,7 @@ const router = createBrowserRouter(
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password/:token" element={<ResetPassword />} />
       <Route path="/complete-profile" element={<CompleteProfile />} />
+      <Route path="/view-blog/:id" element={<ViewBlog />} />
     </Route>
   )
 );

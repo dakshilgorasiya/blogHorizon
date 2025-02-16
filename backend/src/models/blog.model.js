@@ -14,21 +14,18 @@ const blogSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
-    // cloudinary url
-    thumbnail: {
-      type: String,
-      required: true,
-    },
-    // markup for the blog
-    markup: [
+    // content of the blog
+    content: [
       {
-        type: String,
-      },
-    ],
-    // cloudinary urls
-    photos: [
-      {
-        type: String,
+        type: {
+          type: String,
+          enum: ["text", "image", "code"], // Define different content types
+          required: true,
+        },
+        data: {
+          type: mongoose.Schema.Types.Mixed, // Allows string or object
+          required: true,
+        },
       },
     ],
     // category of the blog
@@ -43,7 +40,7 @@ const blogSchema = new mongoose.Schema(
       default: 0,
     },
     // hashtags for the blog
-    tag: [
+    tags: [
       {
         type: String,
         required: true,

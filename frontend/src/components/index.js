@@ -11,6 +11,7 @@ import CreateNewField from "./CreateBlog/CreateNewField";
 import CodeEditor from "./CreateBlog/CodeEditor";
 import CategoryInput from "./CreateBlog/CategoryInput";
 import TagsInput from "./CreateBlog/TagsInput";
+import TitleInput from "./CreateBlog/TitleInput";
 
 export {
   Login,
@@ -26,4 +27,5 @@ export {
   CodeEditor,
   CategoryInput,
   TagsInput,
+  TitleInput,
 };

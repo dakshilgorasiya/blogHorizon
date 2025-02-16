@@ -8,114 +8,97 @@ import { User } from "../models/user.model.js";
 import { BLOG_CATEGORY } from "../constants.js";
 
 const createBlog = asyncHandler(async (req, res) => {
-  console.log(JSON.parse(req.body.content));
+  // get user from the request
+  const user = req.user;
 
-  console.log("++++");
+  if (!user) {
+    throw new ApiError(401, "Please login to create a blog");
+  }
 
-  console.log(req.files);
+  // get title, content, category, tag from the request body
+  let { title, content, category, tags } = req.body;
 
+  content = JSON.parse(content);
+
+  tags = JSON.parse(tags);
+
+  if (!title) {
+    throw new ApiError(400, "Title is required");
+  }
+
+  if (!content) {
+    throw new ApiError(400, "Content is required");
+  }
+
+  if (!category) {
+    throw new ApiError(400, "Category is required");
+  }
+
+  if (!tags) {
+    throw new ApiError(400, "Tags are required");
+  }
+
+  // upload images on cloudinary
+  const images = req.files?.images;
+
+  if (images && images[0] === undefined) {
+    throw new ApiError(400, "Thumnail is required");
+  }
+
+  if (
+    images &&
+    images.length !== content.filter((ele) => ele.type === "image").length
+  ) {
+    throw new ApiError(500, "Image upload failed");
+  }
+
+  const imagesPath = images.map((image) => image.path);
+
+  const imagesResponse = await Promise.all(
+    imagesPath.map(async (image) => await uploadOnCloudinary(image))
+  );
+
+  if (!imagesResponse) {
+    throw new ApiError(500, "Failed to upload images on cloudinary");
+  }
+
+  imagesResponse.forEach((image) => {
+    if (!image) {
+      throw new ApiError(500, "Failed to upload images on cloudinary");
+    }
+  });
+
+  let i = 0;
+  // reset the content with the new image urls
+  content = content.map((ele) => {
+    if (ele.type === "image") {
+      ele.data = imagesResponse[i].url;
+      i++;
+    }
+    return ele;
+  });
+
+  // create a new blog
+  const blog = await Blog.create({
+    title,
+    owner: user._id,
+    content,
+    category,
+    tags,
+  });
+
+  if (!blog) {
+    throw new ApiError(500, "Failed to create blog");
+  }
+
+  // send the response
   return res.status(200).json(
     new ApiResponse({
       statusCode: 200,
-      data: null,
-      message: "Interests fetched successfully",
+      data: blog,
+      message: "Blog created successfully",
     })
   );
-
-  // check if the user is logged in
-  // get the user id from the token
-  // get title, category and tags from the request body
-  // get markups from the request body
-  // check if the category is valid
-  // get thumbnail and images from the request files
-  // upload thumbnail and images to cloudinary
-  // create a new blog
-  // save the blog to the database
-  // send the response
-
-  // const { title, tag, markup, category } = req.body;
-
-  // const allowedCategories = [
-  //   "Technology",
-  //   "Business",
-  //   "Health",
-  //   "Entertainment",
-  //   "Science",
-  //   "Sports",
-  //   "Education",
-  //   "Lifestyle",
-  // ];
-
-  // if (!title || !tag || !markup || !category) {
-  //   throw new ApiError(400, "Please fill in all fields");
-  // }
-
-  // if (!allowedCategories.includes(category)) {
-  //   throw new ApiError(400, "Invalid category");
-  // }
-
-  // const thumbnail = req.files?.thumbnail[0]?.path;
-
-  // if (!thumbnail) {
-  //   throw new ApiError(400, "Thumbnail file is required");
-  // }
-
-  // const thumbnailResponse = await uploadOnCloudinary(thumbnail);
-
-  // if (!thumbnailResponse) {
-  //   throw new ApiError(500, "Failed to upload thumbnail");
-  // }
-
-  // const photos = req.files?.photos;
-
-  // if (!photos) {
-  //   throw new ApiError(400, "Photos are required");
-  // }
-
-  // const photosPath = photos.map((photo) => photo?.path);
-
-  // if (!photosPath) {
-  //   throw new ApiError(400, "Failed to upload photos");
-  // }
-
-  // if (
-  //   !(
-  //     photosPath.length === JSON.parse(markup).length - 1 ||
-  //     photosPath.length === JSON.parse(markup).length
-  //   )
-  // ) {
-  //   throw new ApiError(400, "Number of photos and markups is not valid");
-  // }
-
-  // const photosResponse = await Promise.all(
-  //   photosPath.map(async (photo) => await uploadOnCloudinary(photo))
-  // );
-
-  // if (!photosResponse) {
-  //   throw new ApiError(500, "Failed to upload photos on cloudinary");
-  // }
-
-  // const photosUrl = photosResponse.map((photo) => photo.url);
-
-  // const blog = await Blog.create({
-  //   title,
-  //   owner: req.user._id,
-  //   tag: JSON.parse(tag),
-  //   markup: JSON.parse(markup),
-  //   category,
-  //   thumbnail: thumbnailResponse.url,
-  //   photos: photosUrl,
-  // });
-
-  // const createdBlog = await Blog.findById(blog._id);
-
-  // if (!createdBlog) {
-  //   throw new ApiError(500, "Failed to create blog");
-  // }
-
-  // return res
-  //   .status(201)
-  //   .json(new ApiResponse(201, createdBlog, "Blog created successfully"));
 });
 
 const getAllBlogs = asyncHandler(async (req, res) => {

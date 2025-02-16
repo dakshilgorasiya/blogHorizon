@@ -13,8 +13,7 @@ function TagsInput() {
   const dispatch = useDispatch();
 
   const handleTags = (e) => {
-    const data = e.split(" ");
-    dispatch(setTags(data));
+    dispatch(setTags(e.trim().split(/\s+/)));
   };
 
   return (
@@ -26,6 +25,7 @@ function TagsInput() {
         <input
           id="tag"
           name="tag"
+          type="text"
           className="border border-gray-600 rounded block box-border w-full p-1 px-3 hover:border-gray-800 hover:border-2"
           onBlur={(e) => handleTags(e.target.value)}
         />

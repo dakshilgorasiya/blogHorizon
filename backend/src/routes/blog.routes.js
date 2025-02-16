@@ -16,7 +16,7 @@ import { verifyAccessToken } from "../middlewares/auth.middleware.js";
 const router = Router();
 
 router.route("/createBlog").post(
-  // verifyAccessToken,
+  verifyAccessToken,
   upload.fields([
     {
       name: "images",
