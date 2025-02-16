@@ -135,6 +135,8 @@ const loginUser = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Email and password are required");
   }
 
+  console.log(email)
+
   // find the user
   const user = await User.findOne({ email });
 
@@ -396,6 +398,7 @@ const renewAccessToken = asyncHandler(async (req, res) => {
 
   const responseUser = {
     ...user._doc,
+    accessToken,
     password: undefined,
     refreshToken: undefined,
     otp: undefined,
@@ -522,9 +525,7 @@ const resetPassword = asyncHandler(async (req, res) => {
   user.password = password;
   user.resetPasswordToken = undefined;
   user.resetPasswordTokenExpiry = undefined;
-  await user.save({
-    validateBeforeSave: false,
-  });
+  await user.save();
 
   // return response
   return res.status(200).json(
@@ -700,7 +701,6 @@ const profileComplete = asyncHandler(async (req, res) => {
   if (user.profileCompleted) {
     throw new ApiError(400, "Profile already completed");
   }
-
 
   for (let interest of interests) {
     if (!BLOG_CATEGORY.includes(interest)) {

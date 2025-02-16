@@ -27,7 +27,7 @@ router.route("/createBlog").post(
 
 // router.route("/getAllBlogs").get(verifyJWT, getAllBlogs);
 
-// router.route("/getBlogById/:id").get(verifyJWT, getBlogById);
+router.route("/getBlogById/:id").get(getBlogById);
 
 // router.route("/getBlogOfUser").get(verifyJWT, getBlogOfUser);
 

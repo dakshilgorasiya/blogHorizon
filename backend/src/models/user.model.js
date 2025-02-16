@@ -152,7 +152,7 @@ userSchema.methods.isPasswordCorrect = async function (password) {
 
 // Method to comare refreshToken
 userSchema.methods.compareRefreshToken = function (refreshToken) {
-  const hash = crypto.createHash("sha256").update(refreshToken).digest("hex");
+  const hash = generateHash(refreshToken);
   return this.refreshToken === hash;
 };
 

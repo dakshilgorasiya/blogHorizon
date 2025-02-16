@@ -35,7 +35,11 @@ function Login() {
 
   useEffect(() => {
     if (user?.accessToken) {
-      navigate("/");
+      if (user.profileCompleted) {
+        navigate("/");
+      } else {
+        navigate("/complete-profile");
+      }
     }
   }, [user]);
 
@@ -58,12 +62,6 @@ function Login() {
         .then((res) => res.data);
 
       dispatch(setUser(response.data));
-
-      if (!response.data.isProfileComplete) {
-        navigate("/complete-profile");
-      } else {
-        navigate("/");
-      }
     } catch (err) {
       console.log(err.response.data.message);
       dispatch(

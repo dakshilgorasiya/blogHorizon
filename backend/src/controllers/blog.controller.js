@@ -5,8 +5,11 @@ import { Blog } from "../models/blog.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import mongoose from "mongoose";
 import { User } from "../models/user.model.js";
+import { Like } from "../models/like.model.js";
 import { BLOG_CATEGORY } from "../constants.js";
+import jwt from "jsonwebtoken";
 
+//* Controller to create a blog
 const createBlog = asyncHandler(async (req, res) => {
   // get user from the request
   const user = req.user;
@@ -225,17 +228,13 @@ const getAllBlogs = asyncHandler(async (req, res) => {
 
 const getBlogById = asyncHandler(async (req, res) => {
   // get blog id from the request params
-  // get blog with user details
-  // update view of blog
-  // update history of the user
-  // send the response
-
   const blogId = req.params;
 
   if (!blogId) {
     throw new ApiError(400, "Blog id is required");
   }
 
+  // get blog with user details
   const blog = await Blog.aggregate([
     {
       $match: {
@@ -295,23 +294,89 @@ const getBlogById = asyncHandler(async (req, res) => {
     {
       $project: {
         title: 1,
-        tag: 1,
+        tags: 1,
         category: 1,
-        thumbnail: 1,
         owner: 1,
         createdAt: 1,
         commentCount: 1,
         likeCount: 1,
-        markup: 1,
-        photos: 1,
+        content: 1,
       },
     },
   ]);
 
-  if (!blog) {
+  if (!blog || blog.length === 0) {
     throw new ApiError(404, "Blog not found");
   }
 
+  let user;
+
+  try {
+    // Get the access token from the Authorization header
+    const authHeader = req.headers["authorization"];
+    const accessToken = authHeader && authHeader.split(" ")[1];
+
+    if (!accessToken || accessToken === "null") {
+      throw new ApiError(401, "Access token not found");
+    }
+
+    // Verify the access token
+    const decodedToken = jwt.verify(
+      accessToken,
+      process.env.ACCESS_TOKEN_SECRET
+    );
+
+    // Find the user with the id from the decoded token
+    user = await User.findById(decodedToken._id);
+
+    if (!user) {
+      throw new ApiError(401, "Invalid access token");
+    }
+  } catch (error) {
+    user = null;
+  }
+
+  // update history of user if user is logged in
+  if (user) {
+    user = await User.findByIdAndUpdate(
+      user._id,
+      {
+        $addToSet: {
+          history: new mongoose.Types.ObjectId(blogId),
+        },
+      },
+      {
+        new: true,
+      }
+    );
+  }
+
+  // check if user has liked the blog
+  if (user) {
+    const like = await Like.find({
+      likedBy: new mongoose.Types.ObjectId(user._id),
+      blog: new mongoose.Types.ObjectId(blogId),
+    });
+    if (like.length > 0) {
+      blog[0].isLiked = true;
+    } else {
+      blog[0].isLiked = false;
+    }
+  }
+
+  // check if user has favorited the blog
+  if (user) {
+    let favorite = false;
+    for (let i = 0; i < user.favorite.length; i++) {
+      if (user.favorite[i].toString() === blogId.toString()) {
+        favorite = true;
+        break;
+      }
+    }
+    blog[0].isFavorite = favorite;
+  }
+
+  // update view of blog
   const updatedBlog = await Blog.findByIdAndUpdate(
     new mongoose.Types.ObjectId(blogId),
     {
@@ -324,24 +389,14 @@ const getBlogById = asyncHandler(async (req, res) => {
     }
   );
 
-  const user = await User.findById(req.user._id);
-
-  if (!user.history) {
-    console.log("No history found");
-    user.history = [];
-  }
-
-  user.history = user.history.filter((ele) => {
-    // console.log(ele.toString(), new mongoose.Types.ObjectId(blogId).toString());
-    return ele.toString() !== new mongoose.Types.ObjectId(blogId).toString();
-  });
-  user.history.push(new mongoose.Types.ObjectId(blogId));
-
-  await user.save();
-
-  return res
-    .status(200)
-    .json(new ApiResponse(200, blog?.[0], "Blog fetched successfully"));
+  // send the response
+  return res.status(200).json(
+    new ApiResponse({
+      statusCode: 200,
+      data: blog[0],
+      message: "Blog fetched successfully",
+    })
+  );
 });
 
 const getBlogOfUser = asyncHandler(async (req, res) => {

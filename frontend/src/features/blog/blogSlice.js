@@ -45,9 +45,19 @@ const blogSlice = createSlice({
     setTags: (state, action) => {
       state.blog.tags = action.payload;
     },
+    setApiBlog: (state, action) => {
+      state.blog = action.payload;
+    },
   },
 });
 
 export default blogSlice.reducer;
-export const { setContent, removeContent, setTitle, setCategory, setTags, resetBlog } =
-  blogSlice.actions;
+export const {
+  setContent,
+  removeContent,
+  setTitle,
+  setCategory,
+  setTags,
+  resetBlog,
+  setApiBlog,
+} = blogSlice.actions;

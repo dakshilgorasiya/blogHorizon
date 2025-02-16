@@ -11,7 +11,19 @@ export default {
         background: "#fffcf2",
         highlight: "#eb5e28",
       },
+      typography: {
+        DEFAULT: {
+          css: {
+            ol: {
+              listStyleType: "decimal", // For ordered lists
+            },
+            li: {
+              marginBottom: "0.5rem",
+            },
+          },
+        },
+      },
     },
   },
-  plugins: [],
+  plugins: [require("@tailwindcss/typography")],
 };

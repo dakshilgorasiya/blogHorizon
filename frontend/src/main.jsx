@@ -17,9 +17,10 @@ import {
   ForgotPassword,
   ResetPassword,
   CompleteProfile,
-  ViewBlog,
+  ViewBlogPage,
 } from "./pages";
 import Layout from "./Layout.jsx";
+import { View } from "lucide-react";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -30,7 +31,7 @@ const router = createBrowserRouter(
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password/:token" element={<ResetPassword />} />
       <Route path="/complete-profile" element={<CompleteProfile />} />
-      <Route path="/view-blog/:id" element={<ViewBlog />} />
+      <Route path="/view-blog/:id" element={<ViewBlogPage />} />
     </Route>
   )
 );

@@ -22,7 +22,7 @@ function App() {
           .catch((error) => {
             throw error;
           });
-        dispatch(setUser(response));
+        dispatch(setUser(response.data));
       } catch (error) {
         setErrorMessage(error.response.data.message);
       }

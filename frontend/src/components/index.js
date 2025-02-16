@@ -12,6 +12,11 @@ import CodeEditor from "./CreateBlog/CodeEditor";
 import CategoryInput from "./CreateBlog/CategoryInput";
 import TagsInput from "./CreateBlog/TagsInput";
 import TitleInput from "./CreateBlog/TitleInput";
+import Code from "./ViewBlog/Code";
+import Image from "./ViewBlog/Image";
+import Text from "./ViewBlog/Text";
+import Title from "./ViewBlog/Title";
+import UserDetails from "./ViewBlog/UserDetails";
 
 export {
   Login,
@@ -28,4 +33,9 @@ export {
   CategoryInput,
   TagsInput,
   TitleInput,
+  Code,
+  Image,
+  Text,
+  Title,
+  UserDetails,
 };

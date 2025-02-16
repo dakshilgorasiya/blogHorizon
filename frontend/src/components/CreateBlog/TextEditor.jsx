@@ -10,6 +10,9 @@ import Placeholder from "@tiptap/extension-placeholder";
 import { setContent } from "../../features/blog/blogSlice.js";
 import { useDispatch } from "react-redux";
 import { useEffect, useState } from "react";
+import BulletList from "@tiptap/extension-bullet-list";
+import OrderedList from "@tiptap/extension-ordered-list";
+import ListItem from "@tiptap/extension-list-item";
 
 function TextEditor({ index }) {
   const [isFocused, setIsFocused] = useState(false);
@@ -31,6 +34,9 @@ function TextEditor({ index }) {
       Placeholder.configure({
         placeholder: "Please enter text and format it as your imgination",
       }),
+      BulletList,
+      OrderedList,
+      ListItem,
     ],
     onCreate: ({ editor }) => {
       setIsFocused(false);
@@ -129,7 +135,7 @@ function TextEditor({ index }) {
           </FloatingMenu>
         )}
 
-        <RichTextEditor.Content />
+        <RichTextEditor.Content className="prose dark:prose-invert" />
       </RichTextEditor>
     </>
   );
