@@ -264,6 +264,21 @@ const getBlogById = asyncHandler(async (req, res) => {
     },
     {
       $lookup: {
+        from: "follows",
+        localField: "owner._id",
+        foreignField: "followedTo",
+        as: "followers",
+      },
+    },
+    {
+      $addFields: {
+        followersCount: {
+          $size: "$followers",
+        },
+      },
+    },
+    {
+      $lookup: {
         from: "comments",
         localField: "_id",
         foreignField: "blog",
@@ -302,6 +317,7 @@ const getBlogById = asyncHandler(async (req, res) => {
         commentCount: 1,
         likeCount: 1,
         content: 1,
+        followersCount: 1,
       },
     },
   ]);
@@ -363,7 +379,7 @@ const getBlogById = asyncHandler(async (req, res) => {
     } else {
       blog[0].isLiked = false;
     }
-  }else{
+  } else {
     blog[0].isLiked = false;
   }
 
@@ -377,7 +393,7 @@ const getBlogById = asyncHandler(async (req, res) => {
       }
     }
     blog[0].isFavorite = favorite;
-  }else{
+  } else {
     blog[0].isFavorite = false;
   }
 
@@ -392,7 +408,7 @@ const getBlogById = asyncHandler(async (req, res) => {
     } else {
       blog[0].isFollowed = false;
     }
-  }else{
+  } else {
     blog[0].isFollowed = false;
   }
 

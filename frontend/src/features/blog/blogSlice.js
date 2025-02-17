@@ -2,16 +2,19 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   blog: {
-    id: "",
+    _id: "",
     title: "",
+    owner: {},
     content: [],
-    author: "",
-    views: 0,
-    date: "",
-    likes: 0,
-    comments: 0,
     category: "",
     tags: [],
+    createdAt: "",
+    followersCount: 0,
+    commentCount: 0,
+    likeCount: 0,
+    isLiked: false,
+    isFavorite: false,
+    isFollowed: false,
   },
   loading: false,
   error: "",
@@ -48,6 +51,14 @@ const blogSlice = createSlice({
     setApiBlog: (state, action) => {
       state.blog = action.payload;
     },
+    setIsFollowed: (state, action) => {
+      state.blog.isFollowed = action.payload;
+      if (action.payload) {
+        state.blog.followersCount += 1;
+      } else {
+        state.blog.followersCount -= 1;
+      }
+    },
   },
 });
 
@@ -60,4 +71,5 @@ export const {
   setTags,
   resetBlog,
   setApiBlog,
+  setIsFollowed,
 } = blogSlice.actions;

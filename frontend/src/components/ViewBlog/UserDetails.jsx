@@ -1,9 +1,17 @@
 import React, { useState } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { motion } from "framer-motion";
 import { Heart, ThumbsUp, MessageSquare, Share2 } from "lucide-react";
+import axios from "axios";
+import { server } from "../../constants.js";
+import { setIsFollowed } from "../../features/blog/blogSlice.js";
+import { useNavigate } from "react-router-dom";
 
 function UserDetails() {
+  const navigate = useNavigate();
+
+  const dispatch = useDispatch();
+
   const owner = useSelector((state) => state.blog.blog.owner);
 
   const createdAt = useSelector((state) => state.blog.blog.createdAt);
@@ -14,7 +22,7 @@ function UserDetails() {
 
   const category = useSelector((state) => state.blog.blog.category);
 
-  const tags = useSelector((state) => state.blog.blog.tags);  
+  const tags = useSelector((state) => state.blog.blog.tags);
 
   const liked = useSelector((state) => state.blog.blog.isLiked);
 
@@ -22,11 +30,44 @@ function UserDetails() {
 
   const isFollowed = useSelector((state) => state.blog.blog.isFollowed);
 
+  const followersCount = useSelector((state) => state.blog.blog.followersCount);
+
+  const user = useSelector((state) => state.auth.user);
+
   const formattedDate = new Date(createdAt).toLocaleDateString("en-GB", {
     day: "2-digit",
     month: "short",
     year: "numeric",
   });
+
+  const handleClickOnFollow = async (e) => {
+    try {
+      const response = await axios
+        .post(
+          `${server}/follow/toggle-follow`,
+          {
+            followId: owner._id,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${user?.accessToken}`,
+            },
+          }
+        )
+        .then((res) => res.data);
+
+      if (response.statusCode === 200) {
+        if (isFollowed) {
+          dispatch(setIsFollowed(false));
+        } else {
+          dispatch(setIsFollowed(true));
+        }
+      }
+    } catch (error) {
+      navigate("/login");
+      console.log(error);
+    }
+  };
 
   return (
     <>
@@ -41,10 +82,16 @@ function UserDetails() {
               <div className="mr-2">
                 <p className="font-semibold">{owner.userName}</p>
               </div>
-              <div>
-                <button className="bg-priary hover:bg-highlight text-white font-bold py-1 px-2 rounded-full text-xs">
+              <div className="flex">
+                <button
+                  onClick={handleClickOnFollow}
+                  className={`bg-priary hover:bg-highlight text-white font-bold py-1 px-2 rounded-full text-xs ${
+                    user?._id === owner._id ? "hidden" : "block"
+                  }`}
+                >
                   {isFollowed ? "Following" : "Follow"}
                 </button>
+                <p className="ml-2 text-sm">{followersCount} followers</p>
               </div>
             </div>
           </div>

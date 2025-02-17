@@ -6,10 +6,7 @@ import { mongoose } from "mongoose";
 import { User } from "../models/user.model.js";
 
 const toggleFollowUser = asyncHandler(async (req, res) => {
-  // Get the user id of the user to follow/unfollow
-  // Get the user id of the user who wants to follow/unfollow
-  // Check if the user to follow/unfollow exists
-
+  // Get the user id of the followed/unfollowed
   const { followId } = req.body;
 
   if (!followId) {
@@ -23,6 +20,7 @@ const toggleFollowUser = asyncHandler(async (req, res) => {
     throw new ApiError(400, "You cannot follow/unfollow yourself");
   }
 
+  // check if that user exists
   const userExists = await User.findById(followId);
 
   if (!userExists) {
@@ -39,17 +37,25 @@ const toggleFollowUser = asyncHandler(async (req, res) => {
       followedBy: req.user._id,
       followedTo: userExists._id,
     });
-    return res
-      .status(200)
-      .json(new ApiResponse(200, {}, "Unfollowed successfully"));
+    return res.status(200).json(
+      new ApiResponse({
+        statusCode: 200,
+        data: {},
+        message: "Unfollowed successfully",
+      })
+    );
   } else {
     await Follow.create({
       followedBy: req.user._id,
       followedTo: userExists._id,
     });
-    return res
-      .status(201)
-      .json(new ApiResponse(201, {}, "Followed successfully"));
+    return res.status(200).json(
+      new ApiResponse({
+        statusCode: 200,
+        data: {},
+        message: "Followed successfully",
+      })
+    );
   }
 });
 
