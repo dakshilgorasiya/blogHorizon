@@ -26,30 +26,30 @@ const toggleLike = asyncHandler(async (req, res) => {
     const like = await Like.findOne({ comment: id, likedBy: req.user.id });
 
     // If the user has already liked the comment, remove the like else add the like
+    let userLiked = false;
     if (like) {
+      userLiked = false;
       await Like.deleteOne({ _id: like._id });
-
-      return res.status(200).json(
-        new ApiResponse({
-          statusCode: 200,
-          message: "Like removed from comment",
-          data: null,
-        })
-      );
     } else {
+      userLiked = true;
       await Like.create({ comment: id, likedBy: req.user.id });
-
-      return res.status(200).json(
-        new ApiResponse({
-          statusCode: 200,
-          message: "Comment liked",
-          data: null,
-        })
-      );
     }
+
+    const likes = await Like.find({ comment: id });
+
+    return res.status(200).json(
+      new ApiResponse({
+        statusCode: 200,
+        message: "Comment like toggled",
+        data: {
+          totalLikes: likes.length,
+          userLiked,
+        },
+      })
+    );
   } else if (type == "blog") {
     // Check if the blog exists
-    console.log(id)
+    console.log(id);
     const blog = await Blog.findById(id);
 
     if (!blog) {
@@ -59,28 +59,29 @@ const toggleLike = asyncHandler(async (req, res) => {
     // Check if the user has already liked the blog
     const like = await Like.findOne({ blog: id, likedBy: req.user.id });
 
+    let userLiked = false;
+
     // If the user has already liked the blog, remove the like else add the like
     if (like) {
+      userLiked = false;
       await like.deleteOne({ _id: like._id });
-
-      return res.status(200).json(
-        new ApiResponse({
-          statusCode: 200,
-          message: "Like removed from blog",
-          data: null,
-        })
-      );
     } else {
+      userLiked = true;
       await Like.create({ blog: id, likedBy: req.user.id });
-
-      return res.status(200).json(
-        new ApiResponse({
-          statusCode: 200,
-          message: "Blog liked",
-          data: null,
-        })
-      );
     }
+
+    const likes = await Like.find({ blog: id });
+
+    return res.status(200).json(
+      new ApiResponse({
+        statusCode: 200,
+        message: "Blog like toggled",
+        data: {
+          totalLikes: likes.length,
+          userLiked,
+        },
+      })
+    );
   } else {
     throw new ApiError("Invalid type", 400);
   }

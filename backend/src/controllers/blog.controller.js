@@ -350,6 +350,7 @@ const getBlogById = asyncHandler(async (req, res) => {
       throw new ApiError(401, "Invalid access token");
     }
   } catch (error) {
+    console.log(error);
     user = null;
   }
 
@@ -387,7 +388,7 @@ const getBlogById = asyncHandler(async (req, res) => {
   if (user) {
     let favorite = false;
     for (let i = 0; i < user.favorite.length; i++) {
-      if (user.favorite[i].toString() === blogId.toString()) {
+      if (user.favorite[i].toString() === blogId.id) {
         favorite = true;
         break;
       }

@@ -4,7 +4,11 @@ import { motion } from "framer-motion";
 import { Heart, ThumbsUp, MessageSquare, Share2 } from "lucide-react";
 import axios from "axios";
 import { server } from "../../constants.js";
-import { setIsFollowed, setIsLiked } from "../../features/blog/blogSlice.js";
+import {
+  setIsFollowed,
+  setIsLiked,
+  toggleIsFavorite,
+} from "../../features/blog/blogSlice.js";
 import { useNavigate } from "react-router-dom";
 import { callSecureApi } from "../../utils/callSecureApi.js";
 
@@ -90,11 +94,34 @@ function UserDetails() {
       console.log(response);
 
       if (response.statusCode === 200) {
-        if (liked) {
-          dispatch(setIsLiked(false));
-        } else {
-          dispatch(setIsLiked(true));
-        }
+        dispatch(setIsLiked({
+          isLiked: response.data.userLiked,
+          likeCount: response.data.totalLikes,
+        }));
+      }
+    } catch (error) {
+      console.log(error);
+      navigate("/login");
+    }
+  };
+
+  const handleClickFavorite = async (e) => {
+    try {
+      const response = await callSecureApi({
+        url: `${server}/user/makeBlogFavorite`,
+        method: "POST",
+        body: {
+          blogId,
+        },
+        accessToken: user?.accessToken,
+        dispatch,
+        setError,
+      });
+
+      console.log(response);
+
+      if (response.statusCode === 200) {
+        dispatch(toggleIsFavorite());
       }
     } catch (error) {
       console.log(error);
@@ -118,13 +145,13 @@ function UserDetails() {
               <div className="flex">
                 <button
                   onClick={handleClickOnFollow}
-                  className={`bg-priary hover:bg-highlight text-white font-bold py-1 px-2 rounded-full text-xs ${
+                  className={`bg-priary hover:bg-highlight text-white font-bold mr-2 py-1 px-2 rounded-full text-xs ${
                     user?._id === owner._id ? "hidden" : "block"
                   }`}
                 >
                   {isFollowed ? "Following" : "Follow"}
                 </button>
-                <p className="ml-2 text-sm">{followersCount} followers</p>
+                <p className="text-sm">{followersCount} followers</p>
               </div>
             </div>
           </div>
@@ -172,6 +199,7 @@ function UserDetails() {
               <motion.button
                 className="flex items-center justify-center hover:scale-110 transition-transform"
                 whileTap={{ scale: 0.9 }}
+                onClick={handleClickFavorite}
               >
                 <Heart
                   size={20}

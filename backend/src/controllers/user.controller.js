@@ -135,7 +135,7 @@ const loginUser = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Email and password are required");
   }
 
-  console.log(email)
+  console.log(email);
 
   // find the user
   const user = await User.findOne({ email });
@@ -319,44 +319,50 @@ const updateBio = asyncHandler(async (req, res) => {
 });
 
 const makeBlogFavorite = asyncHandler(async (req, res) => {
-  // get blog id from frontend
-  // get user from request
-  // check if blog exists
-  // check if blog is already favorite
   // add blog to favorite list
   // return response
 
+  // get blog id from frontend
   const { blogId } = req.body;
 
   if (!blogId) {
     throw new ApiError(400, "Blog id is required");
   }
 
+  // check if blog exists
   const blog = await Blog.findById(blogId);
 
   if (!blog) {
     throw new ApiError(404, "Blog not found");
   }
 
-  const user = await User.findById(req.user._id);
+  // get user from request
+  const user = req.user;
+
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
 
   if (!user.favorite) {
     user.favorite = [];
   }
 
+  // check if blog is already favorite
   if (user.favorite.includes(blogId)) {
-    throw new ApiError(400, "Blog already favorite");
+    user.favorite = user.favorite.filter((id) => id.toString() !== blogId);
+  } else {
+    user.favorite.push(blogId);
   }
 
-  user.favorite.push(blogId);
-
-  await user.save({
-    validateBeforeSave: false,
-  });
+  await user.save();
 
   return res
     .status(200)
-    .json(new ApiResponse(200, user, "Blog added to favorite successfully"));
+    .json(new ApiResponse({
+      statusCode: 200,
+      data: {},
+      message: "Blog favorite updated successfully",
+    }));
 });
 
 const renewAccessToken = asyncHandler(async (req, res) => {

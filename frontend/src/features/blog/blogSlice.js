@@ -60,12 +60,11 @@ const blogSlice = createSlice({
       }
     },
     setIsLiked: (state, action) => {
-      state.blog.isLiked = action.payload;
-      if (action.payload) {
-        state.blog.likeCount += 1;
-      } else {
-        state.blog.likeCount -= 1;
-      }
+      state.blog.isLiked = action.payload.isLiked;
+      state.blog.likeCount = action.payload.likeCount;
+    },
+    toggleIsFavorite: (state, action) => {
+      state.blog.isFavorite = !state.blog.isFavorite;
     },
   },
 });
@@ -81,4 +80,5 @@ export const {
   setApiBlog,
   setIsFollowed,
   setIsLiked,
+  toggleIsFavorite,
 } = blogSlice.actions;

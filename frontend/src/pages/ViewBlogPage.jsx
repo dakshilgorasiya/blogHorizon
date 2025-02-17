@@ -5,38 +5,71 @@ import { server } from "../constants.js";
 import { setApiBlog } from "../features/blog/blogSlice.js";
 import { useDispatch, useSelector } from "react-redux";
 import { Code, Image, Text, Title, UserDetails } from "../components";
+import { callSecureApi } from "../utils/callSecureApi.js";
+import { setUser } from "../features/auth/authSlice.js";
 
 function ViewBlogPage() {
   const dispatch = useDispatch();
 
-  const { id } = useParams();
-
   const user = useSelector((state) => state.auth.user);
+
+  const { id } = useParams();
 
   const content = useSelector((state) => state.blog.blog.content);
 
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        setLoading(true);
-        const response = await axios
-          .get(`${server}/blog/getBlogById/${id}`, {
-            headers: {
-              Authorization: `Bearer ${user?.accessToken}`,
-            },
-          })
-          .then((res) => res.data);
-        dispatch(setApiBlog(response.data));
-      } catch (error) {
-        console.log(error);
-      } finally {
-        setLoading(false);
-      }
-    }
+  const [error, setError] = useState(null);
 
-    fetchData();
+  useEffect(() => {
+    const fetchBlogAndUser = async () => {
+      const fetchUser = async () => {
+        try {
+          const response = await axios
+            .post(`${server}/user/renew-access-token`, null, {
+              withCredentials: true,
+            })
+            .then((res) => res.data)
+            .catch((error) => {
+              throw error;
+            });
+
+          dispatch(setUser(response.data));
+
+          return response.data.accessToken || null;
+        } catch (error) {
+          setError(error.response.data.message);
+        }
+      };
+
+      async function fetchData(accessToken = user?.accessToken) {
+        try {
+          setLoading(true);
+
+          const response = await callSecureApi({
+            url: `${server}/blog/getBlogById/${id}`,
+            method: "GET",
+            accessToken,
+            setError,
+            dispatch,
+          });
+
+          dispatch(setApiBlog(response.data));
+        } catch (error) {
+          console.log(error);
+        } finally {
+          setLoading(false);
+        }
+      }
+      if (!user) {
+        const tempStoredAccessToken = await fetchUser();
+        fetchData(tempStoredAccessToken);
+      } else {
+        fetchData();
+      }
+    };
+
+    fetchBlogAndUser();
   }, []);
 
   if (loading) {
