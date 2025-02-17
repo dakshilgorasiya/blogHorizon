@@ -15,7 +15,7 @@ import { verifyAccessToken } from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
-router.route("/createBlog").post(
+router.route("/create-blog").post(
   verifyAccessToken,
   upload.fields([
     {
@@ -25,9 +25,9 @@ router.route("/createBlog").post(
   createBlog
 );
 
-// router.route("/getAllBlogs").get(verifyJWT, getAllBlogs);
+router.route("/get-all-blogs").get(getAllBlogs);
 
-router.route("/getBlogById/:id").get(getBlogById);
+router.route("/get-blog-by-id/:id").get(getBlogById);
 
 // router.route("/getBlogOfUser").get(verifyJWT, getBlogOfUser);
 

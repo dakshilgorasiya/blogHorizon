@@ -126,7 +126,7 @@ function CreateBlogPage() {
     formData.append("tags", JSON.stringify(blog.tags));
 
     try {
-      const response = await axios.post(`${server}/blog/createBlog`, formData, {
+      const response = await axios.post(`${server}/blog/create-blog`, formData, {
         headers: {
           Authorization: `Bearer ${user.accessToken}`,
         },

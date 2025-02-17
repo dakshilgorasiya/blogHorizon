@@ -47,7 +47,7 @@ function ViewBlogPage() {
           setLoading(true);
 
           const response = await callSecureApi({
-            url: `${server}/blog/getBlogById/${id}`,
+            url: `${server}/blog/get-blog-by-id/${id}`,
             method: "GET",
             accessToken,
             setError,

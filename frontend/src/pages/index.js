@@ -5,6 +5,7 @@ import ResetPassword from "./ResetPasswordPage";
 import CompleteProfile from "./CompleteProfilePage";
 import CreateBlogPage from "./CreateBlogPage";
 import ViewBlogPage from "./ViewBlogPage";
+import HomePage from "./HomePage";
 
 export {
   Login,
@@ -14,4 +15,5 @@ export {
   CompleteProfile,
   CreateBlogPage,
   ViewBlogPage,
+  HomePage,
 };

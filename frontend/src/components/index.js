@@ -17,6 +17,7 @@ import Image from "./ViewBlog/Image";
 import Text from "./ViewBlog/Text";
 import Title from "./ViewBlog/Title";
 import UserDetails from "./ViewBlog/UserDetails";
+import BlogCard from "./BlogCard/BlogCard";
 
 export {
   Login,
@@ -38,4 +39,5 @@ export {
   Text,
   Title,
   UserDetails,
+  BlogCard,
 };

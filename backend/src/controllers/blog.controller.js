@@ -106,125 +106,109 @@ const createBlog = asyncHandler(async (req, res) => {
 });
 
 const getAllBlogs = asyncHandler(async (req, res) => {
-  // get category and sort from the request body
   // get pagination details from the query
-  // get blogs with user details
-  // use pagination to limit the number of blogs
-  // send the response
-
-  const category = req.body.category || null;
-
-  const sortCriteria = req.body.sort || "createdAt";
-
   const page = parseInt(req.body.page) || 1;
   const limit = parseInt(req.body.limit) || 10;
 
-  try {
-    // let blogs = Blog.aggregate();
+  // get all blogs with user details, likes, comments, followers
+  const blogs = Blog.aggregate([
+    {
+      $lookup: {
+        from: "users",
+        localField: "owner",
+        foreignField: "_id",
+        as: "owner",
+        pipeline: [
+          {
+            $project: {
+              _id: 1,
+              userName: 1,
+              avatar: 1,
+            },
+          },
+        ],
+      },
+    },
+    {
+      $unwind: "$owner",
+    },
+    {
+      $lookup: {
+        from: "follows",
+        localField: "owner._id",
+        foreignField: "followedTo",
+        as: "followers",
+      },
+    },
+    {
+      $addFields: {
+        followersCount: {
+          $size: "$followers",
+        },
+      },
+    },
+    {
+      $lookup: {
+        from: "comments",
+        localField: "_id",
+        foreignField: "blog",
+        as: "comments",
+      },
+    },
+    {
+      $addFields: {
+        commentCount: {
+          $size: "$comments",
+        },
+      },
+    },
+    {
+      $lookup: {
+        from: "likes",
+        localField: "_id",
+        foreignField: "blog",
+        as: "likes",
+      },
+    },
+    {
+      $addFields: {
+        likeCount: {
+          $size: "$likes",
+        },
+      },
+    },
+    {
+      $project: {
+        title: 1,
+        tags: 1,
+        category: 1,
+        owner: 1,
+        createdAt: 1,
+        commentCount: 1,
+        followersCount: 1,
+        likeCount: 1,
+      },
+    },
+  ]);
 
-    let blogs;
+  const options = {
+    page,
+    limit,
+  };
 
-    if (!category) {
-      blogs = Blog.aggregate([
-        {
-          $sort: {
-            [sortCriteria]: -1,
-          },
-        },
-        {
-          $lookup: {
-            from: "users",
-            localField: "owner",
-            foreignField: "_id",
-            as: "owner",
-            pipeline: [
-              {
-                $project: {
-                  _id: 1,
-                  userName: 1,
-                  avatar: 1,
-                },
-              },
-            ],
-          },
-        },
-        {
-          $unwind: "$owner",
-        },
-        {
-          $project: {
-            title: 1,
-            tag: 1,
-            category: 1,
-            thumbnail: 1,
-            owner: 1,
-            createdAt: 1,
-            view: 1,
-          },
-        },
-      ]);
-    } else {
-      blogs = Blog.aggregate([
-        {
-          $match: {
-            category: category,
-          },
-        },
-        {
-          $sort: {
-            [sortCriteria]: -1,
-          },
-        },
-        {
-          $lookup: {
-            from: "users",
-            localField: "owner",
-            foreignField: "_id",
-            as: "owner",
-            pipeline: [
-              {
-                $project: {
-                  _id: 1,
-                  userName: 1,
-                  avatar: 1,
-                },
-              },
-            ],
-          },
-        },
-        {
-          $unwind: "$owner",
-        },
-        {
-          $project: {
-            title: 1,
-            tag: 1,
-            category: 1,
-            thumbnail: 1,
-            owner: 1,
-            createdAt: 1,
-            view: 1,
-          },
-        },
-      ]);
-    }
-    const options = {
-      page,
-      limit,
-    };
-
-    await Blog.aggregatePaginate(blogs, options)
-      .then(function (result) {
-        return res
-          .status(200)
-          .json(new ApiResponse(200, result, "Blogs fetched successfully"));
-      })
-      .catch(function (error) {
-        throw new ApiError(500, error.message);
-      });
-  } catch (error) {
-    throw new ApiError(500, error.message);
-  }
+  await Blog.aggregatePaginate(blogs, options)
+    .then(function (result) {
+      return res.status(200).json(
+        new ApiResponse({
+          statusCode: 200,
+          data: result,
+          message: "Blogs fetched successfully",
+        })
+      );
+    })
+    .catch(function (error) {
+      throw new ApiError(500, error.message);
+    });
 });
 
 const getBlogById = asyncHandler(async (req, res) => {
