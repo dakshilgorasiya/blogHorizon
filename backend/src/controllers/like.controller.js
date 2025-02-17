@@ -7,12 +7,7 @@ import { Comment } from "../models/comment.model.js";
 import mongoose from "mongoose";
 
 const toggleLike = asyncHandler(async (req, res) => {
-  // Get the user id from the request
-  // Get the blog id or comment id from the request
-  // get the type from the request
-  // toggle like
-  // return the response
-
+  // Get the user id and type of like from the request
   const { type, id } = req.body;
 
   if (!type || !id) {
@@ -20,40 +15,71 @@ const toggleLike = asyncHandler(async (req, res) => {
   }
 
   if (type == "comment") {
+    // Check if the comment exists
     const comment = await Comment.findById(id);
 
     if (!comment) {
       throw new ApiError("Comment not found", 404);
     }
 
+    // Check if the user has already liked the comment
     const like = await Like.findOne({ comment: id, likedBy: req.user.id });
 
+    // If the user has already liked the comment, remove the like else add the like
     if (like) {
       await Like.deleteOne({ _id: like._id });
 
-      return res.status(200).json(new ApiResponse(200, "Like removed", null));
+      return res.status(200).json(
+        new ApiResponse({
+          statusCode: 200,
+          message: "Like removed from comment",
+          data: null,
+        })
+      );
     } else {
       await Like.create({ comment: id, likedBy: req.user.id });
 
-      return res.status(201).json(new ApiResponse(201, "Liked", null));
+      return res.status(200).json(
+        new ApiResponse({
+          statusCode: 200,
+          message: "Comment liked",
+          data: null,
+        })
+      );
     }
   } else if (type == "blog") {
+    // Check if the blog exists
+    console.log(id)
     const blog = await Blog.findById(id);
 
     if (!blog) {
       throw new ApiError("Blog not found", 404);
     }
 
+    // Check if the user has already liked the blog
     const like = await Like.findOne({ blog: id, likedBy: req.user.id });
 
+    // If the user has already liked the blog, remove the like else add the like
     if (like) {
       await like.deleteOne({ _id: like._id });
 
-      return res.status(200).json(new ApiResponse(200, "Like removed", null));
+      return res.status(200).json(
+        new ApiResponse({
+          statusCode: 200,
+          message: "Like removed from blog",
+          data: null,
+        })
+      );
     } else {
       await Like.create({ blog: id, likedBy: req.user.id });
 
-      return res.status(201).json(new ApiResponse(201, "Liked", null));
+      return res.status(200).json(
+        new ApiResponse({
+          statusCode: 200,
+          message: "Blog liked",
+          data: null,
+        })
+      );
     }
   } else {
     throw new ApiError("Invalid type", 400);

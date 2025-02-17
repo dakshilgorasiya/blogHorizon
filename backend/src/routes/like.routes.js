@@ -8,10 +8,10 @@ import { verifyAccessToken } from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
-// router.route("/toggleLike").post(verifyJWT, toggleLike);
+router.route("/toggle-like").post(verifyAccessToken, toggleLike);
 
-// router.route("/getLikes").get(verifyJWT, getLikes);
+// router.route("/get-likes").get(verifyJWT, getLikes);
 
-// router.route("/checkLike").get(verifyJWT, checkLike);
+// router.route("/check-like").get(verifyJWT, checkLike);
 
 export default router;

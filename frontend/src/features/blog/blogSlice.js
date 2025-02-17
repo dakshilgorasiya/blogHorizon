@@ -59,6 +59,14 @@ const blogSlice = createSlice({
         state.blog.followersCount -= 1;
       }
     },
+    setIsLiked: (state, action) => {
+      state.blog.isLiked = action.payload;
+      if (action.payload) {
+        state.blog.likeCount += 1;
+      } else {
+        state.blog.likeCount -= 1;
+      }
+    },
   },
 });
 
@@ -72,4 +80,5 @@ export const {
   resetBlog,
   setApiBlog,
   setIsFollowed,
+  setIsLiked,
 } = blogSlice.actions;

@@ -4,13 +4,18 @@ import { motion } from "framer-motion";
 import { Heart, ThumbsUp, MessageSquare, Share2 } from "lucide-react";
 import axios from "axios";
 import { server } from "../../constants.js";
-import { setIsFollowed } from "../../features/blog/blogSlice.js";
+import { setIsFollowed, setIsLiked } from "../../features/blog/blogSlice.js";
 import { useNavigate } from "react-router-dom";
+import { callSecureApi } from "../../utils/callSecureApi.js";
 
 function UserDetails() {
   const navigate = useNavigate();
 
+  const [error, setError] = useState(null);
+
   const dispatch = useDispatch();
+
+  const blogId = useSelector((state) => state.blog.blog._id);
 
   const owner = useSelector((state) => state.blog.blog.owner);
 
@@ -42,19 +47,18 @@ function UserDetails() {
 
   const handleClickOnFollow = async (e) => {
     try {
-      const response = await axios
-        .post(
-          `${server}/follow/toggle-follow`,
-          {
-            followId: owner._id,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${user?.accessToken}`,
-            },
-          }
-        )
-        .then((res) => res.data);
+      const response = await callSecureApi({
+        url: `${server}/follow/toggle-follow`,
+        method: "POST",
+        body: {
+          followId: owner._id,
+        },
+        accessToken: user?.accessToken,
+        dispatch,
+        setError,
+      });
+
+      console.log(response);
 
       if (response.statusCode === 200) {
         if (isFollowed) {
@@ -64,8 +68,37 @@ function UserDetails() {
         }
       }
     } catch (error) {
-      navigate("/login");
       console.log(error);
+      navigate("/login");
+    }
+  };
+
+  const handleClickLike = async (e) => {
+    try {
+      const response = await callSecureApi({
+        url: `${server}/like/toggle-like`,
+        method: "POST",
+        body: {
+          type: "blog",
+          id: blogId,
+        },
+        accessToken: user?.accessToken,
+        dispatch,
+        setError,
+      });
+
+      console.log(response);
+
+      if (response.statusCode === 200) {
+        if (liked) {
+          dispatch(setIsLiked(false));
+        } else {
+          dispatch(setIsLiked(true));
+        }
+      }
+    } catch (error) {
+      console.log(error);
+      navigate("/login");
     }
   };
 
@@ -111,6 +144,7 @@ function UserDetails() {
               <motion.button
                 className="flex items-center justify-center hover:scale-110 transition-transform"
                 whileTap={{ scale: 0.9 }}
+                onClick={handleClickLike}
               >
                 <ThumbsUp
                   size={20}
