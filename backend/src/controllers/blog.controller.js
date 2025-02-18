@@ -187,6 +187,7 @@ const getAllBlogs = asyncHandler(async (req, res) => {
         commentCount: 1,
         followersCount: 1,
         likeCount: 1,
+        content: 1,
       },
     },
   ]);
@@ -198,6 +199,10 @@ const getAllBlogs = asyncHandler(async (req, res) => {
 
   await Blog.aggregatePaginate(blogs, options)
     .then(function (result) {
+      result.docs.map((blog) => {
+        blog.thumbnail = blog.content[0].data;
+        blog.content = null;
+      });
       return res.status(200).json(
         new ApiResponse({
           statusCode: 200,
