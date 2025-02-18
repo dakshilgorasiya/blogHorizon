@@ -12,10 +12,14 @@ import {
   resetPassword,
   googleOauth,
   verifyOtp,
-  profileComplete
+  profileComplete,
+  getUserProfile,
 } from "../controllers/user.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
-import { verifyAccessToken } from "../middlewares/auth.middleware.js";
+import {
+  verifyAccessToken,
+  checkUserLoggedIn,
+} from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
@@ -61,5 +65,7 @@ router.route("/google-oauth").post(googleOauth);
 router.route("/verify-otp").post(verifyOtp);
 
 router.route("/profile-complete").post(verifyAccessToken, profileComplete);
+
+router.route("/user-profile/:userId").get(checkUserLoggedIn, getUserProfile);
 
 export default router;

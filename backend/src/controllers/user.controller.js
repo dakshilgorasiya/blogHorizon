@@ -3,13 +3,16 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { sendMail } from "../utils/sendMail.js";
 import { User } from "../models/user.model.js";
-import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { Blog } from "../models/blog.model.js";
+import { Follow } from "../models/follow.model.js";
+import { Like } from "../models/like.model.js";
+import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { COOKIE_CONFIG, BLOG_CATEGORY } from "../constants.js";
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
 import fs from "fs";
 import { OAuth2Client } from "google-auth-library";
+import mongoose from "mongoose";
 
 //* controller for user registration
 const registerUser = asyncHandler(async (req, res) => {
@@ -356,13 +359,13 @@ const makeBlogFavorite = asyncHandler(async (req, res) => {
 
   await user.save();
 
-  return res
-    .status(200)
-    .json(new ApiResponse({
+  return res.status(200).json(
+    new ApiResponse({
       statusCode: 200,
       data: {},
       message: "Blog favorite updated successfully",
-    }));
+    })
+  );
 });
 
 const renewAccessToken = asyncHandler(async (req, res) => {
@@ -746,6 +749,142 @@ const profileComplete = asyncHandler(async (req, res) => {
   );
 });
 
+const getUserProfile = asyncHandler(async (req, res) => {
+  // get user id from url
+  const { userId } = req.params;
+
+  if (!userId) {
+    throw new ApiError(400, "User id is required");
+  }
+
+  // get user details from db and remove password, refreshtoken field, otp fields, resetToken fields calculate followers, following and find blogs
+  let user = await User.aggregate([
+    {
+      $match: { _id: new mongoose.Types.ObjectId(userId) },
+    },
+    {
+      $lookup: {
+        from: "follows",
+        localField: "_id",
+        foreignField: "followedBy",
+        as: "following",
+      },
+    },
+    {
+      $addFields: { following: { $size: "$following" } },
+    },
+    {
+      $lookup: {
+        from: "follows",
+        localField: "_id",
+        foreignField: "followTo",
+        as: "followers",
+      },
+    },
+    {
+      $addFields: { followers: { $size: "$followers" } },
+    },
+    {
+      $lookup: {
+        from: "blogs",
+        localField: "_id",
+        foreignField: "owner",
+        as: "blogs",
+        pipeline: [
+          {
+            $lookup: {
+              from: "likes",
+              localField: "_id",
+              foreignField: "blog",
+              as: "likes",
+            },
+          },
+          {
+            $addFields: { likes: { $size: "$likes" } },
+          },
+          {
+            $lookup: {
+              from: "comments",
+              localField: "_id",
+              foreignField: "blog",
+              as: "comments",
+            },
+          },
+          {
+            $addFields: { comments: { $size: "$comments" } },
+          },
+          {
+            $project: {
+              title: 1,
+              tags: 1,
+              category: 1,
+              owner: 1,
+              createdAt: 1,
+              likes: 1,
+              comments: 1,
+              content: 1,
+            },
+          },
+        ],
+      },
+    },
+    {
+      $project: {
+        password: 0,
+        refreshToken: 0,
+        otp: 0,
+        otpAttempts: 0,
+        otpExpiry: 0,
+        resetPasswordToken: 0,
+        resetPasswordTokenExpiry: 0,
+      },
+    },
+  ]);
+
+  user = user[0];
+
+  // console.log(user);
+
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+
+  user.blogs.map((blog) => {
+    blog.thumbnail = blog.content[0].data;
+    blog.content = null;
+  });
+
+  // if user is found than check if user is following the user and has liked the blog
+  if (req?.user) {
+    // check if user is following the user
+    const following = await Follow.findOne({
+      followedBy: req?.user?._id,
+      followTo: new mongoose.Types.ObjectId(userId),
+    });
+    if (following) user.isFollowing = true;
+    else user.isFollowing = false;
+
+    // check if user has liked the blog
+    await Promise.all(
+      user.blogs.map(async (blog) => {
+        const liked = await Like.findOne({
+          blog: blog._id,
+          likedBy: req?.user?._id,
+        });
+        if (liked) blog.isLiked = true;
+        else blog.isLiked = false;
+      })
+    );
+  }
+
+  // return response
+  return res.status(200).json({
+    statusCode: 200,
+    data: user,
+    message: "User profile fetched successfully",
+  });
+});
+
 export {
   registerUser,
   loginUser,
@@ -760,4 +899,5 @@ export {
   googleOauth,
   verifyOtp,
   profileComplete,
+  getUserProfile,
 };

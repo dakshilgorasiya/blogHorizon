@@ -11,7 +11,10 @@ import {
   getInterests,
 } from "../controllers/blog.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
-import { verifyAccessToken } from "../middlewares/auth.middleware.js";
+import {
+  verifyAccessToken,
+  checkUserLoggedIn,
+} from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
@@ -25,9 +28,9 @@ router.route("/create-blog").post(
   createBlog
 );
 
-router.route("/get-all-blogs").get(getAllBlogs);
+router.route("/get-all-blogs").get(checkUserLoggedIn, getAllBlogs);
 
-router.route("/get-blog-by-id/:id").get(getBlogById);
+router.route("/get-blog-by-id/:id").get(checkUserLoggedIn, getBlogById);
 
 // router.route("/getBlogOfUser").get(verifyJWT, getBlogOfUser);
 

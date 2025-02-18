@@ -198,11 +198,32 @@ const getAllBlogs = asyncHandler(async (req, res) => {
   };
 
   await Blog.aggregatePaginate(blogs, options)
-    .then(function (result) {
+    .then(async function (result) {
+      const checkLikedByUser = async (userId) => {
+        await Promise.all(
+          result.docs.map(async (blog) => {
+            const like = await Like.findOne({
+              likedBy: new mongoose.Types.ObjectId(userId),
+              blog: new mongoose.Types.ObjectId(blog._id),
+            });
+            if (like) {
+              blog.isLiked = true;
+            } else {
+              blog.isLiked = false;
+            }
+          })
+        );
+      };
+
+      if (req.user) {
+        await checkLikedByUser(req.user._id);
+      }
+
       result.docs.map((blog) => {
         blog.thumbnail = blog.content[0].data;
         blog.content = null;
       });
+
       return res.status(200).json(
         new ApiResponse({
           statusCode: 200,
@@ -315,33 +336,7 @@ const getBlogById = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Blog not found");
   }
 
-  let user;
-
-  try {
-    // Get the access token from the Authorization header
-    const authHeader = req.headers["authorization"];
-    const accessToken = authHeader && authHeader.split(" ")[1];
-
-    if (!accessToken || accessToken === "null") {
-      throw new ApiError(401, "Access token not found");
-    }
-
-    // Verify the access token
-    const decodedToken = jwt.verify(
-      accessToken,
-      process.env.ACCESS_TOKEN_SECRET
-    );
-
-    // Find the user with the id from the decoded token
-    user = await User.findById(decodedToken._id);
-
-    if (!user) {
-      throw new ApiError(401, "Invalid access token");
-    }
-  } catch (error) {
-    console.log(error);
-    user = null;
-  }
+  let user = req.user;
 
   // update history of user if user is logged in
   if (user) {

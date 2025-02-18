@@ -12,6 +12,8 @@ function BlogCard({ blog }) {
     year: "numeric",
   });
 
+  console.log(blog);
+
   return (
     <>
       <div className="grid grid-cols-12 border rounded-lg border-gray-500 p-4 shadow-sm shadow-secondary">

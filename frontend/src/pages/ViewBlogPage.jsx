@@ -61,12 +61,12 @@ function ViewBlogPage() {
           setLoading(false);
         }
       }
-      if (!user) {
-        const tempStoredAccessToken = await fetchUser();
-        fetchData(tempStoredAccessToken);
-      } else {
+      // if (!user) {
+      //   const tempStoredAccessToken = await fetchUser();
+      //   fetchData(tempStoredAccessToken);
+      // } else {
         fetchData();
-      }
+      // }
     };
 
     fetchBlogAndUser();
