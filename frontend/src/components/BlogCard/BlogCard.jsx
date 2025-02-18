@@ -1,39 +1,9 @@
 import { Avatar } from "@mantine/core";
 import React from "react";
 import { ThumbsUp, MessageSquare, Calendar } from "lucide-react";
+import { Link } from "react-router-dom";
 
-function BlogCard() {
-  const blog = {
-    _id: "67b22349be3526c0beced02a",
-    title: "ECMAScript 2025: What’s Actually Coming to JavaScript? 🚀✨",
-    owner: {
-      _id: "67b1c637927d53d6d076742e",
-      userName: "Dakshil Coder",
-      avatar:
-        "http://res.cloudinary.com/bloghorizon/image/upload/v1739703713/zzytnxeuzpuogj2nxlxc.jpg",
-    },
-    content: null,
-    category: "Personal Development",
-    tags: [
-      "#personal",
-      "#development",
-      "#personaldevelopment",
-      "#travel",
-      "#blog",
-      "#blogging",
-      "#coding",
-      "#programming",
-      "#webdevelopment",
-      "#webdesign",
-    ],
-    createdAt: "2025-02-16T17:41:29.609Z",
-    followersCount: 1,
-    commentCount: 0,
-    likeCount: 0,
-    thumbnail:
-      "http://res.cloudinary.com/bloghorizon/image/upload/v1739727690/vfeinw4et7n5iwz3prob.jpg",
-  };
-
+function BlogCard({ blog }) {
   const formattedBlogCategory = blog.category.replace(/ /g, "").toLowerCase();
 
   const formattedDate = new Date(blog.createdAt).toLocaleDateString("en-GB", {
@@ -48,18 +18,24 @@ function BlogCard() {
         <div className="sm:ml-5 mt-2 col-span-7">
           <div className="flex items-center">
             <div className="mr-3">
-              <img
-                src={blog.owner.avatar}
-                alt=""
-                className="rounded-full sm:h-14 sm:w-14 h-10 w-10"
-              />
+              <Link to={`/profile/${blog.owner._id}`}>
+                <img
+                  src={blog.owner.avatar}
+                  alt=""
+                  className="rounded-full sm:h-14 sm:w-14 h-10 w-10"
+                />
+              </Link>
             </div>
 
             <div>
               <div className="mr-2">
-                <p className="font-semibold text-sm md:text-lg">
-                  {blog.owner.userName}
-                </p>
+                <Link
+                  to={`/profile/${blog.owner._id}`}
+                >
+                  <p className="font-semibold text-sm md:text-lg">
+                    {blog.owner.userName}
+                  </p>
+                </Link>
               </div>
               <div className="flex">
                 <p className="sm:text-sm text-xs">
@@ -70,7 +46,9 @@ function BlogCard() {
           </div>
 
           <div className="mt-3 ml-3">
-            <h1 className="sm:text-2xl font-bold">{blog.title}</h1>
+            <Link to={`/view-blog/${blog._id}`} className="hover:underline">
+              <h1 className="sm:text-2xl font-bold">{blog.title}</h1>
+            </Link>
           </div>
 
           <div className="mt-3">
@@ -81,12 +59,16 @@ function BlogCard() {
               </div>
 
               <div className="flex items-center ml-5 mr-5">
-                <ThumbsUp size={18} className="text-gray-500" />
+                <Link to={`/view-blog/${blog._id}`} className="hover:underline">
+                  <ThumbsUp size={18} className="text-gray-500" />
+                </Link>
                 <p className="ml-1">{blog.likeCount}</p>
               </div>
 
               <div className="flex items-center">
-                <MessageSquare size={18} className="text-gray-500" />
+                <Link to={`/view-blog/${blog._id}`} className="hover:underline">
+                  <MessageSquare size={18} className="text-gray-500" />
+                </Link>
                 <p className="ml-1">{blog.commentCount}</p>
               </div>
             </div>
@@ -108,11 +90,13 @@ function BlogCard() {
         </div>
 
         <div className="ml-auto col-span-5">
-          <img
-            src={blog.thumbnail}
-            alt="thumbnail"
-            className="w-full rounded-lg lg:h-full"
-          />
+          <Link to={`/view-blog/${blog._id}`}>
+            <img
+              src={blog.thumbnail}
+              alt="thumbnail"
+              className="w-full rounded-lg lg:h-full"
+            />
+          </Link>
         </div>
       </div>
     </>

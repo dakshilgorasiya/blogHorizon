@@ -1,7 +1,28 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { BlogCard } from "../components";
+import { server } from "../constants.js";
+import axios from "axios";
 
 function HomePage() {
+  const [response, setResponse] = useState();
+
+  const [blogs, setBlogs] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios
+          .get(`${server}/blog/get-all-blogs`)
+          .then((res) => res.data);
+        setBlogs(response.data.docs);
+        console.log(response);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchData();
+  }, []);
+
   const tempData = [
     {
       _id: "67b22119be3526c0bececfee",
@@ -40,9 +61,9 @@ function HomePage() {
   return (
     <>
       <div className="sm:w-11/12 my-2 p-5 max-w-5xl m-auto gap-4 grid">
-        <BlogCard />
-        <BlogCard />
-        <BlogCard />
+        {blogs.map((blog) => (
+          <BlogCard key={blog._id} blog={blog} />
+        ))}
       </div>
     </>
   );

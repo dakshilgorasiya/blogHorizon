@@ -6,6 +6,7 @@ import CompleteProfile from "./CompleteProfilePage";
 import CreateBlogPage from "./CreateBlogPage";
 import ViewBlogPage from "./ViewBlogPage";
 import HomePage from "./HomePage";
+import ProfilePage from "./ProfilePage";
 
 export {
   Login,
@@ -16,4 +17,5 @@ export {
   CreateBlogPage,
   ViewBlogPage,
   HomePage,
+  ProfilePage,
 };
