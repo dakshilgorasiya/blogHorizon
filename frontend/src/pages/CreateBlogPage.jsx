@@ -22,15 +22,15 @@ function CreateBlogPage() {
 
   const user = useSelector((state) => state.auth.user);
 
-  useEffect(() => {
-    if (!user) {
-      navigate("/login");
-    }
-    if (user && !user.accessToken) {
-      navigate("/login");
-    }
-    dispatch(resetBlog());
-  }, []);
+  // useEffect(() => {
+  //   if (!user) {
+  //     navigate("/login");
+  //   }
+  //   if (user && !user.accessToken) {
+  //     navigate("/login");
+  //   }
+  //   dispatch(resetBlog());
+  // }, []);
 
   const dispatch = useDispatch();
 

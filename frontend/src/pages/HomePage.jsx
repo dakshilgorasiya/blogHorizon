@@ -39,7 +39,9 @@ function HomePage() {
 
   return (
     <>
-      <div className="sm:w-11/12 my-2 p-5 max-w-5xl m-auto">
+      <div className="sm:w-11/12 my-2 p-5 max-w-5xl m-auto gap-4 grid">
+        <BlogCard />
+        <BlogCard />
         <BlogCard />
       </div>
     </>

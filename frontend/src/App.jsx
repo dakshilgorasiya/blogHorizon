@@ -4,7 +4,7 @@ import { setUser, setErrorMessage } from "./features/auth/authSlice.js";
 import axios from "axios";
 import { server } from "./constants.js";
 import { useDispatch } from "react-redux";
-import { HomePage } from "./pages";
+import { HomePage, CreateBlogPage } from "./pages";
 
 function App() {
   const dispatch = useDispatch();
@@ -33,8 +33,8 @@ function App() {
 
   return (
     <>
-      <div className="p-0 m-0 border-2 border-red-500">
-        <HomePage />
+      <div className="p-0 m-0">
+        <CreateBlogPage />
       </div>
     </>
   );

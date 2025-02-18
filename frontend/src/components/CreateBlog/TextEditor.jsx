@@ -32,7 +32,7 @@ function TextEditor({ index }) {
       Highlight,
       TextAlign.configure({ types: ["heading", "paragraph"] }),
       Placeholder.configure({
-        placeholder: "Please enter text and format it as your imgination",
+        placeholder: "Please enter text",
       }),
     ],
     onCreate: ({ editor }) => {

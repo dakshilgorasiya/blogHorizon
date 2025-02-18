@@ -44,7 +44,7 @@ function BlogCard() {
 
   return (
     <>
-      <div className="grid grid-cols-12 border rounded-lg border-gray-500 p-4">
+      <div className="grid grid-cols-12 border rounded-lg border-gray-500 p-4 shadow-sm shadow-secondary">
         <div className="sm:ml-5 mt-2 col-span-7">
           <div className="flex items-center">
             <div className="mr-3">
@@ -92,7 +92,7 @@ function BlogCard() {
             </div>
           </div>
 
-          <div className="ml-3 flex flex-wrap max-w-fit min-w-80 pr-2">
+          <div className="ml-3 flex flex-wrap max-w-fit min-w-80 sm:min-w-[30rem] pr-2">
             <p className="sm:text-sm text-xs text-gray-500 m-1 mr-2 inline">
               #{formattedBlogCategory}
             </p>
@@ -111,7 +111,7 @@ function BlogCard() {
           <img
             src={blog.thumbnail}
             alt="thumbnail"
-            className="w-full  rounded-lg lg:h-full"
+            className="w-full rounded-lg lg:h-full"
           />
         </div>
       </div>

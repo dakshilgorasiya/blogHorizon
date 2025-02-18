@@ -24,13 +24,13 @@ function UploadImage({ index, placeholder }) {
 
   return (
     <div>
-      <label className="w-full min-h-40 flex flex-col items-center justify-center border-2 border-dashed rounded-lg cursor-pointer">
+      <label className="w-full min-h-40 max-h-96 flex flex-col items-center justify-center border-2 border-dashed rounded-lg cursor-pointer">
         <input type="file" className="hidden" onChange={handleFileChange} />
         {preview ? (
           <img
             src={preview}
             alt="Preview"
-            className="w-full h-full object-cover rounded-lg"
+            className="w-full h-full max-h-96 object-cover rounded-lg"
           />
         ) : (
           <div className="flex flex-col items-center">
