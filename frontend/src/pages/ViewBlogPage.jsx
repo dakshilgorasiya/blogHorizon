@@ -22,54 +22,26 @@ function ViewBlogPage() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchBlogAndUser = async () => {
-      const fetchUser = async () => {
-        try {
-          const response = await axios
-            .post(`${server}/user/renew-access-token`, null, {
-              withCredentials: true,
-            })
-            .then((res) => res.data)
-            .catch((error) => {
-              throw error;
-            });
+    async function fetchData(accessToken = user?.accessToken) {
+      try {
+        setLoading(true);
 
-          dispatch(setUser(response.data));
+        const response = await callSecureApi({
+          url: `${server}/blog/get-blog-by-id/${id}`,
+          method: "GET",
+          accessToken,
+          setError,
+          dispatch,
+        });
 
-          return response.data.accessToken || null;
-        } catch (error) {
-          setError(error.response.data.message);
-        }
-      };
-
-      async function fetchData(accessToken = user?.accessToken) {
-        try {
-          setLoading(true);
-
-          const response = await callSecureApi({
-            url: `${server}/blog/get-blog-by-id/${id}`,
-            method: "GET",
-            accessToken,
-            setError,
-            dispatch,
-          });
-
-          dispatch(setApiBlog(response.data));
-        } catch (error) {
-          console.log(error);
-        } finally {
-          setLoading(false);
-        }
+        dispatch(setApiBlog(response.data));
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoading(false);
       }
-      // if (!user) {
-      //   const tempStoredAccessToken = await fetchUser();
-      //   fetchData(tempStoredAccessToken);
-      // } else {
-        fetchData();
-      // }
-    };
-
-    fetchBlogAndUser();
+    }
+    fetchData();
   }, []);
 
   if (loading) {

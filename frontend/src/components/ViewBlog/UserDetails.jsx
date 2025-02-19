@@ -9,7 +9,7 @@ import {
   setIsLiked,
   toggleIsFavorite,
 } from "../../features/blog/blogSlice.js";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { callSecureApi } from "../../utils/callSecureApi.js";
 
 function UserDetails() {
@@ -94,10 +94,12 @@ function UserDetails() {
       console.log(response);
 
       if (response.statusCode === 200) {
-        dispatch(setIsLiked({
-          isLiked: response.data.userLiked,
-          likeCount: response.data.totalLikes,
-        }));
+        dispatch(
+          setIsLiked({
+            isLiked: response.data.userLiked,
+            likeCount: response.data.totalLikes,
+          })
+        );
       }
     } catch (error) {
       console.log(error);
@@ -135,12 +137,19 @@ function UserDetails() {
         <div className="grid grid-cols-2 gap-4 mt-3">
           <div className="flex items-center">
             <div className="mr-3">
-              <img src={owner?.avatar} className="rounded-full h-14 w-14" />
+              <Link to={`/profile/${owner._id}`} className="flex items-center">
+                <img src={owner?.avatar} className="rounded-full h-14 w-14" />
+              </Link>
             </div>
 
             <div>
               <div className="mr-2">
-                <p className="font-semibold">{owner.userName}</p>
+                <Link
+                  to={`/profile/${owner._id}`}
+                  className="flex items-center"
+                >
+                  <p className="font-semibold">{owner.userName}</p>
+                </Link>
               </div>
               <div className="flex">
                 <button

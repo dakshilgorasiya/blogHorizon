@@ -3,7 +3,7 @@ import React from "react";
 import { ThumbsUp, MessageSquare, Calendar } from "lucide-react";
 import { Link } from "react-router-dom";
 
-function BlogCard({ blog }) {
+function BlogCard({ blog, showUserDetails = true }) {
   const formattedBlogCategory = blog.category.replace(/ /g, "").toLowerCase();
 
   const formattedDate = new Date(blog.createdAt).toLocaleDateString("en-GB", {
@@ -12,40 +12,38 @@ function BlogCard({ blog }) {
     year: "numeric",
   });
 
-  console.log(blog);
-
   return (
     <>
       <div className="grid grid-cols-12 border rounded-lg border-gray-500 p-4 shadow-sm shadow-secondary">
         <div className="sm:ml-5 mt-2 col-span-7">
-          <div className="flex items-center">
-            <div className="mr-3">
-              <Link to={`/profile/${blog.owner._id}`}>
-                <img
-                  src={blog.owner.avatar}
-                  alt=""
-                  className="rounded-full sm:h-14 sm:w-14 h-10 w-10"
-                />
-              </Link>
-            </div>
-
-            <div>
-              <div className="mr-2">
-                <Link
-                  to={`/profile/${blog.owner._id}`}
-                >
-                  <p className="font-semibold text-sm md:text-lg">
-                    {blog.owner.userName}
-                  </p>
+          {showUserDetails && (
+            <div className="flex items-center">
+              <div className="mr-3">
+                <Link to={`/profile/${blog.owner._id}`}>
+                  <img
+                    src={blog.owner.avatar}
+                    alt=""
+                    className="rounded-full sm:h-14 sm:w-14 h-10 w-10"
+                  />
                 </Link>
               </div>
-              <div className="flex">
-                <p className="sm:text-sm text-xs">
-                  {blog.followersCount} followers
-                </p>
+
+              <div>
+                <div className="mr-2">
+                  <Link to={`/profile/${blog.owner._id}`}>
+                    <p className="font-semibold text-sm md:text-lg">
+                      {blog.owner.userName}
+                    </p>
+                  </Link>
+                </div>
+                <div className="flex">
+                  <p className="sm:text-sm text-xs">
+                    {blog.followersCount} followers
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
           <div className="mt-3 ml-3">
             <Link to={`/view-blog/${blog._id}`} className="hover:underline">
@@ -54,7 +52,7 @@ function BlogCard({ blog }) {
           </div>
 
           <div className="mt-3">
-            <div className="flex items-center ml-3">
+            <div className="flex items-center flex-wrap ml-3">
               <div className="flex items-center">
                 <Calendar size={18} className="text-gray-500" />
                 <p className="text-sm font-sm ml-1 w-max">{formattedDate}</p>

@@ -837,6 +837,12 @@ const getUserProfile = asyncHandler(async (req, res) => {
         otpExpiry: 0,
         resetPasswordToken: 0,
         resetPasswordTokenExpiry: 0,
+        history: 0,
+        favorite: 0,
+        interests: 0,
+        emailVerified: 0,
+        profileCompleted: 0,
+        
       },
     },
   ]);
