@@ -5,6 +5,7 @@ import axios from "axios";
 import { server } from "./constants.js";
 import { useDispatch } from "react-redux";
 import { HomePage, CreateBlogPage } from "./pages";
+import { BlogComment } from "./components";
 
 function App() {
   const dispatch = useDispatch();
@@ -34,7 +35,8 @@ function App() {
   return (
     <>
       <div className="p-0 m-0">
-        <HomePage />
+        {/* <HomePage /> */}
+        <BlogComment blogId={"67b1d0057f26638640cf75a5"} />
       </div>
     </>
   );

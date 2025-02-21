@@ -7,8 +7,8 @@ import { verifyAccessToken } from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
-// router.route("/postComment").post(verifyJWT, postComment);
+router.route("/postComment").post(verifyAccessToken, postComment);
 
-// router.route("/getAllComments").get(verifyJWT, getAllComments);
+router.route("/getAllComments").get(getAllComments);
 
 export default router;

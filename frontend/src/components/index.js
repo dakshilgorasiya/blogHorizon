@@ -21,6 +21,8 @@ import BlogCard from "./BlogCard/BlogCard";
 import UserInfo from "./Profile/UserInfo";
 import UserBlog from "./Profile/UserBlog";
 import Notify from "./Notify/Notify";
+import BlogComment from "./Comments/BlogComment";
+import Reply from "./Comments/Reply";
 
 export {
   Login,
@@ -46,4 +48,6 @@ export {
   UserInfo,
   UserBlog,
   Notify,
+  BlogComment,
+  Reply,
 };

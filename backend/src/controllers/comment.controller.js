@@ -7,10 +7,6 @@ import mongoose from "mongoose";
 
 const postComment = asyncHandler(async (req, res) => {
   // Get the blog, content from the request
-  // get type of comment
-  // Create a comment
-  // Return the response
-
   const { blogId, content, commentId } = req.body;
 
   if (!content) {
@@ -21,36 +17,48 @@ const postComment = asyncHandler(async (req, res) => {
     throw new ApiError("Blog or Comment is required", 400);
   }
 
+  // get type of comment
   if (blogId) {
+    // Create a comment
     const comment = await Comment.create({
       owner: req.user._id,
       blog: blogId,
       content,
     });
-    return res.status(201).json(new ApiResponse(201, comment, "Commented"));
+    return res.status(201).json(
+      new ApiResponse({
+        statusCode: 201,
+        data: comment,
+        message: "Commented",
+      })
+    );
   } else {
+    // Create a comment
     const comment = await Comment.create({
       owner: req.user._id,
       comment: commentId,
       content,
     });
-    return res.status(201).json(new ApiResponse(201, comment, "Commented"));
+    return res.status(201).json(
+      new ApiResponse({
+        statusCode: 201,
+        data: comment,
+        message: "Commented",
+      })
+    );
   }
 });
 
 const getAllComments = asyncHandler(async (req, res) => {
-  // Get the page and limit from the request
-  // Get the comments
-  // Return the response
-
-  const { blogId, commentId } = req.body;
+  // Get the blog or content from the request
+  const { blogId, commentId } = req.query;
 
   if (!(blogId || commentId)) {
     throw new ApiError("Blog or Comment is required", 400);
   }
 
   if (blogId) {
-    const aggregateComment = Comment.aggregate([
+    const comments = await Comment.aggregate([
       {
         $match: { blog: new mongoose.Types.ObjectId(blogId) },
       },
@@ -64,7 +72,7 @@ const getAllComments = asyncHandler(async (req, res) => {
             {
               $project: {
                 _id: 1,
-                username: 1,
+                userName: 1,
                 avatar: 1,
               },
             },
@@ -74,35 +82,43 @@ const getAllComments = asyncHandler(async (req, res) => {
       {
         $unwind: "$owner",
       },
+      {
+        $lookup: {
+          from: "comments",
+          localField: "_id",
+          foreignField: "comment",
+          as: "replies",
+        },
+      },
+      {
+        $addFields: {
+          haveReplies: {
+            $cond: {
+              if: { $gt: [{ $size: "$replies" }, 0] },
+              then: true,
+              else: false,
+            },
+          },
+        },
+      },
+      {
+        $addFields: {
+          replies: {
+            $size: "$replies",
+          },
+        },
+      },
     ]);
 
-    const comments = await Comment.aggregatePaginate(aggregateComment, {
-      page: parseInt(req.body.page) || 1,
-      limit: parseInt(req.body.limit) || 10,
-    });
-
-    let tempArr = comments.docs.map(async (comment) => {
-      const likeDocs = await Like.find({ comment: comment._id });
-      comment.likes = likeDocs.length === 0 ? 0 : likeDocs.length;
-      
-      const isLiked = await Like.findOne({ comment: comment._id, likedBy: req.user._id });
-      comment.liked = isLiked ? true : false;
-
-      const replies = await Comment.find({ comment: comment._id });
-      comment.replies = replies.length === 0 ? 0 : replies.length;
-
-      return comment;
-    });
-
-    await Promise.all(tempArr).then((comment)=>{
-      comments.docs = comment;
-    }).catch((error)=>{
-      throw new ApiError(`Error ${error}`, 500);
-    })
-
-    return res.status(200).json(new ApiResponse(200, comments, "Comments"));
-  }else{
-    const aggregateComment = Comment.aggregate([
+    return res.status(200).json(
+      new ApiResponse({
+        statusCode: 200,
+        data: comments,
+        message: "Comments fetched successfully",
+      })
+    );
+  } else {
+    const comments = await Comment.aggregate([
       {
         $match: { comment: new mongoose.Types.ObjectId(commentId) },
       },
@@ -116,7 +132,7 @@ const getAllComments = asyncHandler(async (req, res) => {
             {
               $project: {
                 _id: 1,
-                username: 1,
+                userName: 1,
                 avatar: 1,
               },
             },
@@ -126,33 +142,41 @@ const getAllComments = asyncHandler(async (req, res) => {
       {
         $unwind: "$owner",
       },
+      {
+        $lookup: {
+          from: "comments",
+          localField: "_id",
+          foreignField: "comment",
+          as: "replies",
+        },
+      },
+      {
+        $addFields: {
+          haveReplies: {
+            $cond: {
+              if: { $gt: [{ $size: "$replies" }, 0] },
+              then: true,
+              else: false,
+            },
+          },
+        },
+      },
+      {
+        $addFields: {
+          replies: {
+            $size: "$replies",
+          },
+        },
+      },
     ]);
 
-    const comments = await Comment.aggregatePaginate(aggregateComment, {
-      page: parseInt(req.body.page) || 1,
-      limit: parseInt(req.body.limit) || 10,
-    });
-
-    let tempArr = comments.docs.map(async (comment) => {
-      const likeDocs = await Like.find({ comment: comment._id });
-      comment.likes = likeDocs.length === 0 ? 0 : likeDocs.length;
-      
-      const isLiked = await Like.findOne({ comment: comment._id, likedBy: req.user._id });
-      comment.liked = isLiked ? true : false;
-
-      const replies = await Comment.find({ comment: comment._id });
-      comment.replies = replies.length === 0 ? 0 : replies.length;
-
-      return comment;
-    });
-
-    await Promise.all(tempArr).then((comment)=>{
-      comments.docs = comment;
-    }).catch((error)=>{
-      throw new ApiError(`Error ${error}`, 500);
-    })
-
-    return res.status(200).json(new ApiResponse(200, comments, "Comments"));
+    return res.status(200).json(
+      new ApiResponse({
+        statusCode: 200,
+        data: comments,
+        message: "Comments fetched successfully",
+      })
+    );
   }
 });
 

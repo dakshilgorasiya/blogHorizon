@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
 
 //* Define the schema for the comment model
 const commentSchema = new mongoose.Schema(
@@ -27,8 +26,5 @@ const commentSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-
-// Add pagination plugin to the schema to enable pagination
-commentSchema.plugin(mongooseAggregatePaginate);
 
 export const Comment = mongoose.model("Comment", commentSchema);
