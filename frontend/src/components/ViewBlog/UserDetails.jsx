@@ -11,11 +11,18 @@ import {
 } from "../../features/blog/blogSlice.js";
 import { useNavigate, Link } from "react-router-dom";
 import { callSecureApi } from "../../utils/callSecureApi.js";
+import { Notify } from "../../components";
 
 function UserDetails() {
   const navigate = useNavigate();
 
   const [error, setError] = useState(null);
+
+  const [open, setOpen] = useState(false);
+
+  const [message, setMessage] = useState("");
+
+  const [type, setType] = useState("success");
 
   const dispatch = useDispatch();
 
@@ -133,6 +140,8 @@ function UserDetails() {
 
   return (
     <>
+      <Notify message={message} setOpen={setOpen} open={open} type={type} />
+
       <div className="shadow-lg p-3 border-accent rounded">
         <div className="grid grid-cols-2 gap-4 mt-3">
           <div className="flex items-center">

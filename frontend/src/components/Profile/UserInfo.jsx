@@ -3,6 +3,7 @@ import { server } from "../../constants.js";
 import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
 import { callSecureApi } from "../../utils/callSecureApi.js";
+import { Notify } from "../../components";
 
 function UserInfo({ data }) {
   const dispatch = useDispatch();
@@ -10,6 +11,8 @@ function UserInfo({ data }) {
   const user = useSelector((state) => state.auth.user);
 
   const [error, setError] = useState(null);
+
+  const [open, setOpen] = useState(false);
 
   const [isFollowing, setIsFollowing] = useState(data.isFollowing);
 
@@ -33,6 +36,7 @@ function UserInfo({ data }) {
       console.log(response);
 
       if (response?.success) {
+        setOpen(true);
         setIsFollowing((prev) => !prev);
       }
     } catch (error) {
@@ -42,6 +46,17 @@ function UserInfo({ data }) {
 
   return (
     <>
+      <div>
+        <Notify
+          message={`${
+            isFollowing ? "Followed successfully" : "Unfollowed successfully"
+          }`}
+          setOpen={setOpen}
+          open={open}
+          type="success"
+        />
+      </div>
+
       <div className="flex flex-col items-center border border-black shadow-sm shadow-stone-600 rounded-lg m-2 lg:ml-5 p-5">
         <div>
           <img src={data.avatar} className="rounded-full w-60 h-60" />
