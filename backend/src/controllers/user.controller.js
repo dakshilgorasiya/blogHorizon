@@ -842,14 +842,11 @@ const getUserProfile = asyncHandler(async (req, res) => {
         interests: 0,
         emailVerified: 0,
         profileCompleted: 0,
-        
       },
     },
   ]);
 
   user = user[0];
-
-  // console.log(user);
 
   if (!user) {
     throw new ApiError(404, "User not found");
@@ -865,7 +862,7 @@ const getUserProfile = asyncHandler(async (req, res) => {
     // check if user is following the user
     const following = await Follow.findOne({
       followedBy: req?.user?._id,
-      followTo: new mongoose.Types.ObjectId(userId),
+      followedTo: new mongoose.Types.ObjectId(userId),
     });
     if (following) user.isFollowing = true;
     else user.isFollowing = false;

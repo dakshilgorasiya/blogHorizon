@@ -3,16 +3,28 @@ import { useParams } from "react-router-dom";
 import { UserInfo, UserBlog } from "../components";
 import axios from "axios";
 import { server } from "../constants.js";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { renewAccessToken } from "../utils/renewAccessToken.js";
 
 function ProfilePage() {
   const { id } = useParams();
 
-  const [data, setData] = React.useState(null);
+  const dispatch = useDispatch();
+
+  const [data, setData] = useState(null);
 
   const [loading, setLoading] = useState(true);
 
+  const [error, setError] = useState(null);
+
   const user = useSelector((state) => state.auth.user);
+
+  useEffect(() => {
+    const renew = async () => {
+      await renewAccessToken({ dispatch, setError });
+    };
+    if (!user) renew();
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -25,13 +37,13 @@ function ProfilePage() {
           })
           .then((res) => res.data);
 
-          console.log(response.data);
+        console.log(response.data);
 
         response.data.blogs.map((blog) => {
           blog.owner = response.data;
-            blog.followersCount = response.data.followers;
-            blog.likeCount = blog.likes;
-            blog.commentCount = blog.comments;
+          blog.followersCount = response.data.followers;
+          blog.likeCount = blog.likes;
+          blog.commentCount = blog.comments;
         });
 
         setData(response.data);
@@ -43,7 +55,7 @@ function ProfilePage() {
     };
 
     fetchData();
-  }, [id]);
+  }, [id, user]);
 
   if (loading) {
     return <div>Loading...</div>;

@@ -1,10 +1,44 @@
-import React from "react";
-import { useSelector } from "react-redux";
+import React, { useState, useEffect } from "react";
+import { server } from "../../constants.js";
+import axios from "axios";
+import { useSelector, useDispatch } from "react-redux";
+import { callSecureApi } from "../../utils/callSecureApi.js";
 
 function UserInfo({ data }) {
-  const handleClickOnFollow = () => {};
+  const dispatch = useDispatch();
 
   const user = useSelector((state) => state.auth.user);
+
+  const [error, setError] = useState(null);
+
+  const [isFollowing, setIsFollowing] = useState(data.isFollowing);
+
+  useEffect(() => {
+    setIsFollowing(data.isFollowing);
+  }, [data]);
+
+  const handleClickOnFollow = async (e) => {
+    try {
+      const response = await callSecureApi({
+        url: `${server}/follow/toggle-follow`,
+        method: "POST",
+        body: {
+          followId: data._id,
+        },
+        accessToken: user?.accessToken,
+        dispatch,
+        setError,
+      });
+
+      console.log(response);
+
+      if (response?.success) {
+        setIsFollowing((prev) => !prev);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <>
@@ -28,7 +62,7 @@ function UserInfo({ data }) {
               user?._id === data._id ? "hidden" : "block"
             }`}
           >
-            {data.isFollowed ? "Following" : "Follow"}
+            {isFollowing ? "Following" : "Follow"}
           </button>
         </div>
 

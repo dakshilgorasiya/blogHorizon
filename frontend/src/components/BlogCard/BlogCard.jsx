@@ -60,7 +60,14 @@ function BlogCard({ blog, showUserDetails = true }) {
 
               <div className="flex items-center ml-5 mr-5">
                 <Link to={`/view-blog/${blog._id}`} className="hover:underline">
-                  <ThumbsUp size={18} className="text-gray-500" />
+                  <ThumbsUp
+                    size={18}
+                    className={` ${
+                      blog.isLiked
+                        ? "fill-priary text-secondary"
+                        : "text-gray-500"
+                    }`}
+                  />
                 </Link>
                 <p className="ml-1">{blog.likeCount}</p>
               </div>
