@@ -88,12 +88,8 @@ const toggleLike = asyncHandler(async (req, res) => {
 });
 
 const getLikes = asyncHandler(async (req, res) => {
-  // Get the blog id or comment id from the request
-  // get the type from the request
-  // get the likes
-  // return the response
-
-  const { type, id } = req.body;
+  // Get the type and id from the request
+  const { type, id } = req.query;
 
   if (!type || !id) {
     throw new ApiError("Type and id are required", 400);
@@ -106,22 +102,34 @@ const getLikes = asyncHandler(async (req, res) => {
       throw new ApiError("Comment not found", 404);
     }
 
-    const likes = await Like.aggregate([
-      {
-        $match: { comment: comment._id },
-      },
-      {
-        $count: "totalLikes",
-      },
-    ]);
+    // get the likes
+    const likes = await Like.find({ comment: comment._id });
 
-    if (!likes.length) {
-      return res
-        .status(200)
-        .json(new ApiResponse(200, { totalLikes: 0 }, "No likes"));
+    let userLiked = false;
+
+    // if user is logged id check if the user liked the comment
+    if (req.user) {
+      const like = await Like.findOne({
+        comment: comment._id,
+        likedBy: req.user.id,
+      });
+      if (like) {
+        userLiked = true;
+      } else {
+        userLiked = false;
+      }
     }
 
-    return res.status(200).json(new ApiResponse(200, likes[0], "Likes"));
+    return res.status(200).json(
+      new ApiResponse({
+        statusCode: 200,
+        message: "Likes",
+        data: {
+          totalLikes: likes.length,
+          userLiked,
+        },
+      })
+    );
   } else if (type == "blog") {
     const blog = await Blog.findById(id);
 
@@ -129,22 +137,31 @@ const getLikes = asyncHandler(async (req, res) => {
       throw new ApiError("Blog not found", 404);
     }
 
-    const likes = await Like.aggregate([
-      {
-        $match: { blog: blog._id },
-      },
-      {
-        $count: "totalLikes",
-      },
-    ]);
+    // get the likes
+    const likes = await Like.find({ blog: blog._id });
 
-    if (!likes.length) {
-      return res
-        .status(200)
-        .json(new ApiResponse(200, { totalLikes: 0 }, "No likes"));
+    let userLiked = false;
+
+    // if user is logged id check if the user liked the blog
+    if (req.user) {
+      const like = await Like.findOne({ blog: blog._id, likedBy: req.user.id });
+      if (like) {
+        userLiked = true;
+      } else {
+        userLiked = false;
+      }
     }
 
-    return res.status(200).json(new ApiResponse(200, likes[0], "Likes"));
+    return res.status(200).json(
+      new ApiResponse({
+        statusCode: 200,
+        message: "Likes",
+        data: {
+          totalLikes: likes.length,
+          userLiked,
+        },
+      })
+    );
   } else {
     throw new ApiError("Invalid type", 400);
   }

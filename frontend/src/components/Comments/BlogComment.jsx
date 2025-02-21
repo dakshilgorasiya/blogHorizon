@@ -5,12 +5,25 @@ import { timeAgo } from "../../utils/timeAgo.js";
 import { ThumbsUp } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { Reply } from "../../components";
+import { callSecureApi } from "../../utils/callSecureApi.js";
+import { useSelector, useDispatch } from "react-redux";
 
 function BlogComment({ blogId }) {
+  const dispatch = useDispatch();
+
+  const user = useSelector((state) => state.auth.user);
+
+  const [error, setError] = useState(null);
+
   const [comments, setComments] = useState([]);
+
   const [showReply, setShowReply] = useState([]);
+
+  const [liked, setLiked] = useState([]);
+
+  const [likeCount, setLikeCount] = useState([]);
 
   const [loading, setLoading] = useState(true);
 
@@ -20,11 +33,17 @@ function BlogComment({ blogId }) {
         const response = await axios
           .get(`${server}/comment/getAllComments`, {
             params: { blogId: blogId },
+            headers: {
+              Authorization: `Bearer ${user?.accessToken}`,
+            },
           })
           .then((res) => res.data);
 
+        console.log(response.data);
         setComments(response.data);
         setShowReply(response.data.map(() => false));
+        setLiked(response.data.map((comment) => comment.userLiked));
+        setLikeCount(response.data.map((comment) => comment.likes));
       } catch (error) {
         console.log(error);
       } finally {
@@ -33,10 +52,33 @@ function BlogComment({ blogId }) {
     };
 
     fetchComments();
-  }, []);
+  }, [user]);
 
-  const handleClickLike = (index) => {
-    console.log(index);
+  const handleClickLike = async (index) => {
+    const response = await callSecureApi({
+      url: `${server}/like/toggle-like`,
+      method: "POST",
+      body: {
+        type: "comment",
+        id: comments[index]._id,
+      },
+      accessToken: user?.accessToken,
+      dispatch,
+      setError,
+    });
+    console.log(response);
+    if (response?.success) {
+      setLiked((prev) => {
+        let temp = [...prev];
+        temp[index] = response.data.userLiked;
+        return temp;
+      });
+      setLikeCount((prev) => {
+        let temp = [...prev];
+        temp[index] = response.data.totalLikes;
+        return temp;
+      });
+    }
   };
 
   const handleClickReply = (index) => {
@@ -90,10 +132,14 @@ function BlogComment({ blogId }) {
             >
               <ThumbsUp
                 size={20}
-                className="text-gray-500 hover:fill-gray-400 transition-all duration-300"
+                className={`text-gray-500 hover:fill-gray-400 transition-all duration-300 ${
+                  liked[index] && "fill-priary text-secondary"
+                }`}
               />
             </motion.button>
-            <p className="text-sm text-gray-600">{10}</p>
+
+            <p className="text-sm text-gray-600 ml-1">{likeCount[index]}</p>
+
             {comment?.haveReplies && (
               <div>
                 <button

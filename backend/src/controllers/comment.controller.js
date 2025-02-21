@@ -108,7 +108,43 @@ const getAllComments = asyncHandler(async (req, res) => {
           },
         },
       },
+      {
+        $lookup: {
+          from: "likes",
+          localField: "_id",
+          foreignField: "comment",
+          as: "likes",
+        },
+      },
+      {
+        $addFields: {
+          likes: {
+            $size: "$likes",
+          },
+        },
+      },
     ]);
+
+    // if user is logged in check if the user liked the comment
+    if (req.user) {
+      await Promise.all(
+        comments.map(async (comment) => {
+          const like = await Like.findOne({
+            comment: comment._id,
+            likedBy: req.user._id,
+          });
+          if (like) {
+            comment.userLiked = true;
+          } else {
+            comment.userLiked = false;
+          }
+        })
+      );
+    } else {
+      comments.map((comment) => {
+        comment.userLiked = false;
+      });
+    }
 
     return res.status(200).json(
       new ApiResponse({
@@ -168,7 +204,43 @@ const getAllComments = asyncHandler(async (req, res) => {
           },
         },
       },
+      {
+        $lookup: {
+          from: "likes",
+          localField: "_id",
+          foreignField: "comment",
+          as: "likes",
+        },
+      },
+      {
+        $addFields: {
+          likes: {
+            $size: "$likes",
+          },
+        },
+      },
     ]);
+
+    // if user is logged in check if the user liked the comment
+    if (req.user) {
+      await Promise.all(
+        comments.map(async (comment) => {
+          const like = await Like.findOne({
+            comment: comment._id,
+            likedBy: req.user._id,
+          });
+          if (like) {
+            comment.userLiked = true;
+          } else {
+            comment.userLiked = false;
+          }
+        })
+      );
+    } else {
+      comments.map((comment) => {
+        comment.userLiked = false;
+      });
+    }
 
     return res.status(200).json(
       new ApiResponse({
