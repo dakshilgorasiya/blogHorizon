@@ -23,6 +23,7 @@ import UserBlog from "./Profile/UserBlog";
 import Notify from "./Notify/Notify";
 import BlogComment from "./Comments/BlogComment";
 import Reply from "./Comments/Reply";
+import PostComment from "./Comments/PostComment";
 
 export {
   Login,
@@ -50,4 +51,5 @@ export {
   Notify,
   BlogComment,
   Reply,
+  PostComment,
 };

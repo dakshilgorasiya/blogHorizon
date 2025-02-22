@@ -66,6 +66,9 @@ const blogSlice = createSlice({
     toggleIsFavorite: (state, action) => {
       state.blog.isFavorite = !state.blog.isFavorite;
     },
+    setCommentCount: (state, action) => {
+      state.blog.commentCount = action.payload;
+    },
   },
 });
 
@@ -81,4 +84,5 @@ export const {
   setIsFollowed,
   setIsLiked,
   toggleIsFavorite,
+  setCommentCount,  
 } = blogSlice.actions;

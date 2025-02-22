@@ -11,7 +11,7 @@ import { callSecureApi } from "../../utils/callSecureApi.js";
 import { useSelector, useDispatch } from "react-redux";
 import { Notify } from "../../components";
 
-function BlogComment({ blogId }) {
+function BlogComment({ blogId, comments, setComments }) {
   const dispatch = useDispatch();
 
   const user = useSelector((state) => state.auth.user);
@@ -19,8 +19,6 @@ function BlogComment({ blogId }) {
   const [error, setError] = useState(null);
 
   const [open, setOpen] = useState(false);
-
-  const [comments, setComments] = useState([]);
 
   const [showReply, setShowReply] = useState([]);
 
@@ -194,7 +192,7 @@ function BlogComment({ blogId }) {
                 />
               </motion.button>
 
-              <p className="text-sm text-gray-600 ml-1">{likeCount[index]}</p>
+              <p className="text-sm text-gray-600 ml-1">{likeCount[index] || 0}</p>
 
               <div className="ml-2">
                 <button

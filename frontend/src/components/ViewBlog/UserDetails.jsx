@@ -11,9 +11,7 @@ import {
 } from "../../features/blog/blogSlice.js";
 import { useNavigate, Link } from "react-router-dom";
 import { callSecureApi } from "../../utils/callSecureApi.js";
-import { Notify } from "../../components";
-import Drawer from "@mui/material/Drawer";
-import { BlogComment } from "../../components";
+import { Notify, PostComment, BlogComment } from "../../components";
 import SwipeableDrawer from "@mui/material/SwipeableDrawer";
 
 function UserDetails() {
@@ -29,6 +27,8 @@ function UserDetails() {
 
   const [showComment, setShowComment] = useState(false);
 
+  const [comments, setComments] = useState([]);
+
   const dispatch = useDispatch();
 
   const blogId = useSelector((state) => state.blog.blog._id);
@@ -39,7 +39,7 @@ function UserDetails() {
 
   const likes = useSelector((state) => state.blog.blog.likeCount);
 
-  const comments = useSelector((state) => state.blog.blog.commentCount);
+  const commentCount = useSelector((state) => state.blog.blog.commentCount);
 
   const category = useSelector((state) => state.blog.blog.category);
 
@@ -161,7 +161,12 @@ function UserDetails() {
           }} // Limits height and adds rounded corners
         >
           <div className="p-4">
-            <BlogComment blogId={blogId} />
+            <PostComment blogId={blogId} setComment={setComments} />
+            <BlogComment
+              blogId={blogId}
+              comments={comments}
+              setComments={setComments}
+            />
           </div>
         </SwipeableDrawer>
       </div>
@@ -235,7 +240,7 @@ function UserDetails() {
               >
                 <MessageSquare size={20} className="text-gray-500" />
               </motion.button>
-              <p className="ml-1">{comments}</p>
+              <p className="ml-1">{commentCount}</p>
             </div>
           </div>
 

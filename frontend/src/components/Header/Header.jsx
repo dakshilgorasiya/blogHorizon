@@ -32,7 +32,7 @@ function Header() {
           Reset Password
         </button>
       </Link>
-      <Link to="/view-blog/67b1d0057f26638640cf75a5">
+      <Link to="/view-blog/67b9c9ecdc33b11239ba6135">
         <button className="bg-blue-500 text-white px-4 py-2 mx-5 rounded hover:bg-blue-700">
           View Blog
         </button>
@@ -51,6 +51,11 @@ function Header() {
       <Link to="/profile/67b1c637927d53d6d076742e">
         <button className="bg-blue-500 text-white px-4 py-2 mx-5 rounded hover:bg-blue-700">
           Profile
+        </button>
+      </Link>
+      <Link to="/create-blog">
+        <button className="bg-blue-500 text-white px-4 py-2 mx-5 rounded hover:bg-blue-700">
+          Create Blog
         </button>
       </Link>
     </>

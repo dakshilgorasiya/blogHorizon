@@ -11,34 +11,41 @@ import {
 import "@mantine/tiptap/styles.css";
 import { MantineProvider } from "@mantine/core";
 import { Trash2Icon } from "lucide-react";
-import { removeContent, setTitle, resetBlog } from "../features/blog/blogSlice.js";
+import {
+  removeContent,
+  setTitle,
+  resetBlog,
+} from "../features/blog/blogSlice.js";
+import { getInterests } from "../features/constants/constantsReducers.js";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { server } from "../constants.js";
 import { useNavigate } from "react-router-dom";
+import { callSecureApi } from "../utils/callSecureApi.js";
+import { renewAccessToken } from "../utils/renewAccessToken.js";
 
 function CreateBlogPage() {
   const navigate = useNavigate();
 
   const user = useSelector((state) => state.auth.user);
 
-  // useEffect(() => {
-  //   if (!user) {
-  //     navigate("/login");
-  //   }
-  //   if (user && !user.accessToken) {
-  //     navigate("/login");
-  //   }
-  //   dispatch(resetBlog());
-  // }, []);
-
   const dispatch = useDispatch();
 
-  const [index, setIndex] = useState(1);
+  // const [index, setIndex] = useState(1);
   const [contentType, setContentType] = useState(["image"]);
 
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    dispatch(getInterests());
+
+    const renew = async () => {
+      await renewAccessToken({ dispatch, setError });
+    };
+
+    renew();
+  }, []);
 
   const addField = (type, insertIndex) => {
     const newField = type;
@@ -47,7 +54,7 @@ function CreateBlogPage() {
       updatedContent.splice(insertIndex, 0, newField); // Insert at specific index
       return updatedContent;
     });
-    setIndex((prev) => prev + 1); // Increment index for next item
+    // setIndex((prev) => prev + 1); // Increment index for next item
   };
 
   const removeField = (index) => {
@@ -126,17 +133,29 @@ function CreateBlogPage() {
     formData.append("tags", JSON.stringify(blog.tags));
 
     try {
-      const response = await axios.post(`${server}/blog/create-blog`, formData, {
-        headers: {
-          Authorization: `Bearer ${user.accessToken}`,
-        },
-      }).then((res) => res.data);
-      console.log(response)
+      // const response = await axios
+      //   .post(`${server}/blog/create-blog`, formData, {
+      //     headers: {
+      //       Authorization: `Bearer ${user.accessToken}`,
+      //     },
+      //   })
+      //   .then((res) => res.data);
+
+      const response = await callSecureApi({
+        url: `${server}/blog/create-blog`,
+        method: "POST",
+        body: formData,
+        accessToken: user?.accessToken,
+        setError,
+        dispatch,
+      });
+
+      console.log(response);
       navigate(`/view-blog/${response.data._id}`);
     } catch (error) {
-      console.log(error)
+      console.log(error);
       setError(error.response.data.message);
-    } finally{
+    } finally {
       setLoading(false);
     }
 
