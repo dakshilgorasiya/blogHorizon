@@ -35,8 +35,7 @@ function App() {
   return (
     <>
       <div className="p-0 m-0">
-        {/* <HomePage /> */}
-        <BlogComment blogId={"67b1d0057f26638640cf75a5"} />
+        <HomePage />
       </div>
     </>
   );

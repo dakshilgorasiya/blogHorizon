@@ -123,6 +123,12 @@ const getAllComments = asyncHandler(async (req, res) => {
           },
         },
       },
+      {
+        $sort: {
+          likes: -1,
+          createdAt: -1,
+        },
+      },
     ]);
 
     // if user is logged in check if the user liked the comment
@@ -217,6 +223,12 @@ const getAllComments = asyncHandler(async (req, res) => {
           likes: {
             $size: "$likes",
           },
+        },
+      },
+      {
+        $sort: {
+          likes: -1,
+          createdAt: -1,
         },
       },
     ]);

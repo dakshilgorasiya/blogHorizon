@@ -150,7 +150,7 @@ function BlogComment({ blogId }) {
         open={open}
         type={"error"}
       />
-      <div className="space-y-4 border-2 border-red-500">
+      <div className="space-y-4">
         {comments.map((comment, index) => (
           <div key={comment?._id} className="p-4">
             <div className="flex items-center">

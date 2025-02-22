@@ -12,6 +12,9 @@ import {
 import { useNavigate, Link } from "react-router-dom";
 import { callSecureApi } from "../../utils/callSecureApi.js";
 import { Notify } from "../../components";
+import Drawer from "@mui/material/Drawer";
+import { BlogComment } from "../../components";
+import SwipeableDrawer from "@mui/material/SwipeableDrawer";
 
 function UserDetails() {
   const navigate = useNavigate();
@@ -23,6 +26,8 @@ function UserDetails() {
   const [message, setMessage] = useState("");
 
   const [type, setType] = useState("success");
+
+  const [showComment, setShowComment] = useState(false);
 
   const dispatch = useDispatch();
 
@@ -138,8 +143,29 @@ function UserDetails() {
     }
   };
 
+  const handleShowComment = () => {
+    setShowComment(true);
+  };
+
   return (
     <>
+      <div>
+        <SwipeableDrawer
+          anchor="bottom"
+          open={showComment}
+          onClose={() => setShowComment(false)}
+          onOpen={() => setShowComment(true)}
+          disableSwipeToOpen={false} // Allows swipe from the edge
+          PaperProps={{
+            sx: { maxHeight: "66vh", borderRadius: "12px 12px 0 0" },
+          }} // Limits height and adds rounded corners
+        >
+          <div className="p-4">
+            <BlogComment blogId={blogId} />
+          </div>
+        </SwipeableDrawer>
+      </div>
+
       <Notify message={message} setOpen={setOpen} open={open} type={type} />
 
       <div className="shadow-lg p-3 border-accent rounded">
@@ -205,6 +231,7 @@ function UserDetails() {
               <motion.button
                 className="flex items-center justify-center hover:scale-110 transition-transform"
                 whileTap={{ scale: 0.9 }}
+                onClick={handleShowComment}
               >
                 <MessageSquare size={20} className="text-gray-500" />
               </motion.button>
