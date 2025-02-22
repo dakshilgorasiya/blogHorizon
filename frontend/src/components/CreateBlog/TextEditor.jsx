@@ -8,18 +8,19 @@ import Superscript from "@tiptap/extension-superscript";
 import SubScript from "@tiptap/extension-subscript";
 import Placeholder from "@tiptap/extension-placeholder";
 import { setContent } from "../../features/blog/blogSlice.js";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
-import BulletList from "@tiptap/extension-bullet-list";
-import OrderedList from "@tiptap/extension-ordered-list";
-import ListItem from "@tiptap/extension-list-item";
 
-function TextEditor({ index, oldData = "" }) {
+function TextEditor({ index }) {
   const [isFocused, setIsFocused] = useState(false);
   useEffect(() => {
     import("@mantine/core/styles.css");
   }, []);
   const dispatch = useDispatch();
+
+  const oldData = useSelector(
+    (state) => state?.blog?.blog?.content[index]?.data
+  );
 
   const editor = useEditor({
     extensions: [
@@ -35,17 +36,17 @@ function TextEditor({ index, oldData = "" }) {
       }),
     ],
     content: oldData,
-    // onCreate: ({ editor }) => {
-    //   setIsFocused(false);
+    onCreate: ({ editor }) => {
+      setIsFocused(false);
 
-    //   dispatch(
-    //     setContent({
-    //       index: index,
-    //       type: "text",
-    //       data: editor.getHTML(),
-    //     })
-    //   );
-    // },
+      dispatch(
+        setContent({
+          index: index,
+          type: "text",
+          data: editor.getHTML(),
+        })
+      );
+    },
     onBlur: ({ editor }) => {
       setIsFocused(false);
       dispatch(

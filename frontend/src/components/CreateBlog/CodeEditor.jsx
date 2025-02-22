@@ -9,12 +9,18 @@ import { css } from "@codemirror/lang-css";
 import { json } from "@codemirror/lang-json";
 import { dracula } from "@uiw/codemirror-theme-dracula"; // Dark mode theme
 import { EditorView } from "@codemirror/view";
-import { CodeHighlight } from "@mantine/code-highlight";
 import { setContent } from "../../features/blog/blogSlice.js";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
-function CodeEditor({ index, oldLanguage = "javascript", oldCode = "" }) {
+function CodeEditor({ index }) {
   const dispatch = useDispatch();
+
+  const oldCode = useSelector(
+    (state) => state?.blog?.blog?.content[index]?.data?.code
+  );
+  const oldLanguage = useSelector(
+    (state) => state?.blog?.blog?.content[index]?.data?.language
+  );
 
   useEffect(() => {
     import("highlight.js/styles/github.css"); // Highlight.js theme

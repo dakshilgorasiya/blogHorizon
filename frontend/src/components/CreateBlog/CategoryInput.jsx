@@ -1,10 +1,12 @@
 import { useSelector, useDispatch } from "react-redux";
 import { setCategory } from "../../features/blog/blogSlice.js";
 
-function CategoryInput({ oldCategory }) {
+function CategoryInput() {
   const dispatch = useDispatch();
-  const selectedCategory = useSelector((state) => state.blog.blog.category); 
+  const selectedCategory = useSelector((state) => state.blog.blog.category);
   const categories = useSelector((state) => state.constants.interests);
+
+  const oldCategory = useSelector((state) => state.blog.blog.category);
 
   const handleChange = (e) => {
     dispatch(setCategory(e.target.value));
@@ -19,7 +21,7 @@ function CategoryInput({ oldCategory }) {
         id="category"
         name="category"
         onLoad={() => {
-          setCategory(oldCategory);
+          setCategory(oldCategory || "");
         }}
         className="border border-gray-600 rounded block box-border w-full p-1 px-3 hover:border-gray-800 hover:border-2"
         onChange={handleChange}

@@ -2,13 +2,15 @@ import { useState, useEffect } from "react";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import { setTags } from "../../features/blog/blogSlice.js";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
-function TagsInput({ oldTags = [] }) {
+function TagsInput() {
   useEffect(() => {
     import("@mantine/core/styles.css");
     import("@mantine/core/styles.layer.css");
   }, []);
+
+  const oldTags = useSelector((state) => state.blog.blog.tags);
 
   const [tagInput, setTagInput] = useState(oldTags.join(" "));
 

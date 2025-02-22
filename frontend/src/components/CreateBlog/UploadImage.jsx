@@ -1,15 +1,24 @@
 import React, { useEffect, useState } from "react";
 import { Plus } from "lucide-react";
 import { setContent } from "../../features/blog/blogSlice.js";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
-function UploadImage({ index, placeholder, image = null }) {
+function UploadImage({ index, placeholder }) {
   const dispatch = useDispatch();
-  const [preview, setPreview] = useState(image);
 
-  useEffect(()=>{
-    setPreview(image);
-  }, [image]);
+  const oldImage = useSelector(
+    (state) => state?.blog?.blog?.content[index]?.data
+  );
+
+  useEffect(() => {
+    if (oldImage) {
+      setPreview(oldImage);
+    }else{
+      setPreview(null);
+    }
+  }, [oldImage]);
+
+  const [preview, setPreview] = useState(oldImage);
 
   const handleFileChange = (e) => {
     e.preventDefault();

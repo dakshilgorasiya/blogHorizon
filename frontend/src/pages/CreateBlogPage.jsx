@@ -16,6 +16,7 @@ import {
   setTitle,
   resetBlog,
   setApiBlog,
+  addEmptyField,
 } from "../features/blog/blogSlice.js";
 import { getInterests } from "../features/constants/constantsReducers.js";
 import { useDispatch, useSelector } from "react-redux";
@@ -40,14 +41,11 @@ function CreateBlogPage({ update = false }) {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const [oldContent, setOldContent] = useState([]);
-
   useEffect(() => {
     if (!update) {
       dispatch(resetBlog());
       setError("");
       setLoading(false);
-      setOldContent([]);
       setContentType(["image"]);
     }
   }, [dispatch, id, update]);
@@ -77,7 +75,6 @@ function CreateBlogPage({ update = false }) {
             }
             console.log(response.data);
             dispatch(setApiBlog(response.data));
-            setOldContent(response.data.content); 
             setContentType(response.data.content.map((item) => item.type));
           }
         } catch (error) {
@@ -96,7 +93,8 @@ function CreateBlogPage({ update = false }) {
       updatedContent.splice(insertIndex, 0, newField); // Insert at specific index
       return updatedContent;
     });
-    // setIndex((prev) => prev + 1); // Increment index for next item
+    console.log(insertIndex, newField);
+    dispatch(addEmptyField({ type: newField, index: insertIndex }));
   };
 
   const removeField = (index) => {
@@ -196,10 +194,6 @@ function CreateBlogPage({ update = false }) {
     setLoading(false);
   };
 
-  const oldCategory = useSelector((state) => state.blog.blog.category);
-
-  const oldTags = useSelector((state) => state.blog.blog.tags);
-
   return (
     <>
       <div className="sm:w-11/12 mt-10 p-5 max-w-5xl m-auto">
@@ -209,11 +203,7 @@ function CreateBlogPage({ update = false }) {
       <MantineProvider>
         <div className="box-border sm:w-11/12 m-auto mt-5 max-w-5xl">
           <div className="p-5 grid gap-5">
-            <UploadImage
-              index={0}
-              placeholder="Upload a thumbnail"
-              image={oldContent[0]?.data}
-            />
+            <UploadImage index={0} placeholder="Upload a thumbnail" />
             <div className="grid gap-5">
               {contentType.map(
                 (content, i) =>
@@ -221,23 +211,14 @@ function CreateBlogPage({ update = false }) {
                     <div key={i} className="grid grid-cols-12 ">
                       {/* Left content area (Editor, Image, Code) */}
                       <div className="col-span-10">
-                        {content === "text" && (
-                          <TextEditor index={i} oldData={oldContent[i]?.data} />
-                        )}
+                        {content === "text" && <TextEditor index={i} />}
                         {content === "image" && (
                           <UploadImage
                             index={i}
                             placeholder="Upload an image"
-                            image={oldContent[i]?.data}
                           />
                         )}
-                        {content === "code" && (
-                          <CodeEditor
-                            index={i}
-                            oldCode={oldContent[i]?.data?.code}
-                            oldLanguage={oldContent[i]?.data?.language}
-                          />
-                        )}
+                        {content === "code" && <CodeEditor index={i} />}
                       </div>
 
                       <div className="w-max flex justify-center ml-9 col-span-2">
@@ -275,12 +256,12 @@ function CreateBlogPage({ update = false }) {
 
       <div className="sm:w-11/12 mt-10 p-5 max-w-5xl m-auto">
         <MantineProvider>
-          <CategoryInput oldCategory={oldCategory} />
+          <CategoryInput />
         </MantineProvider>
       </div>
 
       <div className="sm:w-11/12 mt-10 p-5 max-w-5xl m-auto">
-        <TagsInput oldTags={oldTags} />
+        <TagsInput />
       </div>
 
       {error && (

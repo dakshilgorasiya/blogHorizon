@@ -5,7 +5,7 @@ const initialState = {
     _id: "",
     title: "",
     owner: {},
-    content: [],
+    content: [{ type: "image", data: "" }],
     category: "",
     tags: [],
     createdAt: "",
@@ -33,6 +33,11 @@ const blogSlice = createSlice({
         type: action.payload.type,
         data: action.payload.data,
       };
+    },
+    addEmptyField: (state, action) => {
+      state.blog.content.splice(action.payload.index, 0, {
+        type: action.payload.type,
+      });
     },
     removeContent: (state, action) => {
       const oldContent = state.blog.content;
@@ -84,5 +89,6 @@ export const {
   setIsFollowed,
   setIsLiked,
   toggleIsFavorite,
-  setCommentCount,  
+  setCommentCount,
+  addEmptyField,
 } = blogSlice.actions;
