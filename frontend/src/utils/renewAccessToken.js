@@ -12,10 +12,13 @@ const renewAccessToken = async ({ dispatch, setError }) => {
       .catch((error) => {
         throw error;
       });
-    dispatch(setUser(response.data));
+    if(response.success){
+      dispatch(setUser(response.data));
+    }
+    if (response.success) dispatch(setUser(response.data));
+    return response;
   } catch (error) {
     console.log(error);
-    setError(error);
   }
 };
 

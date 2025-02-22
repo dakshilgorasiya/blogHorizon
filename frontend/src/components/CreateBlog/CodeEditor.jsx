@@ -13,7 +13,7 @@ import { CodeHighlight } from "@mantine/code-highlight";
 import { setContent } from "../../features/blog/blogSlice.js";
 import { useDispatch } from "react-redux";
 
-function CodeEditor({ index }) {
+function CodeEditor({ index, oldLanguage = "javascript", oldCode = "" }) {
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -32,8 +32,8 @@ function CodeEditor({ index }) {
     );
   }, [index]);
 
-  const [code, setCode] = useState("");
-  const [language, setLanguage] = useState("javascript");
+  const [code, setCode] = useState(oldCode);
+  const [language, setLanguage] = useState(oldLanguage);
 
   const languageExtensions = {
     javascript,

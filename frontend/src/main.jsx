@@ -36,6 +36,7 @@ const router = createBrowserRouter(
       <Route path="/view-blog/:id" element={<ViewBlogPage />} />
       <Route path="/profile/:id" element={<ProfilePage />} />
       <Route path="/create-blog" element={<CreateBlogPage />} />
+      <Route path="/edit-blog/:id" element={<CreateBlogPage update={true} />} />
     </Route>
   )
 );

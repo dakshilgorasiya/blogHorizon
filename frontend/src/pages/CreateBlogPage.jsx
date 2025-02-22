@@ -15,16 +15,19 @@ import {
   removeContent,
   setTitle,
   resetBlog,
+  setApiBlog,
 } from "../features/blog/blogSlice.js";
 import { getInterests } from "../features/constants/constantsReducers.js";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { server } from "../constants.js";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { callSecureApi } from "../utils/callSecureApi.js";
 import { renewAccessToken } from "../utils/renewAccessToken.js";
 
-function CreateBlogPage() {
+function CreateBlogPage({ update = false }) {
+  const { id } = useParams();
+
   const navigate = useNavigate();
 
   const user = useSelector((state) => state.auth.user);
@@ -37,6 +40,18 @@ function CreateBlogPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const [oldContent, setOldContent] = useState([]);
+
+  useEffect(() => {
+    if (!update) {
+      dispatch(resetBlog());
+      setError("");
+      setLoading(false);
+      setOldContent([]);
+      setContentType(["image"]);
+    }
+  }, [dispatch, id, update]);
+
   useEffect(() => {
     dispatch(getInterests());
 
@@ -44,8 +59,35 @@ function CreateBlogPage() {
       await renewAccessToken({ dispatch, setError });
     };
 
-    renew();
-  }, []);
+    if (!user) {
+      renew();
+    }
+  }, [dispatch, user]);
+
+  useEffect(() => {
+    if (update && user) {
+      const fetchBlog = async () => {
+        try {
+          const response = await axios
+            .get(`${server}/blog/get-blog-by-id/${id}`)
+            .then((res) => res.data);
+          if (response.success) {
+            if (response.data.owner?._id !== user?._id) {
+              navigate("/");
+            }
+            console.log(response.data);
+            dispatch(setApiBlog(response.data));
+            setOldContent(response.data.content); 
+            setContentType(response.data.content.map((item) => item.type));
+          }
+        } catch (error) {
+          console.error("Error fetching blog:", error);
+        }
+      };
+
+      fetchBlog();
+    }
+  }, [update, user, id, dispatch, navigate]);
 
   const addField = (type, insertIndex) => {
     const newField = type;
@@ -133,14 +175,6 @@ function CreateBlogPage() {
     formData.append("tags", JSON.stringify(blog.tags));
 
     try {
-      // const response = await axios
-      //   .post(`${server}/blog/create-blog`, formData, {
-      //     headers: {
-      //       Authorization: `Bearer ${user.accessToken}`,
-      //     },
-      //   })
-      //   .then((res) => res.data);
-
       const response = await callSecureApi({
         url: `${server}/blog/create-blog`,
         method: "POST",
@@ -162,6 +196,10 @@ function CreateBlogPage() {
     setLoading(false);
   };
 
+  const oldCategory = useSelector((state) => state.blog.blog.category);
+
+  const oldTags = useSelector((state) => state.blog.blog.tags);
+
   return (
     <>
       <div className="sm:w-11/12 mt-10 p-5 max-w-5xl m-auto">
@@ -171,7 +209,11 @@ function CreateBlogPage() {
       <MantineProvider>
         <div className="box-border sm:w-11/12 m-auto mt-5 max-w-5xl">
           <div className="p-5 grid gap-5">
-            <UploadImage index={0} placeholder="Upload a thumbnail" />
+            <UploadImage
+              index={0}
+              placeholder="Upload a thumbnail"
+              image={oldContent[0]?.data}
+            />
             <div className="grid gap-5">
               {contentType.map(
                 (content, i) =>
@@ -179,14 +221,23 @@ function CreateBlogPage() {
                     <div key={i} className="grid grid-cols-12 ">
                       {/* Left content area (Editor, Image, Code) */}
                       <div className="col-span-10">
-                        {content === "text" && <TextEditor index={i} />}
+                        {content === "text" && (
+                          <TextEditor index={i} oldData={oldContent[i]?.data} />
+                        )}
                         {content === "image" && (
                           <UploadImage
                             index={i}
                             placeholder="Upload an image"
+                            image={oldContent[i]?.data}
                           />
                         )}
-                        {content === "code" && <CodeEditor index={i} />}
+                        {content === "code" && (
+                          <CodeEditor
+                            index={i}
+                            oldCode={oldContent[i]?.data?.code}
+                            oldLanguage={oldContent[i]?.data?.language}
+                          />
+                        )}
                       </div>
 
                       <div className="w-max flex justify-center ml-9 col-span-2">
@@ -224,12 +275,12 @@ function CreateBlogPage() {
 
       <div className="sm:w-11/12 mt-10 p-5 max-w-5xl m-auto">
         <MantineProvider>
-          <CategoryInput />
+          <CategoryInput oldCategory={oldCategory} />
         </MantineProvider>
       </div>
 
       <div className="sm:w-11/12 mt-10 p-5 max-w-5xl m-auto">
-        <TagsInput />
+        <TagsInput oldTags={oldTags} />
       </div>
 
       {error && (

@@ -3,12 +3,14 @@ import { useEffect } from "react";
 import { setUser, setErrorMessage } from "./features/auth/authSlice.js";
 import axios from "axios";
 import { server } from "./constants.js";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { HomePage, CreateBlogPage } from "./pages";
 import { BlogComment } from "./components";
 
 function App() {
   const dispatch = useDispatch();
+
+  const user = useSelector((state) => state.auth.user);
 
   useEffect(() => {
     dispatch(getInterests());
@@ -28,8 +30,7 @@ function App() {
         setErrorMessage(error.response.data.message);
       }
     };
-
-    fetchUser();
+    if (user === null) fetchUser();
   }, []);
 
   return (

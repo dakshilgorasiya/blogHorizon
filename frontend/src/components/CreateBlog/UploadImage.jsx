@@ -3,9 +3,13 @@ import { Plus } from "lucide-react";
 import { setContent } from "../../features/blog/blogSlice.js";
 import { useDispatch } from "react-redux";
 
-function UploadImage({ index, placeholder }) {
+function UploadImage({ index, placeholder, image = null }) {
   const dispatch = useDispatch();
-  const [preview, setPreview] = useState(null);
+  const [preview, setPreview] = useState(image);
+
+  useEffect(()=>{
+    setPreview(image);
+  }, [image]);
 
   const handleFileChange = (e) => {
     e.preventDefault();

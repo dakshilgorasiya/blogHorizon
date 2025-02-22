@@ -4,16 +4,22 @@ import TextField from "@mui/material/TextField";
 import { setTags } from "../../features/blog/blogSlice.js";
 import { useDispatch } from "react-redux";
 
-function TagsInput() {
+function TagsInput({ oldTags = [] }) {
   useEffect(() => {
     import("@mantine/core/styles.css");
     import("@mantine/core/styles.layer.css");
   }, []);
 
+  const [tagInput, setTagInput] = useState(oldTags.join(" "));
+
   const dispatch = useDispatch();
 
-  const handleTags = (e) => {
-    dispatch(setTags(e.trim().split(/\s+/)));
+  useEffect(() => {
+    setTagInput(oldTags.join(" "));
+  }, [oldTags]);
+
+  const handleTags = () => {
+    dispatch(setTags(tagInput.trim().split(/\s+/)));
   };
 
   return (
@@ -25,9 +31,11 @@ function TagsInput() {
         <input
           id="tag"
           name="tag"
+          value={tagInput}
           type="text"
           className="border border-gray-600 rounded block box-border w-full p-1 px-3 hover:border-gray-800 hover:border-2"
-          onBlur={(e) => handleTags(e.target.value)}
+          onBlur={(e) => handleTags()}
+          onChange={(e) => setTagInput(e.target.value)}
         />
       </div>
     </>

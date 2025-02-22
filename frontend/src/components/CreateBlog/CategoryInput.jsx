@@ -1,9 +1,9 @@
 import { useSelector, useDispatch } from "react-redux";
 import { setCategory } from "../../features/blog/blogSlice.js";
 
-function CategoryInput() {
+function CategoryInput({ oldCategory }) {
   const dispatch = useDispatch();
-  const selectedCategory = useSelector((state) => state.blog.blog.category); // Ensure 'category' is in your Redux state
+  const selectedCategory = useSelector((state) => state.blog.blog.category); 
   const categories = useSelector((state) => state.constants.interests);
 
   const handleChange = (e) => {
@@ -18,6 +18,9 @@ function CategoryInput() {
       <select
         id="category"
         name="category"
+        onLoad={() => {
+          setCategory(oldCategory);
+        }}
         className="border border-gray-600 rounded block box-border w-full p-1 px-3 hover:border-gray-800 hover:border-2"
         onChange={handleChange}
         value={selectedCategory || ""} // Ensure empty selection initially

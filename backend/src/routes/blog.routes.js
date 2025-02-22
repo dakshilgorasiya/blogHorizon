@@ -34,20 +34,15 @@ router.route("/get-blog-by-id/:id").get(checkUserLoggedIn, getBlogById);
 
 // router.route("/getBlogOfUser").get(verifyJWT, getBlogOfUser);
 
-// router.route("/updateBlog").put(
-//   verifyJWT,
-//   upload.fields([
-//     {
-//       name: "thumbnail",
-//       maxCount: 1,
-//     },
-//     {
-//       name: "photos",
-//       maxCount: 10,
-//     },
-//   ]),
-//   updateBlog
-// );
+router.route("/update-blog").put(
+  verifyAccessToken,
+  upload.fields([
+    {
+      name: "images",
+    },
+  ]),
+  updateBlog
+);
 
 // router.route("/deleteBlog").delete(verifyJWT, deleteBlog);
 

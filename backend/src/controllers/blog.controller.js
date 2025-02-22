@@ -470,101 +470,83 @@ const getBlogOfUser = asyncHandler(async (req, res) => {
 
 const updateBlog = asyncHandler(async (req, res) => {
   // get blog id from the request body
-  // get blog details from the request body
-  // get the blog
-  // check if the user is the owner of the blog
-  // update the blog
-  // send the response
-
-  const { blogId, title, tag, markup, category } = req.body;
+  const { blogId } = req.body;
 
   if (!blogId) {
     throw new ApiError(400, "Blog id is required");
   }
 
+  // check if blog exists
   const blog = await Blog.findById(blogId);
 
   if (!blog) {
     throw new ApiError(404, "Blog not found");
   }
 
+  // check if the user is the owner of the blog
   if (blog.owner.toString() !== req.user._id.toString()) {
     throw new ApiError(403, "You are not authorized to update this blog");
   }
 
-  const allowedCategories = [
-    "Technology",
-    "Business",
-    "Health",
-    "Entertainment",
-    "Science",
-    "Sports",
-    "Education",
-    "Lifestyle",
-  ];
+  // get title, content, category, tag from the request body
+  const { title, content, category, tags } = req.body;
 
-  if (!title || !tag || !markup || !category) {
-    throw new ApiError(400, "Please fill in all fields");
+  content = JSON.parse(content);
+
+  tags = JSON.parse(tags);
+
+  if (!title) {
+    throw new ApiError(400, "Title is required");
   }
 
-  if (!allowedCategories.includes(category)) {
-    throw new ApiError(400, "Invalid category");
+  if (!content) {
+    throw new ApiError(400, "Content is required");
   }
 
-  const thumbnail = req.files?.thumbnail[0]?.path;
-
-  if (!thumbnail) {
-    throw new ApiError(400, "Thumbnail file is required");
+  if (!category) {
+    throw new ApiError(400, "Category is required");
   }
 
-  const thumbnailResponse = await uploadOnCloudinary(thumbnail);
-
-  if (!thumbnailResponse) {
-    throw new ApiError(500, "Failed to upload thumbnail");
+  if (!tags) {
+    throw new ApiError(400, "Tags are required");
   }
 
-  const photos = req.files?.photos;
+  // get images from the request
+  const images = req.files?.images;
 
-  if (!photos) {
-    throw new ApiError(400, "Photos are required");
+  if (images && images[0] === undefined) {
+    throw new ApiError(400, "Thumnail is required");
   }
 
-  const photosPath = photos.map((photo) => photo?.path);
+  const imagePath = images.map((image) => image.path);
 
-  if (!photosPath) {
-    throw new ApiError(400, "Failed to upload photos");
-  }
-
-  if (
-    !(
-      photosPath.length === JSON.parse(markup).length - 1 ||
-      photosPath.length === JSON.parse(markup).length
-    )
-  ) {
-    throw new ApiError(400, "Number of photos and markups is not valid");
-  }
-
-  const photosResponse = await Promise.all(
-    photosPath.map(async (photo) => await uploadOnCloudinary(photo))
+  // upload images on cloudinary
+  const imagesResponse = await Promise.all(
+    imagePath.map(async (image, i) => await uploadOnCloudinary(image))
   );
 
-  if (!photosResponse) {
-    throw new ApiError(500, "Failed to upload photos on cloudinary");
+  if (!imagesResponse) {
+    throw new ApiError(500, "Failed to upload images on cloudinary");
   }
 
-  const photosUrl = photosResponse.map((photo) => photo.url);
+  // update the content with the new image urls
+  let i = 0;
+  content = content.map((ele) => {
+    if (ele.type == "image") {
+      ele.data = imagesResponse[i].url;
+      i++;
+    }
+    return ele;
+  });
 
+  // update the blog
   const updatedBlog = await Blog.findByIdAndUpdate(
     blogId,
     {
-      $set: {
-        title,
-        tag: JSON.parse(tag),
-        markup: JSON.parse(markup),
-        category,
-        thumbnail: thumbnailResponse.url,
-        photos: photosUrl,
-      },
+      title,
+      content,
+      category,
+      tags,
     },
     {
       new: true,
@@ -575,9 +557,12 @@ const updateBlog = asyncHandler(async (req, res) => {
     throw new ApiError(500, "Failed to update blog");
   }
 
-  return res
-    .status(200)
-    .json(new ApiResponse(200, updatedBlog, "Blog updated successfully"));
+  // send the response
+  return res.status(200).json({
+    statusCode: 200,
+    data: updatedBlog,
+    message: "Blog updated successfully",
+  });
 });
 
 const deleteBlog = asyncHandler(async (req, res) => {

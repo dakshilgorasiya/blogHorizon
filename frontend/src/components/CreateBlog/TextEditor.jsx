@@ -14,9 +14,8 @@ import BulletList from "@tiptap/extension-bullet-list";
 import OrderedList from "@tiptap/extension-ordered-list";
 import ListItem from "@tiptap/extension-list-item";
 
-function TextEditor({ index }) {
+function TextEditor({ index, oldData = "" }) {
   const [isFocused, setIsFocused] = useState(false);
-
   useEffect(() => {
     import("@mantine/core/styles.css");
   }, []);
@@ -35,17 +34,18 @@ function TextEditor({ index }) {
         placeholder: "Please enter text",
       }),
     ],
-    onCreate: ({ editor }) => {
-      setIsFocused(false);
+    content: oldData,
+    // onCreate: ({ editor }) => {
+    //   setIsFocused(false);
 
-      dispatch(
-        setContent({
-          index: index,
-          type: "text",
-          data: editor.getHTML(),
-        })
-      );
-    },
+    //   dispatch(
+    //     setContent({
+    //       index: index,
+    //       type: "text",
+    //       data: editor.getHTML(),
+    //     })
+    //   );
+    // },
     onBlur: ({ editor }) => {
       setIsFocused(false);
       dispatch(
