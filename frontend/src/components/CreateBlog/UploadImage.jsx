@@ -13,7 +13,7 @@ function UploadImage({ index, placeholder }) {
   useEffect(() => {
     if (oldImage) {
       setPreview(oldImage);
-    }else{
+    } else {
       setPreview(null);
     }
   }, [oldImage]);

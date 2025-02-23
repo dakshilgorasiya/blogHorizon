@@ -470,7 +470,7 @@ const getBlogOfUser = asyncHandler(async (req, res) => {
 
 const updateBlog = asyncHandler(async (req, res) => {
   // get blog id from the request body
-  const { blogId } = req.body;
+  const { blogId } = req.params;
 
   if (!blogId) {
     throw new ApiError(400, "Blog id is required");
@@ -489,7 +489,7 @@ const updateBlog = asyncHandler(async (req, res) => {
   }
 
   // get title, content, category, tag from the request body
-  const { title, content, category, tags } = req.body;
+  let { title, content, category, tags } = req.body;
 
   content = JSON.parse(content);
 
@@ -512,7 +512,7 @@ const updateBlog = asyncHandler(async (req, res) => {
   }
 
   // get images from the request
-  const images = req.files?.images;
+  const images = req.files?.updatedImages;
 
   if (images && images[0] === undefined) {
     throw new ApiError(400, "Thumnail is required");
@@ -522,7 +522,7 @@ const updateBlog = asyncHandler(async (req, res) => {
 
   // upload images on cloudinary
   const imagesResponse = await Promise.all(
-    imagePath.map(async (image, i) => await uploadOnCloudinary(image))
+    imagePath.map(async (image) => await uploadOnCloudinary(image))
   );
 
   if (!imagesResponse) {
@@ -532,7 +532,11 @@ const updateBlog = asyncHandler(async (req, res) => {
   // update the content with the new image urls
   let i = 0;
   content = content.map((ele) => {
-    if (ele.type == "image") {
+    if (
+      ele.type == "image" &&
+      typeof ele.data === "string" &&
+      ele.data.startsWith("blob:")
+    ) {
       ele.data = imagesResponse[i].url;
       i++;
     }
@@ -558,11 +562,13 @@ const updateBlog = asyncHandler(async (req, res) => {
   }
 
   // send the response
-  return res.status(200).json({
-    statusCode: 200,
-    data: updatedBlog,
-    message: "Blog updated successfully",
-  });
+  return res.status(200).json(
+    new ApiResponse({
+      statusCode: 200,
+      data: updatedBlog,
+      message: "Blog updated successfully",
+    })
+  );
 });
 
 const deleteBlog = asyncHandler(async (req, res) => {

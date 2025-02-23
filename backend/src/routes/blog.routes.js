@@ -34,11 +34,11 @@ router.route("/get-blog-by-id/:id").get(checkUserLoggedIn, getBlogById);
 
 // router.route("/getBlogOfUser").get(verifyJWT, getBlogOfUser);
 
-router.route("/update-blog").put(
+router.route("/update-blog/:blogId").put(
   verifyAccessToken,
   upload.fields([
     {
-      name: "images",
+      name: "updatedImages",
     },
   ]),
   updateBlog

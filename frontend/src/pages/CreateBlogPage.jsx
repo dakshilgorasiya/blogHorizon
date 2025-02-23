@@ -108,7 +108,7 @@ function CreateBlogPage({ update = false }) {
 
   const blog = useSelector((state) => state.blog.blog);
 
-  const handleSubmit = async () => {
+  const handleCreate = async () => {
     setError("");
     setLoading(true);
 
@@ -184,6 +184,98 @@ function CreateBlogPage({ update = false }) {
 
       console.log(response);
       navigate(`/view-blog/${response.data._id}`);
+    } catch (error) {
+      console.log(error);
+      setError(error.response.data.message);
+    } finally {
+      setLoading(false);
+    }
+
+    setLoading(false);
+  };
+
+  const handleUpdate = async () => {
+    setError("");
+    setLoading(true);
+
+    // Error handling
+    if (blog.title === "") {
+      setError("Please add a title");
+      setLoading(false);
+      return;
+    }
+
+    if (blog.content[0].data === null) {
+      setError("Please add a thumbnail");
+      setLoading(false);
+      return;
+    }
+
+    if (contentType.length === 1) {
+      setError("Please add more content");
+      setLoading(false);
+      return;
+    }
+
+    if (blog.category === "") {
+      setError("Please add a category");
+      setLoading(false);
+      return;
+    }
+
+    if (blog.tags.length === 0) {
+      setError("Please add tags");
+      setLoading(false);
+      return;
+    }
+
+    blog.tags.map((tag) => {
+      if (tag[0] !== "#") {
+        setError("Please add tags with #");
+        setLoading(false);
+        return;
+      }
+    });
+
+    // Calling API to update blog
+    const formData = new FormData();
+
+    await Promise.all(
+      blog.content.map(async (item, index) => {
+        if (
+          item.type === "image" &&
+          typeof item.data === "string" &&
+          item.data.startsWith("blob:")
+        ) {
+          const response = await fetch(item.data);
+          const blob = await response.blob();
+          const file = new File([blob], `image${index}.jpg`, {
+            type: blob.type,
+          });
+          formData.append("updatedImages", file);
+        }
+      })
+    );
+
+    formData.append("title", blog.title);
+    formData.append("content", JSON.stringify(blog.content));
+    formData.append("category", blog.category);
+    formData.append("tags", JSON.stringify(blog.tags));
+
+    try {
+      const response = await callSecureApi({
+        url: `${server}/blog/update-blog/${id}`,
+        method: "PUT",
+        body: formData,
+        accessToken: user?.accessToken,
+        setError,
+        dispatch,
+      });
+
+      console.log(response);
+      if (response.success) {
+        navigate(`/view-blog/${id}`);
+      }
     } catch (error) {
       console.log(error);
       setError(error.response.data.message);
@@ -281,10 +373,16 @@ function CreateBlogPage({ update = false }) {
         ) : (
           <button
             type="button"
-            onClick={(e) => handleSubmit(e)}
+            onClick={(e) => {
+              if (update) {
+                handleUpdate();
+              } else {
+                handleCreate();
+              }
+            }}
             className="bg-gray-800 hover:bg-highlight text-white font-bold py-2 px-4 rounded-lg shadow-md"
           >
-            Save
+            {update ? "Update" : "Create"}
           </button>
         )}
       </div>
