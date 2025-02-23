@@ -888,6 +888,24 @@ const getUserProfile = asyncHandler(async (req, res) => {
   });
 });
 
+const getUserInterests = asyncHandler(async (req, res) => {
+  // get user from request
+  const user = req?.user;
+
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+
+  // return response
+  return res.status(200).json(
+    new ApiResponse({
+      statusCode: 200,
+      data: user.interests,
+      message: "User interests fetched successfully",
+    })
+  );
+});
+
 export {
   registerUser,
   loginUser,
@@ -903,4 +921,5 @@ export {
   verifyOtp,
   profileComplete,
   getUserProfile,
+  getUserInterests,
 };

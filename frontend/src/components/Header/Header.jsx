@@ -1,24 +1,78 @@
-import React, { useState } from "react";
-import { Search, CircleUser, LogOut } from "lucide-react";
+import React, { useState, useEffect, useRef } from "react";
+import {
+  Search,
+  CircleUser,
+  LogOut,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../../features/auth/authReducers.js";
+import {
+  getInterests,
+  getUserInterests,
+} from "../../features/constants/constantsReducers.js";
+
+import { setUser } from "../../features/auth/authSlice.js";
+import axios from "axios";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
+import { server } from "../../constants.js";
 
 function Header() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const user = useSelector((state) => state.auth.user);
 
-  const [anchorEl, setAnchorEl] = React.useState(null);
+  const user = useSelector((state) => state.auth.user);
+  const userInterests = useSelector((state) => state.constants.userInterests);
+
+  const currentInterest = useSelector(
+    (state) => state.constants.currentInterest
+  );
+
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [errorMessage, setErrorMessage] = useState(null);
+
   const open = Boolean(anchorEl);
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
+  const handleClick = (event) => setAnchorEl(event.currentTarget);
+  const handleClose = () => setAnchorEl(null);
+
+  useEffect(() => {
+    dispatch(getInterests());
+
+    const fetchUser = async () => {
+      try {
+        const response = await axios
+          .post(`${server}/user/renew-access-token`, null, {
+            withCredentials: true,
+          })
+          .then((res) => res.data)
+          .catch((error) => {
+            throw error;
+          });
+
+        dispatch(setUser(response.data));
+      } catch (error) {
+        setErrorMessage(error.response.data.message);
+      }
+    };
+    if (user === null) fetchUser();
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (user && userInterests.length === 0) {
+      dispatch(
+        getUserInterests({
+          dispatch,
+          setError: setErrorMessage,
+          accessToken: user.accessToken,
+        })
+      );
+    }
+  }, [user, dispatch]);
+
+  
 
   return (
     <>
@@ -38,7 +92,7 @@ function Header() {
             placeholder="Search"
             className="rounded-lg focus:outline-none w-full"
           />
-          <button className="">
+          <button>
             <Search size={20} />
           </button>
         </div>
@@ -67,9 +121,7 @@ function Header() {
                 anchorEl={anchorEl}
                 open={open}
                 onClose={handleClose}
-                MenuListProps={{
-                  "aria-labelledby": "basic-button",
-                }}
+                MenuListProps={{ "aria-labelledby": "basic-button" }}
               >
                 <MenuItem onClick={handleClose}>
                   <Link to={`/profile/${user._id}`}>
@@ -97,8 +149,6 @@ function Header() {
           )}
         </div>
       </div>
-
-      <div></div>
     </>
   );
 }

@@ -15,7 +15,7 @@ export default {
         DEFAULT: {
           css: {
             ol: {
-              listStyleType: "decimal", // For ordered lists
+              listStyleType: "decimal",
             },
             li: {
               marginBottom: "0.5rem",
@@ -25,5 +25,8 @@ export default {
       },
     },
   },
-  plugins: [require("@tailwindcss/typography")],
+  plugins: [
+    require("@tailwindcss/typography"),
+    require("tailwind-scrollbar-hide"),
+  ],
 };

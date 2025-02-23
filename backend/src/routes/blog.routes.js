@@ -9,6 +9,7 @@ import {
   getFavoriteBlogs,
   getHistoryBlogs,
   getInterests,
+  getBlogByCategory,
 } from "../controllers/blog.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
 import {
@@ -51,5 +52,7 @@ router.route("/update-blog/:blogId").put(
 // router.route("/getHistoryBlogs").get(verifyJWT, getHistoryBlogs);
 
 router.route("/getInterests").get(getInterests);
+
+router.route("/get-blog-by-category").get(checkUserLoggedIn, getBlogByCategory);
 
 export default router;

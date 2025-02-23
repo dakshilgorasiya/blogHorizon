@@ -14,6 +14,7 @@ import {
   verifyOtp,
   profileComplete,
   getUserProfile,
+  getUserInterests,
 } from "../controllers/user.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
 import {
@@ -67,5 +68,7 @@ router.route("/verify-otp").post(verifyOtp);
 router.route("/profile-complete").post(verifyAccessToken, profileComplete);
 
 router.route("/user-profile/:userId").get(checkUserLoggedIn, getUserProfile);
+
+router.route("/user-interests").get(verifyAccessToken, getUserInterests);
 
 export default router;
