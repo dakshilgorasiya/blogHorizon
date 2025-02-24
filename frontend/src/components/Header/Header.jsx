@@ -5,6 +5,7 @@ import {
   LogOut,
   ChevronLeft,
   ChevronRight,
+  Bookmark,
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
@@ -13,12 +14,14 @@ import {
   getInterests,
   getUserInterests,
 } from "../../features/constants/constantsReducers.js";
-
+import { BadgePlus } from "lucide-react";
 import { setUser } from "../../features/auth/authSlice.js";
 import axios from "axios";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import { server } from "../../constants.js";
+import Tooltip from "@mui/material/Tooltip";
+import { Divider } from "@mui/material";
 
 function Header() {
   const navigate = useNavigate();
@@ -72,8 +75,6 @@ function Header() {
     }
   }, [user, dispatch]);
 
-  
-
   return (
     <>
       <div className="bg-priary flex justify-between items-center p-3">
@@ -107,44 +108,79 @@ function Header() {
             </button>
           ) : (
             <>
-              <button className="text-primary border-2 border-highlight rounded-full">
-                <img
-                  src={user.avatar}
-                  alt="avatar"
-                  onClick={handleClick}
-                  className="h-8 w-8 rounded-full"
-                />
-              </button>
-
-              <Menu
-                id="basic-menu"
-                anchorEl={anchorEl}
-                open={open}
-                onClose={handleClose}
-                MenuListProps={{ "aria-labelledby": "basic-button" }}
-              >
-                <MenuItem onClick={handleClose}>
-                  <Link to={`/profile/${user._id}`}>
-                    <div className="flex items-center">
-                      <CircleUser size={20} className="mr-2" />
-                      Profile
-                    </div>
+              <div className="flex items-center">
+                <div className="mr-5">
+                  <Link to="/create-blog">
+                    <Tooltip title="Create Blog" placement="left" arrow>
+                      <BadgePlus size={25} className="text-white" />
+                    </Tooltip>
                   </Link>
-                </MenuItem>
-                <MenuItem onClick={handleClose}>
-                  <button
-                    onClick={() => {
-                      dispatch(logout());
-                      navigate("/");
-                    }}
+                </div>
+                <button className="text-primary border-2 border-highlight rounded-full">
+                  <img
+                    src={user.avatar}
+                    alt="avatar"
+                    onClick={handleClick}
+                    className="h-8 w-8 rounded-full"
+                  />
+                </button>
+
+                <div className="">
+                  <Menu
+                    id="basic-menu"
+                    anchorEl={anchorEl}
+                    open={open}
+                    onClose={handleClose}
+                    MenuListProps={{ "aria-labelledby": "basic-button" }}
                   >
-                    <div className="flex items-center">
-                      <LogOut size={20} className="mr-2 text-red-500" />
-                      Logout
-                    </div>
-                  </button>
-                </MenuItem>
-              </Menu>
+                    <MenuItem onClick={handleClose}>
+                      <div className="grid grid-cols-12 cursor-default">
+                        <div className="col-span-3">
+                          <img
+                            src={user.avatar}
+                            alt="avatar"
+                            className="h-12 w-12 rounded-full"
+                          />
+                        </div>
+                        <div className="col-span-9">
+                          <p>{user.userName}</p>
+                          <p>{user.email}</p>
+                        </div>
+                      </div>
+                    </MenuItem>
+                    <Divider />
+                    <MenuItem onClick={handleClose}>
+                      <Link to={`/profile/${user._id}`}>
+                        <div className="flex items-center">
+                          <CircleUser size={20} className="mr-2" />
+                          Profile
+                        </div>
+                      </Link>
+                    </MenuItem>
+                    <MenuItem onClick={handleClose}>
+                      <Link to={`/bookmark`}>
+                        <div className="flex items-center">
+                          <Bookmark size={20} className="mr-2" />
+                          My Bookmarks
+                        </div>
+                      </Link>
+                    </MenuItem>
+                    <MenuItem onClick={handleClose}>
+                      <button
+                        onClick={() => {
+                          dispatch(logout());
+                          navigate("/");
+                        }}
+                      >
+                        <div className="flex items-center">
+                          <LogOut size={20} className="mr-2 text-red-500" />
+                          Logout
+                        </div>
+                      </button>
+                    </MenuItem>
+                  </Menu>
+                </div>
+              </div>
             </>
           )}
         </div>

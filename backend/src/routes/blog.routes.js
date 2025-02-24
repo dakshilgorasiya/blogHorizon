@@ -45,7 +45,7 @@ router.route("/update-blog/:blogId").put(
   updateBlog
 );
 
-// router.route("/deleteBlog").delete(verifyJWT, deleteBlog);
+router.route("/delete-blog/:blogId").delete(verifyAccessToken, deleteBlog);
 
 // router.route("/getFavoriteBlogs").get(verifyJWT, getFavoriteBlogs);
 

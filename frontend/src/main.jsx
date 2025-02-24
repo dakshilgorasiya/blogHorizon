@@ -20,6 +20,7 @@ import {
   ViewBlogPage,
   ProfilePage,
   CreateBlogPage,
+  BookmarkBlog
 } from "./pages";
 import Layout from "./Layout.jsx";
 import { View } from "lucide-react";
@@ -37,6 +38,7 @@ const router = createBrowserRouter(
       <Route path="/profile/:id" element={<ProfilePage />} />
       <Route path="/create-blog" element={<CreateBlogPage />} />
       <Route path="/edit-blog/:id" element={<CreateBlogPage update={true} />} />
+      <Route path="/bookmark" element={<BookmarkBlog />} />
     </Route>
   )
 );

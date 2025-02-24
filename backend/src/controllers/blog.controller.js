@@ -518,30 +518,32 @@ const updateBlog = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Thumnail is required");
   }
 
-  const imagePath = images.map((image) => image.path);
+  const imagePath = images?.map((image) => image.path);
 
-  // upload images on cloudinary
-  const imagesResponse = await Promise.all(
-    imagePath.map(async (image) => await uploadOnCloudinary(image))
-  );
+  if (imagePath && imagePath.length !== 0) {
+    // upload images on cloudinary
+    const imagesResponse = await Promise.all(
+      imagePath.map(async (image) => await uploadOnCloudinary(image))
+    );
 
-  if (!imagesResponse) {
-    throw new ApiError(500, "Failed to upload images on cloudinary");
-  }
-
-  // update the content with the new image urls
-  let i = 0;
-  content = content.map((ele) => {
-    if (
-      ele.type == "image" &&
-      typeof ele.data === "string" &&
-      ele.data.startsWith("blob:")
-    ) {
-      ele.data = imagesResponse[i].url;
-      i++;
+    if (!imagesResponse) {
+      throw new ApiError(500, "Failed to upload images on cloudinary");
     }
-    return ele;
-  });
+
+    // update the content with the new image urls
+    let i = 0;
+    content = content.map((ele) => {
+      if (
+        ele.type == "image" &&
+        typeof ele.data === "string" &&
+        ele.data.startsWith("blob:")
+      ) {
+        ele.data = imagesResponse[i].url;
+        i++;
+      }
+      return ele;
+    });
+  }
 
   // update the blog
   const updatedBlog = await Blog.findByIdAndUpdate(
@@ -572,37 +574,40 @@ const updateBlog = asyncHandler(async (req, res) => {
 });
 
 const deleteBlog = asyncHandler(async (req, res) => {
-  // get blog id from the request body
-  // get the blog
-  // check if the user is the owner of the blog
-  // delete the blog
-  // send the response
-
-  const { blogId } = req.body;
+  // get blog id from the request params
+  const { blogId } = req.params;
 
   if (!blogId) {
     throw new ApiError(400, "Blog id is required");
   }
 
+  // get the blog
   const blog = await Blog.findById(blogId);
 
   if (!blog) {
     throw new ApiError(404, "Blog not found");
   }
 
+  // check if the user is the owner of the blog
   if (blog.owner.toString() !== req.user._id.toString()) {
     throw new ApiError(403, "You are not authorized to delete this blog");
   }
 
+  // delete the blog
   const deletedBlog = await Blog.deleteOne({ _id: blogId });
 
   if (!deletedBlog) {
     throw new ApiError(500, "Failed to delete blog");
   }
 
-  return res
-    .status(200)
-    .json(new ApiResponse(200, null, "Blog deleted successfully"));
+  // send the response
+  return res.status(200).json(
+    new ApiResponse({
+      statusCode: 200,
+      data: null,
+      message: "Blog deleted successfully",
+    })
+  );
 });
 
 const getFavoriteBlogs = asyncHandler(async (req, res) => {

@@ -24,6 +24,7 @@ import Notify from "./Notify/Notify";
 import BlogComment from "./Comments/BlogComment";
 import Reply from "./Comments/Reply";
 import PostComment from "./Comments/PostComment";
+import DeleteBlog from "./ViewBlog/DeleteBlog";
 
 export {
   Login,
@@ -52,4 +53,5 @@ export {
   BlogComment,
   Reply,
   PostComment,
+  DeleteBlog,
 };

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { motion } from "framer-motion";
-import { Heart, ThumbsUp, MessageSquare, Share2 } from "lucide-react";
+import { Heart, ThumbsUp, MessageSquare, Share2, Bookmark } from "lucide-react";
 import axios from "axios";
 import { server } from "../../constants.js";
 import {
@@ -251,10 +251,10 @@ function UserDetails() {
                 whileTap={{ scale: 0.9 }}
                 onClick={handleClickFavorite}
               >
-                <Heart
+                <Bookmark
                   size={20}
                   className={`transition-all duration-300 ${
-                    favorited ? "fill-red-500 text-red-500" : "text-gray-500"
+                    favorited ? "fill-stone-500 text-stone-500" : "text-gray-500"
                   }`}
                 />
               </motion.button>

@@ -5,11 +5,7 @@ import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
 import Pagination from "@mui/material/Pagination";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import {
-  setCurrentInterest,
-  setBlogByInterest,
-  removerBlogByInterest,
-} from "../features/constants/constantsSlice.js";
+import { setCurrentInterest } from "../features/constants/constantsSlice.js";
 
 function HomePage() {
   const dispatch = useDispatch();
@@ -30,11 +26,7 @@ function HomePage() {
     (state) => state.constants.currentInterest
   );
 
-  const cachedBlogs = useSelector((state) => state.constants.blogByInterest);
-
-  const blogs = useSelector(
-    (state) => state.constants.blogByInterest[currentInterest]
-  );
+  const [blogs, setBlogs] = useState([]);
 
   const interestsRef = useRef(null); // Ref for scrolling
 
@@ -54,12 +46,7 @@ function HomePage() {
             },
           })
           .then((res) => res.data);
-        dispatch(
-          setBlogByInterest({
-            interest: currentInterest,
-            blogs: response.data.docs,
-          })
-        );
+        setBlogs(response.data.docs);
         setTotalPages(response.data.totalPages);
         console.log(response.data);
       } catch (error) {
@@ -84,12 +71,7 @@ function HomePage() {
           })
           .then((res) => res.data);
         console.log(response);
-        dispatch(
-          setBlogByInterest({
-            interest: currentInterest,
-            blogs: response.data.docs,
-          })
-        );
+        setBlogs(response.data.docs);
         setTotalPages(response.data.totalPages);
       } catch (error) {
         console.log(error);
@@ -98,13 +80,17 @@ function HomePage() {
       }
     };
 
-    if (currentInterest !== "Latest" && !cachedBlogs[currentInterest]) {
+    if (currentInterest !== "Latest") {
       fetchBlogs();
-    } else if (currentInterest === "Latest" && !cachedBlogs[currentInterest]) {
+    } else {
       fetchAllBlogs();
     }
     setLoading(false);
   }, [currentInterest, user, page]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [currentInterest]);
 
   const handleChange = (event, value) => {
     console.log(value);
@@ -133,7 +119,7 @@ function HomePage() {
   return (
     <>
       {/* Interests Bar with Scroll Buttons */}
-      <div className="relative bg-secondary p-2 flex items-center ">
+      <div className="relative bg-secondary p-2 flex items-center">
         <button
           onClick={scrollLeft}
           className="absolute left-0 hover:bg-highlight text-white p-2 ml-1 rounded-full z-10"

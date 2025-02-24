@@ -4,9 +4,18 @@ import axios from "axios";
 import { server } from "../constants.js";
 import { setApiBlog } from "../features/blog/blogSlice.js";
 import { useDispatch, useSelector } from "react-redux";
-import { Code, Image, Text, Title, UserDetails } from "../components";
+import {
+  Code,
+  Image,
+  Text,
+  Title,
+  UserDetails,
+  DeleteBlog,
+} from "../components";
+import { Link } from "react-router-dom";
 import { callSecureApi } from "../utils/callSecureApi.js";
-import { setUser } from "../features/auth/authSlice.js";
+import { Pencil, Trash2 } from "lucide-react";
+import { Tooltip } from "@mui/material";
 
 function ViewBlogPage() {
   const dispatch = useDispatch();
@@ -50,8 +59,23 @@ function ViewBlogPage() {
     return (
       <>
         <div className="">
-          <div className="sm:w-11/12 mt-10 p-5 max-w-5xl m-auto">
+          <div className="sm:w-11/12 mt-10 p-5 max-w-5xl m-auto flex justify-between items-center">
             <Title />
+
+            <div className="flex">
+              <div className="mt-1">
+                <button>
+                  <Link to={`/edit-blog/${id}`}>
+                    <Tooltip title="Edit" arrow>
+                      <Pencil size={20} />
+                    </Tooltip>
+                  </Link>
+                </button>
+              </div>
+              <div>
+                <DeleteBlog id={id} />
+              </div>
+            </div>
           </div>
           <div className="sm:w-11/12 px-5 max-w-5xl m-auto">
             <Image imageLink={content[0].data} />
