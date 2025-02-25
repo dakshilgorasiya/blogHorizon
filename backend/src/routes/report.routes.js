@@ -1,5 +1,8 @@
 import { Router } from "express";
-import { verifyAccessToken } from "../middlewares/auth.middleware.js";
+import {
+  verifyAccessToken,
+  verifyAdmin,
+} from "../middlewares/auth.middleware.js";
 import {
   createReport,
   getReports,
@@ -10,10 +13,10 @@ const router = Router();
 
 router.route("/create-report").post(verifyAccessToken, createReport);
 
-router.route("/get-reports").get(verifyAccessToken, getReports);
+router.route("/get-reports").get(verifyAccessToken, verifyAdmin, getReports);
 
 router
   .route("/mark-report-as-resolved")
-  .patch(verifyAccessToken, markReportAsResolved);
+  .patch(verifyAccessToken, verifyAdmin, markReportAsResolved);
 
 export default router;

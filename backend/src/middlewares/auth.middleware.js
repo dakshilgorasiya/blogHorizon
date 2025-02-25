@@ -3,7 +3,6 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import jwt from "jsonwebtoken";
 import { User } from "../models/user.model.js";
 
-
 //* Middleware that verify access token provided in the Authorization header and attach the user object to the request object
 export const verifyAccessToken = asyncHandler(async (req, res, next) => {
   try {
@@ -16,8 +15,11 @@ export const verifyAccessToken = asyncHandler(async (req, res, next) => {
     }
 
     // Verify the access token
-    const decodedToken = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
-    
+    const decodedToken = jwt.verify(
+      accessToken,
+      process.env.ACCESS_TOKEN_SECRET
+    );
+
     // Find the user with the id from the decoded token
     const user = await User.findById(decodedToken._id);
 
@@ -47,8 +49,11 @@ export const checkUserLoggedIn = asyncHandler(async (req, res, next) => {
     }
 
     // Verify the access token
-    const decodedToken = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
-    
+    const decodedToken = jwt.verify(
+      accessToken,
+      process.env.ACCESS_TOKEN_SECRET
+    );
+
     // Find the user with the id from the decoded token
     const user = await User.findById(decodedToken._id);
 
@@ -65,4 +70,11 @@ export const checkUserLoggedIn = asyncHandler(async (req, res, next) => {
     req.user = null;
     next();
   }
+});
+
+export const verifyAdmin = asyncHandler(async (req, res, next) => {
+  if (req.user.role !== "admin") {
+    throw new ApiError(403, "You are not authorized to access this route");
+  }
+  next();
 });

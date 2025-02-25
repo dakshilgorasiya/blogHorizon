@@ -22,6 +22,11 @@ const userSchema = new mongoose.Schema(
       lowercase: true,
       index: true,
     },
+    role: {
+      type: String,
+      enum: ["user", "admin"],
+      default: "user",
+    },
     // cloudinary url
     avatar: {
       type: String,
