@@ -1,7 +1,16 @@
 import React, { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { motion } from "framer-motion";
-import { Heart, ThumbsUp, MessageSquare, Share2, Bookmark } from "lucide-react";
+import {
+  Heart,
+  ThumbsUp,
+  MessageSquare,
+  Share2,
+  Bookmark,
+  Ellipsis,
+  Copy,
+  TriangleAlert,
+} from "lucide-react";
 import axios from "axios";
 import { server } from "../../constants.js";
 import {
@@ -13,6 +22,8 @@ import { useNavigate, Link } from "react-router-dom";
 import { callSecureApi } from "../../utils/callSecureApi.js";
 import { Notify, PostComment, BlogComment } from "../../components";
 import SwipeableDrawer from "@mui/material/SwipeableDrawer";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
 
 function UserDetails() {
   const navigate = useNavigate();
@@ -28,6 +39,14 @@ function UserDetails() {
   const [showComment, setShowComment] = useState(false);
 
   const [comments, setComments] = useState([]);
+
+  const [anchorEl, setAnchorEl] = useState(null);
+
+  const MenuOpen = Boolean(anchorEl);
+
+  // Menu
+  const handleClick = (event) => setAnchorEl(event.currentTarget);
+  const handleClose = () => setAnchorEl(null);
 
   const dispatch = useDispatch();
 
@@ -61,6 +80,7 @@ function UserDetails() {
     year: "numeric",
   });
 
+  // Follow user
   const handleClickOnFollow = async (e) => {
     try {
       const response = await callSecureApi({
@@ -89,6 +109,7 @@ function UserDetails() {
     }
   };
 
+  // Like blog
   const handleClickLike = async (e) => {
     try {
       const response = await callSecureApi({
@@ -119,6 +140,7 @@ function UserDetails() {
     }
   };
 
+  // Save bookmark
   const handleClickFavorite = async (e) => {
     try {
       const response = await callSecureApi({
@@ -143,6 +165,7 @@ function UserDetails() {
     }
   };
 
+  // Show comment
   const handleShowComment = () => {
     setShowComment(true);
   };
@@ -254,13 +277,56 @@ function UserDetails() {
                 <Bookmark
                   size={20}
                   className={`transition-all duration-300 ${
-                    favorited ? "fill-stone-500 text-stone-500" : "text-gray-500"
+                    favorited
+                      ? "fill-stone-500 text-stone-500"
+                      : "text-gray-500"
                   }`}
                 />
               </motion.button>
             </div>
 
-            <div className="flex items-center mr-3">
+            <div className="mr-3 mt-2">
+              <button onClick={handleClick}>
+                <Ellipsis size={20} />
+              </button>
+            </div>
+
+            <div>
+              <Menu
+                id="basic-menu"
+                anchorEl={anchorEl}
+                open={MenuOpen}
+                onClose={handleClose}
+                MenuListProps={{ "aria-labelledby": "basic-button" }}
+              >
+                <MenuItem onClick={handleClose}>
+                  <motion.button
+                    onClick={() =>
+                      navigator.clipboard.writeText(window.location.href)
+                    }
+                    className="flex items-center justify-center hover:scale-110 transition-transform"
+                    whileTap={{ scale: 0.9 }}
+                  >
+                    <Copy size={20} className="text-gray-500" />
+                    <p className="ml-2"> Copy Link</p>
+                  </motion.button>
+                </MenuItem>
+                <MenuItem onClick={handleClose}>
+                  <motion.button
+                    onClick={() => {
+                      navigate(`/report/${blogId}`);
+                    }}
+                    className="flex items-center justify-center hover:scale-110 transition-transform"
+                    whileTap={{ scale: 0.9 }}
+                  >
+                    <TriangleAlert size={20} className="text-red-500" />
+                    <p className="ml-2">Report Blog</p>
+                  </motion.button>
+                </MenuItem>
+              </Menu>
+            </div>
+
+            {/* <div className="flex items-center mr-3">
               <motion.button
                 onClick={() =>
                   navigator.clipboard.writeText(window.location.href)
@@ -270,7 +336,7 @@ function UserDetails() {
               >
                 <Share2 size={20} className="text-gray-500" />
               </motion.button>
-            </div>
+            </div> */}
           </div>
         </div>
 

@@ -5,11 +5,11 @@ import { Report } from "../models/report.model.js";
 import { Blog } from "../models/blog.model.js";
 
 const createReport = asyncHandler(async (req, res) => {
-  // Get the blog, content from the request
-  const { blogId, content } = req.body;
+  // Get the blog, content, title from the request
+  const { blogId, content, title } = req.body;
 
-  if (!blogId || !content) {
-    throw new ApiError("Blog and content are required", 400);
+  if (!blogId || !content || !title) {
+    throw new ApiError("Blog, title and content are required", 400);
   }
 
   // Check if blog exists
@@ -24,6 +24,7 @@ const createReport = asyncHandler(async (req, res) => {
     owner: req.user._id,
     blog: blogId,
     content,
+    title,
   });
 
   // Return the response

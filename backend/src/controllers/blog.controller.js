@@ -981,6 +981,39 @@ const getBlogByCategory = asyncHandler(async (req, res) => {
     });
 });
 
+const getBlogTitleById = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  if (!id) {
+    throw new ApiError(400, "Blog id is required");
+  }
+
+  const blog = await Blog.aggregate([
+    {
+      $match: {
+        _id: new mongoose.Types.ObjectId(id),
+      },
+    },
+    {
+      $project: {
+        title: 1,
+      },
+    },
+  ]);
+
+  if (!blog || blog.length === 0) {
+    throw new ApiError(404, "Blog not found");
+  }
+
+  return res.status(200).json(
+    new ApiResponse({
+      statusCode: 200,
+      data: blog[0],
+      message: "Blog fetched successfully",
+    })
+  );
+});
+
 export {
   createBlog,
   getAllBlogs,
@@ -992,4 +1025,5 @@ export {
   getHistoryBlogs,
   getInterests,
   getBlogByCategory,
+  getBlogTitleById,
 };

@@ -19,6 +19,11 @@ const reportSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    // title of the report
+    title: {
+      type: String,
+      required: true,
+    },
     // status of the report
     isSolved: {
       type: Boolean,
