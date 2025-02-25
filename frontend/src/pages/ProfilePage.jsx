@@ -66,7 +66,7 @@ function ProfilePage() {
       <div className="flex justify-center">
         <div className="lg:grid lg:grid-cols-12 py-5 max-w-7xl">
           <div className="col-span-3 md:col-span-4 xl:col-span-3">
-            <UserInfo data={data} />
+            <UserInfo data={data} ownerId={id} />
           </div>
           <div className="col-span-9 md:col-span-8 xl:col-span-9">
             <UserBlog data={data} />

@@ -149,35 +149,36 @@ function Header() {
                       </div>
                     </MenuItem>
                     <Divider />
-                    <MenuItem onClick={handleClose}>
-                      <Link to={`/profile/${user._id}`}>
+                    <Link to={`/profile/${user._id}`}>
+                      <MenuItem onClick={handleClose}>
                         <div className="flex items-center">
                           <CircleUser size={20} className="mr-2" />
                           Profile
                         </div>
-                      </Link>
-                    </MenuItem>
-                    <MenuItem onClick={handleClose}>
-                      <Link to={`/bookmark`}>
+                      </MenuItem>
+                    </Link>
+                    <Link to={`/bookmark`}>
+                      <MenuItem onClick={handleClose}>
                         <div className="flex items-center">
                           <Bookmark size={20} className="mr-2" />
                           My Bookmarks
                         </div>
-                      </Link>
-                    </MenuItem>
-                    <MenuItem onClick={handleClose}>
-                      <button
-                        onClick={() => {
-                          dispatch(logout());
-                          navigate("/");
-                        }}
-                      >
+                      </MenuItem>
+                    </Link>
+                    <button
+                      onClick={() => {
+                        dispatch(logout());
+                        navigate("/");
+                      }}
+                      className="w-full"
+                    >
+                      <MenuItem onClick={handleClose}>
                         <div className="flex items-center">
                           <LogOut size={20} className="mr-2 text-red-500" />
                           Logout
                         </div>
-                      </button>
-                    </MenuItem>
+                      </MenuItem>
+                    </button>
                   </Menu>
                 </div>
               </div>

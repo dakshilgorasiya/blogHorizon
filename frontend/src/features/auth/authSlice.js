@@ -19,6 +19,12 @@ const authSlice = createSlice({
     setErrorMessage: (state, actions) => {
       state.error = actions.payload;
     },
+    setUserBio: (state, actions) => {
+      state.user.bio = actions.payload;
+    },
+    setUserAvatar: (state, actions) => {
+      state.user.avatar = actions.payload;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -84,6 +90,7 @@ const authSlice = createSlice({
   },
 });
 
-export const { setUser, setErrorMessage } = authSlice.actions;
+export const { setUser, setErrorMessage, setUserBio, setUserAvatar } =
+  authSlice.actions;
 
 export default authSlice.reducer;
