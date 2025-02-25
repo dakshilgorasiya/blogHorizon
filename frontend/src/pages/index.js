@@ -9,6 +9,8 @@ import HomePage from "./HomePage";
 import ProfilePage from "./ProfilePage";
 import BookmarkBlog from "./BookmarkBlog";
 import Report from "./ReportPage";
+import AdminDashboard from "./AdminDashboard";
+import AdminViewBlogPage from "./AdminViewBlogPage";
 
 export {
   Login,
@@ -22,4 +24,6 @@ export {
   ProfilePage,
   BookmarkBlog,
   Report,
+  AdminDashboard,
+  AdminViewBlogPage,
 };

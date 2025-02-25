@@ -13,7 +13,7 @@ const router = Router();
 
 router.route("/create-report").post(verifyAccessToken, createReport);
 
-router.route("/get-reports").get(verifyAccessToken, verifyAdmin, getReports);
+router.route("/get-reports").post(verifyAccessToken, verifyAdmin, getReports);
 
 router
   .route("/mark-report-as-resolved")

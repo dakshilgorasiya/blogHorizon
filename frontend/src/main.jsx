@@ -22,6 +22,8 @@ import {
   CreateBlogPage,
   BookmarkBlog,
   Report,
+  AdminDashboard,
+  AdminViewBlogPage,
 } from "./pages";
 import Layout from "./Layout.jsx";
 import { View } from "lucide-react";
@@ -41,6 +43,8 @@ const router = createBrowserRouter(
       <Route path="/edit-blog/:id" element={<CreateBlogPage update={true} />} />
       <Route path="/bookmark" element={<BookmarkBlog />} />
       <Route path="/report/:id" element={<Report />} />
+      <Route path="/admin/dashboard" element={<AdminDashboard />} />
+      <Route path="/admin/view-blog/:id" element={<AdminViewBlogPage />} />
     </Route>
   )
 );

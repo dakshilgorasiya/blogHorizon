@@ -14,7 +14,7 @@ import {
   getInterests,
   getUserInterests,
 } from "../../features/constants/constantsReducers.js";
-import { BadgePlus } from "lucide-react";
+import { BadgePlus, LockKeyhole } from "lucide-react";
 import { setUser } from "../../features/auth/authSlice.js";
 import axios from "axios";
 import Menu from "@mui/material/Menu";
@@ -165,6 +165,19 @@ function Header() {
                         </div>
                       </MenuItem>
                     </Link>
+                    {user && user.role === "admin" && (
+                      <Link to={`/admin/dashboard`}>
+                        <MenuItem onClick={handleClose}>
+                          <div className="flex items-center">
+                            <LockKeyhole
+                              size={20}
+                              className="mr-2 text-green-500"
+                            />
+                            Admin Dashboard
+                          </div>
+                        </MenuItem>
+                      </Link>
+                    )}
                     <button
                       onClick={() => {
                         dispatch(logout());

@@ -15,11 +15,13 @@ import {
   profileComplete,
   getUserProfile,
   getUserInterests,
+  verifyAdmin,
 } from "../controllers/user.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
 import {
   verifyAccessToken,
   checkUserLoggedIn,
+  verifyAdmin as verifyAdminMiddleware,
 } from "../middlewares/auth.middleware.js";
 
 const router = Router();
@@ -70,5 +72,9 @@ router.route("/profile-complete").post(verifyAccessToken, profileComplete);
 router.route("/user-profile/:userId").get(checkUserLoggedIn, getUserProfile);
 
 router.route("/user-interests").get(verifyAccessToken, getUserInterests);
+
+router
+  .route("/verify-admin")
+  .get(verifyAccessToken, verifyAdminMiddleware, verifyAdmin);
 
 export default router;

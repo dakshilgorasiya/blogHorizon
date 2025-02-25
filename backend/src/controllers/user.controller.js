@@ -906,6 +906,26 @@ const getUserInterests = asyncHandler(async (req, res) => {
   );
 });
 
+const verifyAdmin = asyncHandler(async (req, res, next) => {
+  const user = await User.findById(req?.user?._id);
+
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+
+  if (user.role !== "admin") {
+    throw new ApiError(403, "User not authorized");
+  }
+
+  return res.status(200).json(
+    new ApiResponse({
+      statusCode: 200,
+      data: {},
+      message: "User is admin",
+    })
+  );
+});
+
 export {
   registerUser,
   loginUser,
@@ -922,4 +942,5 @@ export {
   profileComplete,
   getUserProfile,
   getUserInterests,
+  verifyAdmin,
 };
