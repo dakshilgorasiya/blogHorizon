@@ -22,6 +22,8 @@ function ViewBlogPage() {
 
   const user = useSelector((state) => state.auth.user);
 
+  const blogOwner = useSelector((state) => state.blog.blog.owner);
+
   const { id } = useParams();
 
   const content = useSelector((state) => state.blog.blog.content);
@@ -62,20 +64,22 @@ function ViewBlogPage() {
           <div className="sm:w-11/12 mt-10 p-5 max-w-5xl m-auto flex justify-between items-center">
             <Title />
 
-            <div className="flex">
-              <div className="mt-1">
-                <button>
-                  <Link to={`/edit-blog/${id}`}>
-                    <Tooltip title="Edit" arrow>
-                      <Pencil size={20} />
-                    </Tooltip>
-                  </Link>
-                </button>
+            {user && user._id === blogOwner._id && (
+              <div className="flex">
+                <div className="mt-1">
+                  <button>
+                    <Link to={`/edit-blog/${id}`}>
+                      <Tooltip title="Edit" arrow>
+                        <Pencil size={20} />
+                      </Tooltip>
+                    </Link>
+                  </button>
+                </div>
+                <div>
+                  <DeleteBlog id={id} />
+                </div>
               </div>
-              <div>
-                <DeleteBlog id={id} />
-              </div>
-            </div>
+            )}
           </div>
           <div className="sm:w-11/12 px-5 max-w-5xl m-auto">
             <Image imageLink={content[0].data} />

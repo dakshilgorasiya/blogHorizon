@@ -221,7 +221,7 @@ const getAllBlogs = asyncHandler(async (req, res) => {
 
       result.docs.map((blog) => {
         blog.thumbnail = blog.content[0].data;
-        blog.content = null;
+        blog.content = undefined;
       });
 
       return res.status(200).json(
@@ -611,17 +611,20 @@ const deleteBlog = asyncHandler(async (req, res) => {
 });
 
 const getFavoriteBlogs = asyncHandler(async (req, res) => {
-  // get user id from the request body
-  // get favorite blogs of the user
-  // return the response
-
   const userId = req.user._id;
 
-  const favoriteBlog = await User.aggregate([
+  if (!userId) {
+    throw new ApiError(400, "User id is required");
+  }
+
+  const blogs = await User.aggregate([
     {
       $match: {
         _id: new mongoose.Types.ObjectId(userId),
       },
+    },
+    {
+      $unwind: "$favorite",
     },
     {
       $lookup: {
@@ -635,11 +638,23 @@ const getFavoriteBlogs = asyncHandler(async (req, res) => {
       $unwind: "$favoriteBlog",
     },
     {
+      $addFields: {
+        _id: "$favoriteBlog._id",
+        title: "$favoriteBlog.title",
+        owner: "$favoriteBlog.owner",
+        content: "$favoriteBlog.content",
+        category: "$favoriteBlog.category",
+        view: "$favoriteBlog.view",
+        tags: "$favoriteBlog.tags",
+        createdAt: "$favoriteBlog.createdAt",
+      },
+    },
+    {
       $lookup: {
         from: "users",
-        localField: "favoriteBlog.owner",
+        localField: "owner",
         foreignField: "_id",
-        as: "favoriteBlog.owner",
+        as: "owner",
         pipeline: [
           {
             $project: {
@@ -652,31 +667,94 @@ const getFavoriteBlogs = asyncHandler(async (req, res) => {
       },
     },
     {
-      $unwind: "$favoriteBlog.owner",
+      $unwind: "$owner",
+    },
+    {
+      $lookup: {
+        from: "follows",
+        localField: "owner._id",
+        foreignField: "followedTo",
+        as: "followers",
+      },
+    },
+    {
+      $addFields: {
+        followersCount: {
+          $size: "$followers",
+        },
+      },
+    },
+    {
+      $lookup: {
+        from: "comments",
+        localField: "_id",
+        foreignField: "blog",
+        as: "comments",
+      },
+    },
+    {
+      $addFields: {
+        commentCount: {
+          $size: "$comments",
+        },
+      },
+    },
+    {
+      $lookup: {
+        from: "likes",
+        localField: "_id",
+        foreignField: "blog",
+        as: "likes",
+      },
+    },
+    {
+      $addFields: {
+        likeCount: {
+          $size: "$likes",
+        },
+      },
     },
     {
       $project: {
-        favoriteBlog: {
-          _id: 1,
-          title: 1,
-          tag: 1,
-          category: 1,
-          thumbnail: 1,
-          owner: 1,
-          view: 1,
-          createdAt: 1,
-        },
+        title: 1,
+        tags: 1,
+        category: 1,
+        owner: 1,
+        createdAt: 1,
+        commentCount: 1,
+        followersCount: 1,
+        likeCount: 1,
+        content: 1,
       },
     },
   ]);
 
-  const favorite = favoriteBlog.map((ele) => ele.favoriteBlog);
+  await Promise.all(
+    blogs.map(async (blog) => {
+      const like = await Like.findOne({
+        likedBy: new mongoose.Types.ObjectId(userId),
+        blog: new mongoose.Types.ObjectId(blog._id),
+      });
+      if (like) {
+        blog.isLiked = true;
+      } else {
+        blog.isLiked = false;
+      }
+    })
+  );
 
-  return res
-    .status(200)
-    .json(
-      new ApiResponse(200, favorite, "Favorite blogs fetched successfully")
-    );
+  blogs.map((blog) => {
+    blog.thumbnail = blog.content[0].data;
+    blog.content = undefined;
+  });
+
+  return res.status(200).json(
+    new ApiResponse({
+      statusCode: 200,
+      data: blogs,
+      message: "Favorite blogs fetched successfully",
+    })
+  );
 });
 
 const getHistoryBlogs = asyncHandler(async (req, res) => {
