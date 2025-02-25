@@ -8,10 +8,12 @@ import {
 
 const router = Router();
 
-// router.route("/createReport").post(verifyJWT, createReport);
+router.route("/create-report").post(verifyAccessToken, createReport);
 
-// router.route("/getReports").get(verifyJWT, getReports);
+router.route("/get-reports").get(verifyAccessToken, getReports);
 
-// router.route("/markReportAsResolved").post(verifyJWT, markReportAsResolved);
+router
+  .route("/mark-report-as-resolved")
+  .patch(verifyAccessToken, markReportAsResolved);
 
 export default router;
