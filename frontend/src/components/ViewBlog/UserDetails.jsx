@@ -216,7 +216,7 @@ function UserDetails({
           }} // Limits height and adds rounded corners
         >
           <div className="p-4">
-            <Report />
+            <Report blogId={blogId} setReportCount={setReportCount} />
           </div>
         </SwipeableDrawer>
       </div>

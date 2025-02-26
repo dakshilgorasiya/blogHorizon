@@ -3,6 +3,7 @@ import { BlogCard } from "../components";
 import { server } from "../constants.js";
 import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
+import { Bookmark } from "lucide-react";
 
 function BookmarkBlog() {
   const dispatch = useDispatch();
@@ -46,6 +47,11 @@ function BookmarkBlog() {
 
   return (
     <>
+      <div className="flex flex-col items-center">
+        <Bookmark className="mx-auto mt-5 fill-priary text-priary" size={40} />
+        <h1 className="font-bold text-2xl">Bookmarked</h1>
+      </div>
+
       <div className="sm:w-11/12 my-2 p-5 max-w-5xl m-auto gap-4 grid">
         {blogs && blogs.map((blog) => <BlogCard key={blog._id} blog={blog} />)}
         {blogs?.length === 0 && (
