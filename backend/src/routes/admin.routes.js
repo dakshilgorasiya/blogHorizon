@@ -37,6 +37,4 @@ router
   .route("/verify-admin")
   .get(verifyAccessToken, verifyAdmin, verifyAdminController);
 
-router.route("/make-admin").post(verifyAccessToken, verifyAdmin, makeAdmin);
-
 export default router;

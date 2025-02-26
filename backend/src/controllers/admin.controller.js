@@ -514,34 +514,6 @@ const verifyAdmin = asyncHandler(async (req, res, next) => {
   );
 });
 
-const makeAdmin = asyncHandler(async (req, res) => {
-  // get user email from the request body
-  const { email } = req.body;
-
-  if (!email) {
-    throw new ApiError(400, "Email is required");
-  }
-
-  // get user
-  const user = await User.findOne({ email });
-
-  if (!user) {
-    throw new ApiError(404, "User not found");
-  }
-
-  // make user admin
-  user.role = "admin";
-  await user.save();
-
-  return res.status(200).json(
-    new ApiResponse({
-      statusCode: 200,
-      data: user,
-      message: "User is now an admin",
-    })
-  );
-});
-
 export {
   getAllReportedBlog,
   getBlogById,
@@ -549,5 +521,4 @@ export {
   deleteBlog,
   markReportAsResolved,
   verifyAdmin,
-  makeAdmin,
 };
