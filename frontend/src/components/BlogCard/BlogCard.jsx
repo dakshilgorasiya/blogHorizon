@@ -1,9 +1,14 @@
 import { Avatar } from "@mantine/core";
 import React from "react";
-import { ThumbsUp, MessageSquare, Calendar } from "lucide-react";
+import { ThumbsUp, MessageSquare, Calendar, TriangleAlert } from "lucide-react";
 import { Link } from "react-router-dom";
 
-function BlogCard({ blog, showUserDetails = true }) {
+function BlogCard({
+  blog,
+  showUserDetails = true,
+  admin = false,
+  reportCount = 0,
+}) {
   const formattedBlogCategory = blog.category.replace(/ /g, "").toLowerCase();
 
   const formattedDate = new Date(blog.createdAt).toLocaleDateString("en-GB", {
@@ -46,7 +51,14 @@ function BlogCard({ blog, showUserDetails = true }) {
           )}
 
           <div className="mt-3 ml-3">
-            <Link to={`/view-blog/${blog._id}`} className="hover:underline">
+            <Link
+              to={`${
+                admin
+                  ? `/admin/view-blog/${blog._id}`
+                  : `/view-blog/${blog._id}`
+              }`}
+              className="hover:underline"
+            >
               <h1 className="sm:text-2xl font-bold">{blog.title}</h1>
             </Link>
           </div>
@@ -59,7 +71,14 @@ function BlogCard({ blog, showUserDetails = true }) {
               </div>
 
               <div className="flex items-center ml-5 mr-5">
-                <Link to={`/view-blog/${blog._id}`} className="hover:underline">
+                <Link
+                  to={`${
+                    admin
+                      ? `/admin/view-blog/${blog._id}`
+                      : `/view-blog/${blog._id}`
+                  }`}
+                  className="hover:underline"
+                >
                   <ThumbsUp
                     size={18}
                     className={` ${
@@ -72,12 +91,35 @@ function BlogCard({ blog, showUserDetails = true }) {
                 <p className="ml-1">{blog.likeCount}</p>
               </div>
 
-              <div className="flex items-center">
-                <Link to={`/view-blog/${blog._id}`} className="hover:underline">
+              <div className="flex items-center mr-5">
+                <Link
+                  to={`${
+                    admin
+                      ? `/admin/view-blog/${blog._id}`
+                      : `/view-blog/${blog._id}`
+                  }`}
+                  className="hover:underline"
+                >
                   <MessageSquare size={18} className="text-gray-500" />
                 </Link>
                 <p className="ml-1">{blog.commentCount}</p>
               </div>
+
+              {admin && (
+                <div className="flex items-center">
+                  <Link
+                    to={`${
+                      admin
+                        ? `/admin/view-blog/${blog._id}`
+                        : `/view-blog/${blog._id}`
+                    }`}
+                    className="hover:underline"
+                  >
+                    <TriangleAlert size={18} className="text-red-500" />
+                  </Link>
+                  <p className="ml-1">{blog.reportCount}</p>
+                </div>
+              )}
             </div>
           </div>
 
@@ -97,7 +139,11 @@ function BlogCard({ blog, showUserDetails = true }) {
         </div>
 
         <div className="ml-auto col-span-5">
-          <Link to={`/view-blog/${blog._id}`}>
+          <Link
+            to={`${
+              admin ? `/admin/view-blog/${blog._id}` : `/view-blog/${blog._id}`
+            }`}
+          >
             <img
               src={blog.thumbnail}
               alt="thumbnail"

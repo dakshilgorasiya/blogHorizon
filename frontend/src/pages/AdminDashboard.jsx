@@ -3,6 +3,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { server } from "../constants.js";
 import { callSecureApi } from "../utils/callSecureApi.js";
+import Pagination from "@mui/material/Pagination";
+import { BlogCard } from "../components";
 
 function AdminDashboard() {
   const dispatch = useDispatch();
@@ -17,67 +19,118 @@ function AdminDashboard() {
 
   const [adminVerified, setAdminVerified] = useState(false);
 
-  // useEffect(() => {
-  //   const verifyAdmin = async () => {
-  //     try {
-  //       const response = await callSecureApi({
-  //         url: `${server}/user/verify-admin`,
-  //         method: "GET",
-  //         setError,
-  //         accessToken: user?.accessToken,
-  //         dispatch,
-  //       });
+  const [page, setPage] = useState(1);
 
-  //       console.log(response);
+  const [totalPages, setTotalPages] = useState(0);
 
-  //       if (response?.success) {
-  //         console.log("Admin verified");
-  //         setAdminVerified(true);
-  //       } else {
-  //         navigate("/");
-  //       }
-  //     } catch (error) {
-  //       console.log(error);
-  //     }
-  //   };
+  const [blogs, setBlogs] = useState([]);
 
-  //   if (user) {
-  //     if (user.role !== "admin") {
-  //       navigate("/");
-  //     }
-  //     verifyAdmin();
-  //   }
-  // }, [user]);
+  useEffect(() => {
+    const verifyAdmin = async () => {
+      try {
+        const response = await callSecureApi({
+          url: `${server}/admin/verify-admin`,
+          method: "GET",
+          setError,
+          accessToken: user?.accessToken,
+          dispatch,
+        });
 
-  // useEffect(() => {
-  //   const fetchReports = async () => {
-  //     setLoading(true);
-  //     try {
-  //       const response = await callSecureApi({
-  //         url: `${server}/report/get-reports`,
-  //         method: "POST",
-  //         body: { limit: 10, page: 1 },
-  //         setError,
-  //         accessToken: user?.accessToken,
-  //         dispatch,
-  //       })
+        console.log(response);
 
-  //       console.log(response);
-  //     } catch (error) {
-  //       console.log(error);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
+        if (response?.success) {
+          console.log("Admin verified");
+          setAdminVerified(true);
+        } else {
+          navigate("/");
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
 
-  //   if (user && adminVerified) {
-  //     fetchReports();
-  //   }
-  // }, [user, adminVerified]);
+    if (user) {
+      verifyAdmin();
+    }
+  }, [user]);
+
+  useEffect(() => {
+    const fetchBlogs = async () => {
+      setLoading(true);
+      try {
+        const response = await callSecureApi({
+          url: `${server}/admin/get-all-reported-blogs`,
+          method: "POST",
+          body: {
+            page,
+            limit: 10,
+          },
+          setError,
+          accessToken: user?.accessToken,
+          dispatch,
+        });
+
+        console.log(response);
+        if (response?.success) {
+          setBlogs(response.data.docs);
+          setTotalPages(response.data.totalPages);
+        }
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (adminVerified) {
+      fetchBlogs();
+    }
+  }, [user, page, adminVerified]);
+
+  const handleChange = (event, value) => {
+    setPage(value);
+  };
+
+  if (loading) return <div>Loading...</div>;
 
   return (
     <>
-      <div>AdminDashboard</div>
+      <div className="flex flex-col items-center">
+        <div className="sm:w-11/12 my-2 p-5 max-w-5xl m-auto gap-4 grid">
+          {blogs &&
+            blogs.map((blog) => (
+              <BlogCard
+                key={blog._id}
+                blog={blog}
+                admin={true}
+                reportCount={blog.reportCount}
+              />
+            ))}
+          {blogs?.length === 0 && (
+            <h1 className="text-2xl text-center mt-10">No blogs found</h1>
+          )}
+        </div>
+
+        <div className="sm:w-11/12 my-2 p-5 max-w-5xl flex justify-center">
+          <Pagination
+            count={totalPages}
+            page={page}
+            onChange={handleChange}
+            sx={{
+              "& .MuiPaginationItem-root": {
+                color: "#252422",
+              },
+              "& .MuiPaginationItem-page.Mui-selected": {
+                backgroundColor: "#eb5e28", // red-500 hex code
+                color: "white",
+              },
+              "& .MuiPaginationItem-page.Mui-selected:hover": {
+                backgroundColor: "#403d39", // darker red on hover
+              },
+            }}
+          />
+        </div>
+      </div>
     </>
   );
 }

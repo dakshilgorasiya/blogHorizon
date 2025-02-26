@@ -20,12 +20,16 @@ import {
 } from "../../features/blog/blogSlice.js";
 import { useNavigate, Link } from "react-router-dom";
 import { callSecureApi } from "../../utils/callSecureApi.js";
-import { Notify, PostComment, BlogComment } from "../../components";
+import { Notify, PostComment, BlogComment, Report } from "../../components";
 import SwipeableDrawer from "@mui/material/SwipeableDrawer";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 
-function UserDetails() {
+function UserDetails({
+  admin = false,
+  reportCount = 0,
+  setReportCount = () => {},
+}) {
   const navigate = useNavigate();
 
   const [error, setError] = useState(null);
@@ -37,6 +41,8 @@ function UserDetails() {
   const [type, setType] = useState("success");
 
   const [showComment, setShowComment] = useState(false);
+
+  const [showReport, setShowReport] = useState(false);
 
   const [comments, setComments] = useState([]);
 
@@ -170,6 +176,10 @@ function UserDetails() {
     setShowComment(true);
   };
 
+  const handleShowReport = () => {
+    setShowReport(true);
+  };
+
   return (
     <>
       <div>
@@ -190,6 +200,23 @@ function UserDetails() {
               comments={comments}
               setComments={setComments}
             />
+          </div>
+        </SwipeableDrawer>
+      </div>
+
+      <div>
+        <SwipeableDrawer
+          anchor="bottom"
+          open={showReport}
+          onClose={() => setShowReport(false)}
+          onOpen={() => setShowReport(true)}
+          disableSwipeToOpen={false} // Allows swipe from the edge
+          PaperProps={{
+            sx: { maxHeight: "66vh", borderRadius: "12px 12px 0 0" },
+          }} // Limits height and adds rounded corners
+        >
+          <div className="p-4">
+            <Report />
           </div>
         </SwipeableDrawer>
       </div>
@@ -255,7 +282,7 @@ function UserDetails() {
               <p className="ml-1">{likes}</p>
             </div>
 
-            <div className="flex items-center">
+            <div className="flex items-center mr-5">
               <motion.button
                 className="flex items-center justify-center hover:scale-110 transition-transform"
                 whileTap={{ scale: 0.9 }}
@@ -265,6 +292,19 @@ function UserDetails() {
               </motion.button>
               <p className="ml-1">{commentCount}</p>
             </div>
+
+            {admin && (
+              <div className="flex items-center">
+                <motion.button
+                  className="flex items-center justify-center hover:scale-110 transition-transform"
+                  whileTap={{ scale: 0.9 }}
+                  onClick={handleShowReport}
+                >
+                  <TriangleAlert size={20} className="text-red-500" />
+                </motion.button>
+                <p className="ml-1">{reportCount}</p>
+              </div>
+            )}
           </div>
 
           <div className="flex items-center ml-auto">
@@ -325,18 +365,6 @@ function UserDetails() {
                 </MenuItem>
               </Menu>
             </div>
-
-            {/* <div className="flex items-center mr-3">
-              <motion.button
-                onClick={() =>
-                  navigator.clipboard.writeText(window.location.href)
-                }
-                className="flex items-center justify-center hover:scale-110 transition-transform"
-                whileTap={{ scale: 0.9 }}
-              >
-                <Share2 size={20} className="text-gray-500" />
-              </motion.button>
-            </div> */}
           </div>
         </div>
 

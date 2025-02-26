@@ -25,6 +25,7 @@ import BlogComment from "./Comments/BlogComment";
 import Reply from "./Comments/Reply";
 import PostComment from "./Comments/PostComment";
 import DeleteBlog from "./ViewBlog/DeleteBlog";
+import Report from "./ViewBlog/Report";
 
 export {
   Login,
@@ -54,4 +55,5 @@ export {
   Reply,
   PostComment,
   DeleteBlog,
+  Report,
 };
