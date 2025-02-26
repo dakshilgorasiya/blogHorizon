@@ -57,6 +57,7 @@ import reportRouter from "./routes/report.routes.js";
 import followRouter from "./routes/follow.routes.js";
 import commentRouter from "./routes/comment.routes.js";
 import likeRouter from "./routes/like.routes.js";
+import adminRouter from "./routes/admin.routes.js";
 
 // routes declarations
 app.use("/api/v1/user", userRouter);
@@ -65,6 +66,7 @@ app.use("/api/v1/report", reportRouter);
 app.use("/api/v1/follow", followRouter);
 app.use("/api/v1/comment", commentRouter);
 app.use("/api/v1/like", likeRouter);
+app.use("/api/v1/admin", adminRouter);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
