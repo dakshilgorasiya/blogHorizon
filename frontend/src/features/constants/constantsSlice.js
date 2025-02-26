@@ -6,6 +6,7 @@ const initialState = {
   interests: [],
   userInterests: [],
   currentInterest: "Latest",
+  query: "",
   loading: false,
   error: null,
 };
@@ -16,6 +17,9 @@ const constantsSlice = createSlice({
   reducers: {
     setCurrentInterest(state, action) {
       state.currentInterest = action.payload;
+    },
+    setQuery(state, action) {
+      state.query = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -62,4 +66,5 @@ export const {
   setBlogByInterest,
   removerBlogByInterest,
   resetBlogByInterest,
+  setQuery,
 } = constantsSlice.actions;

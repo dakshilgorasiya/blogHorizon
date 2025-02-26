@@ -6,6 +6,7 @@ import { useSelector, useDispatch } from "react-redux";
 import Pagination from "@mui/material/Pagination";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { setCurrentInterest } from "../features/constants/constantsSlice.js";
+import { setQuery } from "../features/constants/constantsSlice.js";
 
 function HomePage() {
   const dispatch = useDispatch();
@@ -29,6 +30,8 @@ function HomePage() {
   const [blogs, setBlogs] = useState([]);
 
   const interestsRef = useRef(null); // Ref for scrolling
+
+  const query = useSelector((state) => state.constants.query);
 
   useEffect(() => {
     const fetchBlogs = async () => {
@@ -80,17 +83,45 @@ function HomePage() {
       }
     };
 
-    if (currentInterest !== "Latest") {
-      fetchBlogs();
+    const searchBlog = async () => {
+      try {
+        setLoading(true);
+        const response = await axios
+          .get(`${server}/blog/search-blog`, {
+            params: {
+              query,
+              page,
+              limit: 10,
+            },
+            headers: {
+              Authorization: `Bearer ${user?.accessToken}`,
+            },
+          })
+          .then((res) => res.data);
+
+        console.log(response);
+        setBlogs(response.data.docs);
+        setTotalPages(response.data.totalPages);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    if (query) {
+      searchBlog();
     } else {
-      fetchAllBlogs();
+      if (currentInterest !== "Latest") {
+        fetchBlogs();
+      } else {
+        fetchAllBlogs();
+      }
     }
     setLoading(false);
-  }, [currentInterest, user, page]);
+  }, [currentInterest, user, page, query]);
 
   useEffect(() => {
     setPage(1);
-  }, [currentInterest]);
+  }, [currentInterest, query]);
 
   const handleChange = (event, value) => {
     console.log(value);
@@ -112,6 +143,7 @@ function HomePage() {
 
   const handleInterestClick = (index) => {
     dispatch(setCurrentInterest(userInterests[index]));
+    dispatch(setQuery(""));
   };
 
   if (loading) return <h1>Loading...</h1>;

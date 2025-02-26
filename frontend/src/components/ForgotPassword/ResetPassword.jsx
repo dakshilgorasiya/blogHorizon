@@ -248,11 +248,13 @@ function ResetPassword() {
                 )}
               </div>
             </form>
-            <div className="flex justify-center mb-10">
-              <Link to="/login" className="text-blue-500">
-                Password reseted successfully Click here to login
-              </Link>
-            </div>
+            {success && (
+              <div className="flex justify-center mb-10">
+                <Link to="/login" className="text-blue-500">
+                  Password reseted successfully Click here to login
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       </div>

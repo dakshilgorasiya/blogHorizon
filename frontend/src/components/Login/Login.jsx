@@ -6,6 +6,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
 import axios from "axios";
 import { server } from "../../constants.js";
+import { sendNotification } from "../../features/notification/notificationSlice.js";
 
 function Login() {
   const navigate = useNavigate();
@@ -61,6 +62,12 @@ function Login() {
         )
         .then((res) => res.data);
 
+      dispatch(
+        sendNotification({
+          message: "Logged in successfully",
+          type: "success",
+        })
+      );
       dispatch(setUser(response.data));
     } catch (err) {
       console.log(err.response.data.message);
@@ -84,7 +91,6 @@ function Login() {
 
     setError(null);
 
-    setOtpSent(true);
     dispatch(login({ email, password }));
   };
 
@@ -96,6 +102,12 @@ function Login() {
     e.preventDefault();
     setError(null);
     dispatch(verifyOtp({ otp: otp, email: email }));
+    dispatch(
+      sendNotification({
+        message: "Logged in successfully",
+        type: "success",
+      })
+    );
   };
 
   return (
@@ -132,6 +144,15 @@ function Login() {
                     setPassword(e.target.value);
                   }}
                 />
+              </div>
+
+              <div>
+                <Link
+                  to="/forgot-password"
+                  className="text-highlight hover:underline"
+                >
+                  Forgot Password?
+                </Link>
               </div>
 
               {otpSent && (
