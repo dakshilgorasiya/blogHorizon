@@ -6,7 +6,6 @@ import {
   deleteBlog,
   markReportAsResolved,
   verifyAdmin as verifyAdminController,
-  makeAdmin,
 } from "../controllers/admin.controller.js";
 import {
   verifyAccessToken,

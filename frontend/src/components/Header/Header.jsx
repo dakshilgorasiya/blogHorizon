@@ -22,6 +22,8 @@ import MenuItem from "@mui/material/MenuItem";
 import { server } from "../../constants.js";
 import Tooltip from "@mui/material/Tooltip";
 import { Divider } from "@mui/material";
+import { Notify } from "../../components";
+import { setOpen } from "../../features/notification/notificationSlice.js";
 
 function Header() {
   const navigate = useNavigate();
@@ -75,8 +77,25 @@ function Header() {
     }
   }, [user, dispatch]);
 
+  const message = useSelector((state) => state.notification.message);
+
+  const setNotificationOpen = () => {
+    dispatch(setOpen());
+  };
+
+  const notificationOpen = useSelector((state) => state.notification.open);
+
+  const notificationType = useSelector((state) => state.notification.type);
+
   return (
     <>
+      <Notify
+        message={message}
+        setOpen={setNotificationOpen}
+        open={notificationOpen}
+        type={notificationType}
+      />
+
       <div className="bg-priary flex justify-between items-center p-3">
         <div className="p-3">
           <Link to="/">
