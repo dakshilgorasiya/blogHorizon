@@ -777,7 +777,7 @@ const getUserProfile = asyncHandler(async (req, res) => {
       $lookup: {
         from: "follows",
         localField: "_id",
-        foreignField: "followTo",
+        foreignField: "followedTo",
         as: "followers",
       },
     },
