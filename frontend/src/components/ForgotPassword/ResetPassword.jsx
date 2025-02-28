@@ -66,8 +66,7 @@ function ResetPassword() {
       !passwordFormat.hasUpperCase ||
       !passwordFormat.hasLowerCase ||
       !passwordFormat.hasSpecialChar ||
-      !passwordFormat.hasLength ||
-      !passwordMatch
+      !passwordFormat.hasLength
     ) {
       setError("Password is not strong enough");
       return;
@@ -99,8 +98,8 @@ function ResetPassword() {
 
   return (
     <>
-      <div className="flex justify-center items-center min-h-screen p-5 bg-accent">
-        <div className="border-2 border-black rounded-lg p-4 shadow-md w-full max-w-md bg-background">
+      <div className="flex justify-center items-center min-h-screen p-5">
+        <div className="border-2 border-black rounded-lg p-4 shadow-md w-full max-w-md">
           <h1 className="text-4xl text-center font-extrabold mt-8">
             Set New Password
           </h1>

@@ -48,8 +48,8 @@ function ForgotPassword() {
 
   return (
     <>
-      <div className="flex justify-center items-center min-h-screen p-5 bg-accent">
-        <div className="border-2 border-black rounded-lg p-4 shadow-md w-full max-w-md bg-background">
+      <div className="flex justify-center items-center min-h-screen p-5">
+        <div className="border-2 border-black rounded-lg p-4 shadow-md w-full max-w-md">
           <h1 className="text-4xl text-center font-extrabold mt-8">
             Forgot Password
           </h1>

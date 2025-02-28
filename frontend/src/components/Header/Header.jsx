@@ -26,6 +26,7 @@ import { Notify } from "../../components";
 import { setOpen } from "../../features/notification/notificationSlice.js";
 import { setQuery } from "../../features/constants/constantsSlice.js";
 import { motion } from "framer-motion";
+import { sendNotification } from "../../features/notification/notificationSlice.js";
 
 function Header() {
   const navigate = useNavigate();
@@ -123,14 +124,15 @@ function Header() {
             className="rounded-lg focus:outline-none w-full"
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
-            onBlur={() => {
-              dispatch(setQuery(searchInput));
-            }}
           />
           <motion.button
             whileTap={{ scale: 0.9 }}
             whileHover={{ scale: 1.1 }}
             transition={{ type: "spring", stiffness: 300 }}
+            onClick={() => {
+              dispatch(setQuery(searchInput));
+              navigate(`/`);
+            }}
           >
             <Search size={20} />
           </motion.button>
@@ -220,6 +222,12 @@ function Header() {
                       onClick={() => {
                         dispatch(logout());
                         navigate("/");
+                        dispatch(
+                          sendNotification({
+                            message: "Logged out successfully",
+                            type: "success",
+                          })
+                        );
                       }}
                       className="w-full"
                     >

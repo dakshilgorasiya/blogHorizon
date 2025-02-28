@@ -46,15 +46,12 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new ApiError(400, "At least 3 interests are required");
   }
 
-  // check if user already exists: username, email
-  const existedUser = await User.findOne({
-    $or: [{ userName }, { email }],
-  });
+  // check if user already exists: email
 
+  const existedUser = await User.findOne({ email });
+  console.log(existedUser);
   if (existedUser) {
-    if (req?.files && req?.files?.avatar && req?.files?.avatar[0]?.path)
-      fs.unlinkSync(req?.files?.avatar[0]?.path);
-    throw new ApiError(409, "User already exists");
+    throw new ApiError(400, "Email is already registered please login");
   }
 
   // check for avatar
@@ -541,7 +538,7 @@ const resetPassword = asyncHandler(async (req, res) => {
     new ApiResponse({
       statusCode: 200,
       data: {},
-      message: "Password reset successfully",
+      message: "Password reseted successfully",
     })
   );
 });

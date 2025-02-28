@@ -32,7 +32,14 @@ function Login() {
     if (apiError) {
       setError(apiError);
     }
+    if (apiError === "OTP attempts exceeded") {
+      setOtpSent(false);
+    }
   }, [apiError]);
+
+  useEffect(() => {
+    if (user) setOtpSent(true);
+  }, [user]);
 
   useEffect(() => {
     if (user?.accessToken) {
@@ -102,18 +109,12 @@ function Login() {
     e.preventDefault();
     setError(null);
     dispatch(verifyOtp({ otp: otp, email: email }));
-    dispatch(
-      sendNotification({
-        message: "Logged in successfully",
-        type: "success",
-      })
-    );
   };
 
   return (
     <>
-      <div className="flex justify-center items-center min-h-screen p-5 bg-accent">
-        <div className="border-2 border-black rounded-lg p-4 shadow-md w-full max-w-md bg-background">
+      <div className="flex justify-center items-center min-h-screen p-5">
+        <div className="border-2 border-black rounded-lg p-4 shadow-md w-full max-w-md">
           <h1 className="text-4xl text-center font-extrabold mt-8">Login</h1>
 
           <div className="mt-20 p-3">

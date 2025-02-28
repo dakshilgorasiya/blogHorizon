@@ -51,6 +51,13 @@ function Register() {
   const dispatch = useDispatch();
 
   useEffect(() => {
+    if (authError === "OTP attempts exceeded") {
+      setOtpSent(false);
+      setError("OTP attempts exceeded. Please try again later.");
+    }
+  }, [authError]);
+
+  useEffect(() => {
     if (interests.length === 0 && !interestsLoading) {
       dispatch(getInterests());
     }
@@ -60,7 +67,10 @@ function Register() {
     if (user?.accessToken) {
       navigate("/");
     }
-  }, [user])
+    if (user) {
+      setOtpSent(true);
+    }
+  }, [user]);
 
   useEffect(() => {
     if (authError) {
@@ -168,7 +178,6 @@ function Register() {
       data.append(key, formData[key]);
     }
     data.delete("confirmPassword");
-    setOtpSent(true);
     setError(null);
     dispatch(register(data));
   };
@@ -220,12 +229,10 @@ function Register() {
     setError("Something went wrong. Please try again");
   };
 
-  
-
   return (
     <>
-      <div className="flex justify-center items-center min-h-screen p-5 bg-accent">
-        <div className="border-2 border-black rounded-lg p-4 shadow-md w-full max-w-md bg-background">
+      <div className="flex justify-center items-center min-h-screen p-5">
+        <div className="border-2 border-black rounded-lg p-4 shadow-md w-full max-w-md">
           <h1 className="text-4xl text-center font-extrabold mt-8">Register</h1>
 
           <div className="mt-20 p-3">
