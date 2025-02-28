@@ -11,6 +11,7 @@ import BookmarkBlog from "./BookmarkBlog";
 import Report from "./ReportPage";
 import AdminDashboard from "./AdminDashboard";
 import AdminViewBlogPage from "./AdminViewBlogPage";
+import ErrorPage from "./ErrorPage";
 
 export {
   Login,
@@ -26,4 +27,5 @@ export {
   Report,
   AdminDashboard,
   AdminViewBlogPage,
+  ErrorPage,
 };

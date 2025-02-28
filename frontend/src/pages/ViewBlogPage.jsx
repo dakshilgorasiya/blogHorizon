@@ -12,13 +12,15 @@ import {
   UserDetails,
   DeleteBlog,
 } from "../components";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { callSecureApi } from "../utils/callSecureApi.js";
 import { Pencil, Trash2 } from "lucide-react";
 import { Tooltip } from "@mui/material";
 
 function ViewBlogPage() {
   const dispatch = useDispatch();
+
+  const navigate = useNavigate();
 
   const user = useSelector((state) => state.auth.user);
 
@@ -45,8 +47,14 @@ function ViewBlogPage() {
           dispatch,
         });
 
+        if (response?.success === false) {
+          navigate("/error");
+          return;
+        }
+
         dispatch(setApiBlog(response.data));
       } catch (error) {
+        navigate("/error");
         console.log(error);
       } finally {
         setLoading(false);

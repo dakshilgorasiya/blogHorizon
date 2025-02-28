@@ -4,6 +4,10 @@ import { register, verifyOtp } from "../../features/auth/authReducers.js";
 import { getInterests } from "../../features/constants/constantsReducers.js";
 import { Link, useNavigate } from "react-router-dom";
 import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
+import axios from "axios";
+import { server } from "../../constants.js";
+import { sendNotification } from "../../features/notification/notificationSlice.js";
+import { setUser, setErrorMessage } from "../../features/auth/authSlice.js";
 
 function Register() {
   const navigate = useNavigate();
@@ -210,14 +214,15 @@ function Register() {
         )
         .then((res) => res.data);
 
+      dispatch(
+        sendNotification({
+          message: "Logged in successfully",
+          type: "success",
+        })
+      );
       dispatch(setUser(response.data));
-
-      if (!response.data.isProfileComplete) {
-        navigate("/complete-profile");
-      } else {
-        navigate("/");
-      }
     } catch (err) {
+      console.log(err);
       console.log(err.response.data.message);
       dispatch(
         setErrorMessage(err.response?.data?.message || "Something went wrong")
