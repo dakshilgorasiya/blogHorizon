@@ -107,8 +107,37 @@ function HomePage() {
       }
     };
 
+    const searchBlogCategory = async () => {
+      try {
+        setLoading(true);
+        const response = await axios
+          .get(`${server}/blog/search-blog-by-category`, {
+            params: {
+              query,
+              category: currentInterest,
+              page,
+              limit: 10,
+            },
+            headers: {
+              Authorization: `Bearer ${user?.accessToken}`,
+            },
+          })
+          .then((res) => res.data);
+
+        console.log(response);
+        setBlogs(response.data.docs);
+        setTotalPages(response.data.totalPages);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
     if (query) {
-      searchBlog();
+      if (currentInterest === "Latest") {
+        searchBlog();
+      } else {
+        searchBlogCategory();
+      }
     } else {
       if (currentInterest !== "Latest") {
         fetchBlogs();

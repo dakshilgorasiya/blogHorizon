@@ -1151,6 +1151,156 @@ const searchBlog = asyncHandler(async (req, res) => {
   });
 });
 
+const searchBlogByCategory = asyncHandler(async (req, res) => {
+  const { page, limit, query, category } = req.query;
+
+  if (!query) {
+    throw new ApiError(400, "Query is required");
+  }
+
+  if (!category) {
+    throw new ApiError(400, "Category is required");
+  }
+
+  if (!BLOG_CATEGORY.includes(category)) {
+    throw new ApiError(400, "Invalid category");
+  }
+
+  const blogs = Blog.aggregate([
+    {
+      $match: {
+        title: {
+          $regex: query,
+          $options: "i",
+        },
+      },
+    },
+    {
+      $match: {
+        category,
+      },
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "owner",
+        foreignField: "_id",
+        as: "owner",
+        pipeline: [
+          {
+            $project: {
+              _id: 1,
+              userName: 1,
+              avatar: 1,
+            },
+          },
+        ],
+      },
+    },
+    {
+      $unwind: "$owner",
+    },
+    {
+      $lookup: {
+        from: "follows",
+        localField: "owner._id",
+        foreignField: "followedTo",
+        as: "followers",
+      },
+    },
+    {
+      $addFields: {
+        followersCount: {
+          $size: "$followers",
+        },
+      },
+    },
+    {
+      $lookup: {
+        from: "comments",
+        localField: "_id",
+        foreignField: "blog",
+        as: "comments",
+      },
+    },
+    {
+      $addFields: {
+        commentCount: {
+          $size: "$comments",
+        },
+      },
+    },
+    {
+      $lookup: {
+        from: "likes",
+        localField: "_id",
+        foreignField: "blog",
+        as: "likes",
+      },
+    },
+    {
+      $addFields: {
+        likeCount: {
+          $size: "$likes",
+        },
+      },
+    },
+    {
+      $project: {
+        title: 1,
+        tags: 1,
+        category: 1,
+        owner: 1,
+        createdAt: 1,
+        commentCount: 1,
+        followersCount: 1,
+        likeCount: 1,
+        content: 1,
+      },
+    },
+  ]);
+
+  const options = {
+    page: parseInt(page) || 1,
+    limit: parseInt(limit) || 10,
+  };
+
+  await Blog.aggregatePaginate(blogs, options).then(async (result) => {
+    const checkLikedByUser = async (userId) => {
+      await Promise.all(
+        result.docs.map(async (blog) => {
+          const like = await Like.findOne({
+            likedBy: new mongoose.Types.ObjectId(userId),
+            blog: new mongoose.Types.ObjectId(blog._id),
+          });
+          if (like) {
+            blog.isLiked = true;
+          } else {
+            blog.isLiked = false;
+          }
+        })
+      );
+    };
+
+    if (req?.user) {
+      await checkLikedByUser(req.user._id);
+    }
+
+    result.docs.map((blog) => {
+      blog.thumbnail = blog.content[0].data;
+      blog.content = undefined;
+    });
+
+    return res.status(200).json(
+      new ApiResponse({
+        statusCode: 200,
+        data: result,
+        message: "Blogs fetched successfully",
+      })
+    );
+  });
+});
+
 export {
   createBlog,
   getAllBlogs,
@@ -1164,4 +1314,5 @@ export {
   getBlogByCategory,
   getBlogTitleById,
   searchBlog,
+  searchBlogByCategory,
 };

@@ -12,6 +12,7 @@ import {
   getBlogByCategory,
   getBlogTitleById,
   searchBlog,
+  searchBlogByCategory,
 } from "../controllers/blog.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
 import {
@@ -60,5 +61,9 @@ router.route("/get-blog-by-category").get(checkUserLoggedIn, getBlogByCategory);
 router.route("/get-blog-title/:id").get(getBlogTitleById);
 
 router.route("/search-blog").get(checkUserLoggedIn, searchBlog);
+
+router
+  .route("/search-blog-by-category")
+  .get(checkUserLoggedIn, searchBlogByCategory);
 
 export default router;
