@@ -12,6 +12,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { callSecureApi } from "../../utils/callSecureApi.js";
 import { useNavigate } from "react-router-dom";
 import { Tooltip } from "@mui/material";
+import { sendNotification } from "../../features/notification/notificationSlice.js";
 
 const DeleteBlog = ({ id }) => {
   const dispatch = useDispatch();
@@ -46,6 +47,12 @@ const DeleteBlog = ({ id }) => {
 
       if (response.success) {
         navigate("/");
+        dispatch(
+          sendNotification({
+            message: "Blog deleted successfully",
+            type: "success",
+          })
+        );
       }
     } catch (error) {
       console.log(error);

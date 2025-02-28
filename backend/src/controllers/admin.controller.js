@@ -102,13 +102,6 @@ const getAllReportedBlog = asyncHandler(async (req, res) => {
       },
     },
     {
-      $match: {
-        reportCount: {
-          $gt: 0,
-        },
-      },
-    },
-    {
       $sort: {
         reportCount: -1,
       },

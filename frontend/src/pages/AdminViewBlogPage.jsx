@@ -27,6 +27,7 @@ import {
   Select,
   MenuItem,
 } from "@mui/material";
+import { sendNotification } from "../features/notification/notificationSlice.js";
 
 function ViewBlogPage() {
   const dispatch = useDispatch();
@@ -134,6 +135,12 @@ function ViewBlogPage() {
       console.log(response);
       if (response.success) {
         navigate("/admin/dashboard");
+        dispatch(
+          sendNotification({
+            message: "Blog deleted successfully",
+            type: "success",
+          })
+        );
       }
     } catch (error) {
       console.log(error);

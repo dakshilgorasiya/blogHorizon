@@ -66,7 +66,7 @@ function ViewBlogPage() {
 
             {user && user._id === blogOwner._id && (
               <div className="flex">
-                <div className="mt-1">
+                <div className="mt-1 mr-3">
                   <button>
                     <Link to={`/edit-blog/${id}`}>
                       <Tooltip title="Edit" arrow>

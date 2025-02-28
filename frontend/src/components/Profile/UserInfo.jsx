@@ -7,6 +7,7 @@ import { Notify } from "../../components";
 import { Pencil, CircleX } from "lucide-react";
 import { setUserBio, setUserAvatar } from "../../features/auth/authSlice.js";
 import { Tooltip } from "@mui/material";
+import { sendNotification } from "../../features/notification/notificationSlice.js";
 
 function UserInfo({ data, ownerId }) {
   const dispatch = useDispatch();
@@ -94,6 +95,12 @@ function UserInfo({ data, ownerId }) {
 
       if (response?.success) {
         setShowInput(false);
+        dispatch(
+          sendNotification({
+            type: "success",
+            message: "Bio updated successfully",
+          })
+        );
         dispatch(setUserBio(bio));
       }
     } catch (error) {
@@ -127,6 +134,12 @@ function UserInfo({ data, ownerId }) {
         setShowAvatarSaveBtn(false);
         setAvatar(null);
         setAvatarPreview(null);
+        dispatch(
+          sendNotification({
+            type: "success",
+            message: "Avatar updated successfully",
+          })
+        );
       }
     } catch (error) {
       console.log(error);

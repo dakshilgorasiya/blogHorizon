@@ -25,6 +25,7 @@ import { server } from "../constants.js";
 import { useNavigate, useParams } from "react-router-dom";
 import { callSecureApi } from "../utils/callSecureApi.js";
 import { renewAccessToken } from "../utils/renewAccessToken.js";
+import { sendNotification } from "../features/notification/notificationSlice.js";
 
 function CreateBlogPage({ update = false }) {
   const { id } = useParams();
@@ -143,13 +144,20 @@ function CreateBlogPage({ update = false }) {
       return;
     }
 
+    let shouldReturn = false;
+
     blog.tags.map((tag) => {
       if (tag[0] !== "#") {
         setError("Please add tags with #");
         setLoading(false);
+        shouldReturn = true;
         return;
       }
     });
+
+    if (shouldReturn) {
+      return;
+    }
 
     // Calling API to create blog
     const formData = new FormData();
@@ -183,7 +191,15 @@ function CreateBlogPage({ update = false }) {
       });
 
       console.log(response);
-      navigate(`/view-blog/${response.data._id}`);
+      if (response?.success) {
+        dispatch(
+          sendNotification({
+            message: "Blog created successfully",
+            type: "success",
+          })
+        );
+        navigate(`/view-blog/${response.data._id}`);
+      }
     } catch (error) {
       console.log(error);
       setError(error.response.data.message);
@@ -229,13 +245,20 @@ function CreateBlogPage({ update = false }) {
       return;
     }
 
+    let shouldReturn = false;
+
     blog.tags.map((tag) => {
       if (tag[0] !== "#") {
         setError("Please add tags with #");
         setLoading(false);
+        shouldReturn = true;
         return;
       }
     });
+
+    if (shouldReturn) {
+      return;
+    }
 
     // Calling API to update blog
     const formData = new FormData();
@@ -275,6 +298,12 @@ function CreateBlogPage({ update = false }) {
       console.log(response);
       if (response.success) {
         navigate(`/view-blog/${id}`);
+        dispatch(
+          sendNotification({
+            message: "Blog updated successfully",
+            type: "success",
+          })
+        );
       }
     } catch (error) {
       console.log(error);

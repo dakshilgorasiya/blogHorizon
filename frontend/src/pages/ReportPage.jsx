@@ -6,6 +6,7 @@ import { callSecureApi } from "../utils/callSecureApi.js";
 import { useNavigate } from "react-router-dom";
 import { TriangleAlert } from "lucide-react";
 import axios from "axios";
+import { sendNotification } from "../features/notification/notificationSlice.js";
 
 function ReportPage() {
   const { id } = useParams();
@@ -49,7 +50,13 @@ function ReportPage() {
       });
 
       if (response?.success) {
-        navigate("/");
+        navigate(`/view-blog/${id}`);
+        dispatch(
+          sendNotification({
+            message: "Report submitted successfully",
+            type: "success",
+          })
+        );
       }
     } catch (error) {
       console.log(error);
