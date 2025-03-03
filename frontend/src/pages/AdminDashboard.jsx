@@ -5,11 +5,14 @@ import { server } from "../constants.js";
 import { callSecureApi } from "../utils/callSecureApi.js";
 import Pagination from "@mui/material/Pagination";
 import { BlogCard } from "../components";
+import useSecureAPi from "../hooks/useSecureApi.js";
 
 function AdminDashboard() {
   const dispatch = useDispatch();
 
   const navigate = useNavigate();
+
+  const { callAPI } = useSecureAPi();
 
   const user = useSelector((state) => state.auth.user);
 
@@ -28,12 +31,10 @@ function AdminDashboard() {
   useEffect(() => {
     const verifyAdmin = async () => {
       try {
-        const response = await callSecureApi({
+        const response = await callAPI({
           url: `${server}/admin/verify-admin`,
           method: "GET",
           setError,
-          accessToken: user?.accessToken,
-          dispatch,
         });
 
         console.log(response);
@@ -58,7 +59,7 @@ function AdminDashboard() {
     const fetchBlogs = async () => {
       setLoading(true);
       try {
-        const response = await callSecureApi({
+        const response = await callAPI({
           url: `${server}/admin/get-all-reported-blogs`,
           method: "POST",
           body: {
