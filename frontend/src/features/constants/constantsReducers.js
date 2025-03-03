@@ -1,10 +1,10 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { server } from "../../constants.js";
-import { callSecureApi } from "../../utils/callSecureApi.js";
 
 export const getInterests = createAsyncThunk(
   "constants/getInterests",
+
   async () => {
     try {
       const response = await axios
@@ -24,13 +24,15 @@ export const getUserInterests = createAsyncThunk(
   "constants/getUserInterests",
   async ({ dispatch, setError, accessToken }) => {
     try {
-      const response = await callSecureApi({
-        url: `${server}/user/user-interests`,
-        method: "GET",
-        setError,
-        accessToken,
-        dispatch,
-      });
+      const response = await axios
+        .get({
+          url: `${server}/user/user-interests`,
+          method: "GET",
+          setError,
+          accessToken,
+          dispatch,
+        })
+        .then((res) => res.data);
 
       const newList = ["Latest", ...response.data];
 

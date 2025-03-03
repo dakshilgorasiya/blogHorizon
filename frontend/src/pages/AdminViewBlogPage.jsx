@@ -4,7 +4,7 @@ import { server } from "../constants.js";
 import { setApiBlog } from "../features/blog/blogSlice.js";
 import { useDispatch, useSelector } from "react-redux";
 import { Code, Image, Text, Title, UserDetails } from "../components";
-import { callSecureApi } from "../utils/callSecureApi.js";
+import useSecureAPI from "../hooks/useSecureApi.js";
 import { Trash2 } from "lucide-react";
 import {
   Tooltip,
@@ -18,6 +18,8 @@ import { sendNotification } from "../features/notification/notificationSlice.js"
 
 function ViewBlogPage() {
   const dispatch = useDispatch();
+
+  const { callAPI } = useSecureAPI();
 
   const navigate = useNavigate();
 
@@ -45,7 +47,7 @@ function ViewBlogPage() {
   useEffect(() => {
     const verifyAdmin = async () => {
       try {
-        const response = await callSecureApi({
+        const response = await callAPI({
           url: `${server}/admin/verify-admin`,
           method: "GET",
           setError,
@@ -76,7 +78,7 @@ function ViewBlogPage() {
       try {
         setLoading(true);
 
-        const response = await callSecureApi({
+        const response = await callAPI({
           url: `${server}/admin/get-blog-by-id/${id}`,
           method: "GET",
           accessToken,
@@ -107,7 +109,7 @@ function ViewBlogPage() {
 
     try {
       setDeleteLoading(true);
-      const response = await callSecureApi({
+      const response = await callAPI({
         url: `${server}/admin/delete-blog`,
         method: "POST",
         body: {

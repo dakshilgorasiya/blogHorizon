@@ -48,7 +48,7 @@ function Header() {
   }, [dispatch, user]);
 
   useEffect(() => {
-    if (user && userInterests.length === 0) {
+    if (user) {
       dispatch(
         getUserInterests({
           dispatch,
