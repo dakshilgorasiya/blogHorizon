@@ -51,7 +51,6 @@ function HomePage() {
           .then((res) => res.data);
         setBlogs(response.data.docs);
         setTotalPages(response.data.totalPages);
-        console.log(response.data);
       } catch (error) {
         console.log(error);
       } finally {
@@ -73,7 +72,6 @@ function HomePage() {
             },
           })
           .then((res) => res.data);
-        console.log(response);
         setBlogs(response.data.docs);
         setTotalPages(response.data.totalPages);
       } catch (error) {
@@ -98,8 +96,6 @@ function HomePage() {
             },
           })
           .then((res) => res.data);
-
-        console.log(response);
         setBlogs(response.data.docs);
         setTotalPages(response.data.totalPages);
       } catch (error) {
@@ -123,8 +119,6 @@ function HomePage() {
             },
           })
           .then((res) => res.data);
-
-        console.log(response);
         setBlogs(response.data.docs);
         setTotalPages(response.data.totalPages);
       } catch (error) {
@@ -153,7 +147,6 @@ function HomePage() {
   }, [currentInterest, query]);
 
   const handleChange = (event, value) => {
-    console.log(value);
     setPage(value);
   };
 

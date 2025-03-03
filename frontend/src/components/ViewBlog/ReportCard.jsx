@@ -26,8 +26,6 @@ function ReportCard({ data, solved = false, setReportCount }) {
         setError,
       });
 
-      console.log(response);
-
       if (response?.success) {
         setLatestSolved(true);
         setReportCount((prev) => prev - 1);

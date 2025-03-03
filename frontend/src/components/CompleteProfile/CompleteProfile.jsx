@@ -141,7 +141,6 @@ function CompleteProfile() {
           },
         })
         .then((res) => res.data);
-      console.log(response);
       setLoading(false);
       dispatch(
         setUser({

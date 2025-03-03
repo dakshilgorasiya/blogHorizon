@@ -99,8 +99,6 @@ function UserDetails({
         setError,
       });
 
-      console.log(response);
-
       if (response.statusCode === 200) {
         if (isFollowed) {
           dispatch(setIsFollowed(false));
@@ -129,8 +127,6 @@ function UserDetails({
         setError,
       });
 
-      console.log(response);
-
       if (response.statusCode === 200) {
         dispatch(
           setIsLiked({
@@ -158,8 +154,6 @@ function UserDetails({
         dispatch,
         setError,
       });
-
-      console.log(response);
 
       if (response.statusCode === 200) {
         dispatch(toggleIsFavorite());

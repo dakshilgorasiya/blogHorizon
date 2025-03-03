@@ -36,10 +36,7 @@ function AdminDashboard() {
           setError,
         });
 
-        console.log(response);
-
         if (response?.success) {
-          console.log("Admin verified");
           setAdminVerified(true);
         } else {
           navigate("/");
@@ -69,8 +66,6 @@ function AdminDashboard() {
           accessToken: user?.accessToken,
           dispatch,
         });
-
-        console.log(response);
         if (response?.success) {
           setBlogs(response.data.docs);
           setTotalPages(response.data.totalPages);

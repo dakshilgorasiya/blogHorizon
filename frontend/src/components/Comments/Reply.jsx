@@ -108,7 +108,6 @@ function Reply({ commentId }) {
       dispatch,
       setError,
     });
-    console.log(response);
     if (response?.success) {
       setLiked((prev) => {
         let temp = [...prev];

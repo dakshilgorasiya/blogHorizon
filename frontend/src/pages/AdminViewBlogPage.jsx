@@ -55,10 +55,7 @@ function ViewBlogPage() {
           dispatch,
         });
 
-        console.log(response);
-
         if (response?.success) {
-          console.log("Admin verified");
           setAdminVerified(true);
         } else {
           navigate("/");
@@ -105,8 +102,6 @@ function ViewBlogPage() {
   };
 
   const handleConfirm = async () => {
-    console.log("Deleting item for reason:", reason);
-
     try {
       setDeleteLoading(true);
       const response = await callAPI({
@@ -120,8 +115,6 @@ function ViewBlogPage() {
         accessToken: user?.accessToken,
         dispatch,
       });
-
-      console.log(response);
       if (response.success) {
         navigate("/admin/dashboard");
         dispatch(

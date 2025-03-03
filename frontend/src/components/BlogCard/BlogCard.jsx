@@ -1,4 +1,3 @@
-import { Avatar } from "@mantine/core";
 import React from "react";
 import { ThumbsUp, MessageSquare, Calendar, TriangleAlert } from "lucide-react";
 import { Link } from "react-router-dom";

@@ -80,8 +80,6 @@ function BlogComment({ blogId, comments, setComments }) {
             },
           })
           .then((res) => res.data);
-
-        console.log(response.data);
         setComments(response.data);
         setShowReply(response.data.map(() => false));
         setLiked(response.data.map((comment) => comment.userLiked));
@@ -108,7 +106,6 @@ function BlogComment({ blogId, comments, setComments }) {
       dispatch,
       setError,
     });
-    console.log(response);
     if (response?.success) {
       setLiked((prev) => {
         let temp = [...prev];

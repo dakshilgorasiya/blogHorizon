@@ -29,8 +29,6 @@ function ProfilePage() {
           })
           .then((res) => res.data);
 
-        console.log(response.data);
-
         response.data.blogs.map((blog) => {
           blog.owner = response.data;
           blog.followersCount = response.data.followers;

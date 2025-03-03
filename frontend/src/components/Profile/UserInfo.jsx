@@ -57,9 +57,6 @@ function UserInfo({ data, ownerId }) {
         dispatch,
         setError,
       });
-
-      console.log(response);
-
       if (response?.success) {
         setOpen(true);
         setIsFollowing((prev) => !prev);

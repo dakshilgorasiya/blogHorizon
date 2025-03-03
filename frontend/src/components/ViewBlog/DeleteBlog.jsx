@@ -34,8 +34,6 @@ const DeleteBlog = ({ id }) => {
 
   const handleConfirm = async () => {
     // Perform the delete action here
-    console.log(id);
-
     try {
       const response = await callAPI({
         url: `${server}/blog/delete-blog/${id}`,

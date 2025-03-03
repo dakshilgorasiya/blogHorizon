@@ -27,7 +27,6 @@ function PostComment({ blogId, setComment }) {
         dispatch,
         setError,
       });
-      console.log(response);
       if (response?.success) {
         setContent("");
         dispatch(setCommentCount(commentCount + 1));

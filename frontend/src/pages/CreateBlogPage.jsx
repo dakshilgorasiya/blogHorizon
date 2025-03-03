@@ -61,7 +61,6 @@ function CreateBlogPage({ update = false }) {
             if (response.data.owner?._id !== user?._id) {
               navigate("/");
             }
-            console.log(response.data);
             dispatch(setApiBlog(response.data));
             setContentType(response.data.content.map((item) => item.type));
           }
@@ -81,7 +80,6 @@ function CreateBlogPage({ update = false }) {
       updatedContent.splice(insertIndex, 0, newField); // Insert at specific index
       return updatedContent;
     });
-    console.log(insertIndex, newField);
     dispatch(addEmptyField({ type: newField, index: insertIndex }));
   };
 
@@ -176,8 +174,6 @@ function CreateBlogPage({ update = false }) {
         setError,
         dispatch,
       });
-
-      console.log(response);
       if (response?.success) {
         dispatch(
           sendNotification({
@@ -281,8 +277,6 @@ function CreateBlogPage({ update = false }) {
         setError,
         dispatch,
       });
-
-      console.log(response);
       if (response.success) {
         navigate(`/view-blog/${id}`);
         dispatch(

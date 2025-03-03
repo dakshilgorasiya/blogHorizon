@@ -26,8 +26,6 @@ function BookmarkBlog() {
           })
           .then((res) => res.data);
 
-        console.log(response);
-
         setBlogs(response.data);
       } catch (error) {
         console.log(error);
