@@ -15,6 +15,4 @@ router.route("/toggle-like").post(verifyAccessToken, toggleLike);
 
 router.route("/get-likes").get(checkUserLoggedIn, getLikes);
 
-// router.route("/check-like").get(verifyJWT, checkLike);
-
 export default router;
