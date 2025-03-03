@@ -2,14 +2,16 @@ import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { server } from "../constants.js";
-import { callSecureApi } from "../utils/callSecureApi.js";
 import { useNavigate } from "react-router-dom";
 import { TriangleAlert } from "lucide-react";
 import axios from "axios";
 import { sendNotification } from "../features/notification/notificationSlice.js";
+import useSecureAPI from "../hooks/useSecureApi.js";
 
 function ReportPage() {
   const { id } = useParams();
+
+  const { callAPI } = useSecureAPI();
 
   const dispatch = useDispatch();
 
@@ -36,7 +38,7 @@ function ReportPage() {
     setLoading(true);
 
     try {
-      const response = await callSecureApi({
+      const response = await callAPI({
         url: `${server}/report/create-report`,
         method: "POST",
         body: {
@@ -109,6 +111,7 @@ function ReportPage() {
               disabled
               className="border border-gray-600 rounded-lg block box-border w-full p-1 px-3 hover:cursor-not-allowed"
               value={id}
+              onChange={(e) => {}}
             />
           </div>
 
@@ -121,6 +124,7 @@ function ReportPage() {
               type="text"
               className="border border-gray-600 rounded-lg block box-border w-full p-1 px-3 hover:cursor-not-allowed"
               value={blogTitle}
+              onChange={(e) => {}}
             />
           </div>
 

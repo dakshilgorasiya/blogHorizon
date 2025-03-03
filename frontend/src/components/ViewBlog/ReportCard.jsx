@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { server } from "../../constants";
-import { callSecureApi } from "../../utils/callSecureApi";
+import useSecureAPI from "../../hooks/useSecureApi";
 
 function ReportCard({ data, solved = false, setReportCount }) {
   const dispatch = useDispatch();
+
+  const { callAPI } = useSecureAPI();
 
   const [loading, setLoading] = useState(false);
 
@@ -16,7 +18,7 @@ function ReportCard({ data, solved = false, setReportCount }) {
 
   const handleSolved = async () => {
     try {
-      const response = await callSecureApi({
+      const response = await callAPI({
         url: `${server}/admin/mark-report-as-resolved/${data._id}`,
         method: "PUT",
         accessToken: user?.accessToken,

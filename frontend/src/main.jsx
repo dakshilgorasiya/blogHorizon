@@ -10,7 +10,6 @@ import {
   createBrowserRouter,
   createRoutesFromElements,
 } from "react-router-dom";
-import { Header, Footer } from "./components";
 import {
   Login,
   Register,
@@ -27,7 +26,6 @@ import {
   ErrorPage,
 } from "./pages";
 import Layout from "./Layout.jsx";
-import { View } from "lucide-react";
 
 const router = createBrowserRouter(
   createRoutesFromElements(

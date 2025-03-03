@@ -2,16 +2,13 @@ import React, { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { motion } from "framer-motion";
 import {
-  Heart,
   ThumbsUp,
   MessageSquare,
-  Share2,
   Bookmark,
   Ellipsis,
   Copy,
   TriangleAlert,
 } from "lucide-react";
-import axios from "axios";
 import { server } from "../../constants.js";
 import {
   setIsFollowed,
@@ -19,7 +16,7 @@ import {
   toggleIsFavorite,
 } from "../../features/blog/blogSlice.js";
 import { useNavigate, Link } from "react-router-dom";
-import { callSecureApi } from "../../utils/callSecureApi.js";
+import useSecureAPI from "../../hooks/useSecureApi.js";
 import { Notify, PostComment, BlogComment, Report } from "../../components";
 import SwipeableDrawer from "@mui/material/SwipeableDrawer";
 import Menu from "@mui/material/Menu";
@@ -31,6 +28,8 @@ function UserDetails({
   setReportCount = () => {},
 }) {
   const navigate = useNavigate();
+
+  const { callAPI } = useSecureAPI();
 
   const [error, setError] = useState(null);
 
@@ -89,7 +88,7 @@ function UserDetails({
   // Follow user
   const handleClickOnFollow = async (e) => {
     try {
-      const response = await callSecureApi({
+      const response = await callAPI({
         url: `${server}/follow/toggle-follow`,
         method: "POST",
         body: {
@@ -118,7 +117,7 @@ function UserDetails({
   // Like blog
   const handleClickLike = async (e) => {
     try {
-      const response = await callSecureApi({
+      const response = await callAPI({
         url: `${server}/like/toggle-like`,
         method: "POST",
         body: {
@@ -149,7 +148,7 @@ function UserDetails({
   // Save bookmark
   const handleClickFavorite = async (e) => {
     try {
-      const response = await callSecureApi({
+      const response = await callAPI({
         url: `${server}/user/makeBlogFavorite`,
         method: "POST",
         body: {

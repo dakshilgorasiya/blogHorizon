@@ -1,18 +1,22 @@
 import React, { useEffect, useState } from "react";
 import { server } from "../../constants.js";
 import axios from "axios";
-import { timeAgo } from "../../utils/timeAgo.js";
+import useTime from "../../hooks/useTime.js";
 import { ThumbsUp } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ChevronDown, SendHorizonal } from "lucide-react";
 import { Reply } from "../../components";
-import { callSecureApi } from "../../utils/callSecureApi.js";
+import useSecureAPI from "../../hooks/useSecureApi.js";
 import { useSelector, useDispatch } from "react-redux";
 import { Notify } from "../../components";
 
 function BlogComment({ blogId, comments, setComments }) {
   const dispatch = useDispatch();
+
+  const { callAPI } = useSecureAPI();
+
+  const { getTimeAgo } = useTime();
 
   const user = useSelector((state) => state.auth.user);
 
@@ -35,7 +39,7 @@ function BlogComment({ blogId, comments, setComments }) {
   const postReply = async (e, index) => {
     e.preventDefault();
 
-    const response = await callSecureApi({
+    const response = await callAPI({
       url: `${server}/comment/postComment`,
       method: "POST",
       body: {
@@ -93,7 +97,7 @@ function BlogComment({ blogId, comments, setComments }) {
   }, [user]);
 
   const handleClickLike = async (index) => {
-    const response = await callSecureApi({
+    const response = await callAPI({
       url: `${server}/like/toggle-like`,
       method: "POST",
       body: {
@@ -171,7 +175,7 @@ function BlogComment({ blogId, comments, setComments }) {
                   </div>
                 </Link>
                 <div className="text-xs text-gray-500">
-                  {timeAgo(comment?.createdAt)}
+                  {getTimeAgo(comment?.createdAt)}
                 </div>
               </div>
             </div>
@@ -192,7 +196,9 @@ function BlogComment({ blogId, comments, setComments }) {
                 />
               </motion.button>
 
-              <p className="text-sm text-gray-600 ml-1">{likeCount[index] || 0}</p>
+              <p className="text-sm text-gray-600 ml-1">
+                {likeCount[index] || 0}
+              </p>
 
               <div className="ml-2">
                 <button

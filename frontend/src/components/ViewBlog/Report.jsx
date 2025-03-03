@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { ReportCard } from "../../components";
 import { server } from "../../constants";
-import { callSecureApi } from "../../utils/callSecureApi";
+import useSecureAPI from "../../hooks/useSecureApi";
 import { useSelector, useDispatch } from "react-redux";
 
 function Report({ blogId, setReportCount }) {
   const dispatch = useDispatch();
+
+  const { callAPI } = useSecureAPI();
 
   const [data, setData] = useState([]);
 
@@ -19,7 +21,7 @@ function Report({ blogId, setReportCount }) {
     const fetchReports = async () => {
       try {
         setLoading(true);
-        const response = await callSecureApi({
+        const response = await callAPI({
           url: `${server}/admin/get-reports-by-blog-id/${blogId}`,
           method: "GET",
           accessToken: user?.accessToken,

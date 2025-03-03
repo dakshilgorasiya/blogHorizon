@@ -4,7 +4,6 @@ import { UserInfo, UserBlog } from "../components";
 import axios from "axios";
 import { server } from "../constants.js";
 import { useSelector, useDispatch } from "react-redux";
-import { renewAccessToken } from "../utils/renewAccessToken.js";
 
 function ProfilePage() {
   const { id } = useParams();
@@ -18,13 +17,6 @@ function ProfilePage() {
   const [error, setError] = useState(null);
 
   const user = useSelector((state) => state.auth.user);
-
-  useEffect(() => {
-    const renew = async () => {
-      await renewAccessToken({ dispatch, setError });
-    };
-    if (!user) renew();
-  }, []);
 
   useEffect(() => {
     const fetchData = async () => {

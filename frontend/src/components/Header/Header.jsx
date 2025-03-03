@@ -1,12 +1,5 @@
-import React, { useState, useEffect, useRef } from "react";
-import {
-  Search,
-  CircleUser,
-  LogOut,
-  ChevronLeft,
-  ChevronRight,
-  Bookmark,
-} from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Search, CircleUser, LogOut, Bookmark } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../../features/auth/authReducers.js";
@@ -15,11 +8,8 @@ import {
   getUserInterests,
 } from "../../features/constants/constantsReducers.js";
 import { BadgePlus, LockKeyhole } from "lucide-react";
-import { setUser } from "../../features/auth/authSlice.js";
-import axios from "axios";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
-import { server } from "../../constants.js";
 import Tooltip from "@mui/material/Tooltip";
 import { Divider } from "@mui/material";
 import { Notify } from "../../components";
@@ -27,10 +17,13 @@ import { setOpen } from "../../features/notification/notificationSlice.js";
 import { setQuery } from "../../features/constants/constantsSlice.js";
 import { motion } from "framer-motion";
 import { sendNotification } from "../../features/notification/notificationSlice.js";
+import useToken from "../../hooks/useToken.js";
 
 function Header() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
+  const { renewAccessToken } = useToken();
 
   const user = useSelector((state) => state.auth.user);
   const userInterests = useSelector((state) => state.constants.userInterests);
@@ -51,24 +44,8 @@ function Header() {
   useEffect(() => {
     dispatch(getInterests());
 
-    const fetchUser = async () => {
-      try {
-        const response = await axios
-          .post(`${server}/user/renew-access-token`, null, {
-            withCredentials: true,
-          })
-          .then((res) => res.data)
-          .catch((error) => {
-            throw error;
-          });
-
-        dispatch(setUser(response.data));
-      } catch (error) {
-        setErrorMessage(error.response.data.message);
-      }
-    };
-    if (user === null) fetchUser();
-  }, [dispatch]);
+    if (user === null) renewAccessToken();
+  }, [dispatch, user]);
 
   useEffect(() => {
     if (user && userInterests.length === 0) {

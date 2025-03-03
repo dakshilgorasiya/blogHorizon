@@ -1,13 +1,14 @@
 import React, { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { server } from "../../constants.js";
-import { callSecureApi } from "../../utils/callSecureApi";
+import useSecureAPI from "../../hooks/useSecureApi.js";
 import { SendHorizonal } from "lucide-react";
 import { motion } from "framer-motion";
 import { setCommentCount } from "../../features/blog/blogSlice.js";
 
 function PostComment({ blogId, setComment }) {
   const dispatch = useDispatch();
+  const { callAPI } = useSecureAPI();
   const user = useSelector((state) => state.auth.user);
   const [content, setContent] = useState("");
   const [error, setError] = useState(null);
@@ -15,7 +16,7 @@ function PostComment({ blogId, setComment }) {
 
   const postComment = async () => {
     try {
-      const response = await callSecureApi({
+      const response = await callAPI({
         url: `${server}/comment/postComment`,
         method: "POST",
         body: {

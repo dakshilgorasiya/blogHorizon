@@ -1,17 +1,21 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { server } from "../../constants.js";
 import axios from "axios";
-import { timeAgo } from "../../utils/timeAgo.js";
+import useTime from "../../hooks/useTime.js";
 import { ThumbsUp } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ChevronDown, SendHorizonal } from "lucide-react";
-import { callSecureApi } from "../../utils/callSecureApi.js";
+import useSecureAPI from "../../hooks/useSecureApi.js";
 import { useSelector, useDispatch } from "react-redux";
 import { Notify } from "../../components";
 
 function Reply({ commentId }) {
   const dispatch = useDispatch();
+
+  const { callAPI } = useSecureAPI();
+
+  const { getTimeAgo } = useTime();
 
   const user = useSelector((state) => state.auth.user);
 
@@ -36,7 +40,7 @@ function Reply({ commentId }) {
   const postReply = async (e, index) => {
     e.preventDefault();
 
-    const response = await callSecureApi({
+    const response = await callAPI({
       url: `${server}/comment/postComment`,
       method: "POST",
       body: {
@@ -93,7 +97,7 @@ function Reply({ commentId }) {
   }, [user]);
 
   const handleClickLike = async (index) => {
-    const response = await callSecureApi({
+    const response = await callAPI({
       url: `${server}/like/toggle-like`,
       method: "POST",
       body: {
@@ -171,7 +175,7 @@ function Reply({ commentId }) {
                   </div>
                 </Link>
                 <div className="text-xs text-gray-500">
-                  {timeAgo(comment?.createdAt)}
+                  {getTimeAgo(comment?.createdAt)}
                 </div>
               </div>
             </div>

@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { server } from "../../constants.js";
-import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
-import { callSecureApi } from "../../utils/callSecureApi.js";
+import useSecureAPI from "../../hooks/useSecureApi.js";
 import { Notify } from "../../components";
 import { Pencil, CircleX } from "lucide-react";
 import { setUserBio, setUserAvatar } from "../../features/auth/authSlice.js";
@@ -11,6 +10,8 @@ import { sendNotification } from "../../features/notification/notificationSlice.
 
 function UserInfo({ data, ownerId }) {
   const dispatch = useDispatch();
+
+  const { callAPI } = useSecureAPI();
 
   const inputRef = useRef(null);
 
@@ -46,7 +47,7 @@ function UserInfo({ data, ownerId }) {
 
   const handleClickOnFollow = async (e) => {
     try {
-      const response = await callSecureApi({
+      const response = await callAPI({
         url: `${server}/follow/toggle-follow`,
         method: "POST",
         body: {
@@ -82,7 +83,7 @@ function UserInfo({ data, ownerId }) {
 
   const handleSaveBio = async () => {
     try {
-      const response = await callSecureApi({
+      const response = await callAPI({
         url: `${server}/user/update-bio`,
         method: "POST",
         body: {
@@ -120,7 +121,7 @@ function UserInfo({ data, ownerId }) {
 
     try {
       setLoading(true);
-      const response = await callSecureApi({
+      const response = await callAPI({
         url: `${server}/user/update-avatar`,
         method: "PATCH",
         body: formData,

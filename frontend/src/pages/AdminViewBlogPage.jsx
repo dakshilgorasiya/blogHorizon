@@ -1,20 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
 import { server } from "../constants.js";
 import { setApiBlog } from "../features/blog/blogSlice.js";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  Code,
-  Image,
-  Text,
-  Title,
-  UserDetails,
-  DeleteBlog,
-} from "../components";
-import { Link } from "react-router-dom";
+import { Code, Image, Text, Title, UserDetails } from "../components";
 import { callSecureApi } from "../utils/callSecureApi.js";
-import { Pencil, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import {
   Tooltip,
   Dialog,
@@ -22,10 +13,6 @@ import {
   DialogContent,
   DialogActions,
   Button,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
 } from "@mui/material";
 import { sendNotification } from "../features/notification/notificationSlice.js";
 

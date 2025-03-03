@@ -13,22 +13,21 @@ import { MantineProvider } from "@mantine/core";
 import { Trash2Icon } from "lucide-react";
 import {
   removeContent,
-  setTitle,
   resetBlog,
   setApiBlog,
   addEmptyField,
 } from "../features/blog/blogSlice.js";
-import { getInterests } from "../features/constants/constantsReducers.js";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { server } from "../constants.js";
 import { useNavigate, useParams } from "react-router-dom";
-import { callSecureApi } from "../utils/callSecureApi.js";
-import { renewAccessToken } from "../utils/renewAccessToken.js";
+import useSecureAPI from "../hooks/useSecureApi.js";
 import { sendNotification } from "../features/notification/notificationSlice.js";
 
 function CreateBlogPage({ update = false }) {
   const { id } = useParams();
+
+  const { callAPI } = useSecureAPI();
 
   const navigate = useNavigate();
 
@@ -50,18 +49,6 @@ function CreateBlogPage({ update = false }) {
       setContentType(["image"]);
     }
   }, [dispatch, id, update]);
-
-  useEffect(() => {
-    dispatch(getInterests());
-
-    const renew = async () => {
-      await renewAccessToken({ dispatch, setError });
-    };
-
-    if (!user) {
-      renew();
-    }
-  }, [dispatch, user]);
 
   useEffect(() => {
     if (update && user) {
@@ -181,7 +168,7 @@ function CreateBlogPage({ update = false }) {
     formData.append("tags", JSON.stringify(blog.tags));
 
     try {
-      const response = await callSecureApi({
+      const response = await callAPI({
         url: `${server}/blog/create-blog`,
         method: "POST",
         body: formData,
@@ -286,7 +273,7 @@ function CreateBlogPage({ update = false }) {
     formData.append("tags", JSON.stringify(blog.tags));
 
     try {
-      const response = await callSecureApi({
+      const response = await callAPI({
         url: `${server}/blog/update-blog/${id}`,
         method: "PUT",
         body: formData,

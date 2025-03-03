@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import axios from "axios";
 import { server } from "../constants.js";
 import { setApiBlog } from "../features/blog/blogSlice.js";
 import { useDispatch, useSelector } from "react-redux";
@@ -13,12 +12,14 @@ import {
   DeleteBlog,
 } from "../components";
 import { Link, useNavigate } from "react-router-dom";
-import { callSecureApi } from "../utils/callSecureApi.js";
-import { Pencil, Trash2 } from "lucide-react";
+import useSecureAPI from "../hooks/useSecureApi.js";
+import { Pencil } from "lucide-react";
 import { Tooltip } from "@mui/material";
 
 function ViewBlogPage() {
   const dispatch = useDispatch();
+
+  const { callAPI } = useSecureAPI();
 
   const navigate = useNavigate();
 
@@ -39,7 +40,7 @@ function ViewBlogPage() {
       try {
         setLoading(true);
 
-        const response = await callSecureApi({
+        const response = await callAPI({
           url: `${server}/blog/get-blog-by-id/${id}`,
           method: "GET",
           accessToken,
@@ -61,7 +62,7 @@ function ViewBlogPage() {
       }
     }
     fetchData();
-  }, []);
+  }, [user, id]);
 
   if (loading) {
     return <div>Loading...</div>;

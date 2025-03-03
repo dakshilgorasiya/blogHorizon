@@ -6,10 +6,9 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import { Trash2 } from "lucide-react";
-import axios from "axios";
 import { server } from "../../constants.js";
 import { useSelector, useDispatch } from "react-redux";
-import { callSecureApi } from "../../utils/callSecureApi.js";
+import useSecureAPI from "../../hooks/useSecureApi.js";
 import { useNavigate } from "react-router-dom";
 import { Tooltip } from "@mui/material";
 import { sendNotification } from "../../features/notification/notificationSlice.js";
@@ -17,6 +16,7 @@ import { sendNotification } from "../../features/notification/notificationSlice.
 const DeleteBlog = ({ id }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { callAPI } = useSecureAPI();
 
   const [open, setOpen] = useState(false);
 
@@ -37,7 +37,7 @@ const DeleteBlog = ({ id }) => {
     console.log(id);
 
     try {
-      const response = await callSecureApi({
+      const response = await callAPI({
         url: `${server}/blog/delete-blog/${id}`,
         method: "DELETE",
         setError,
