@@ -44,7 +44,7 @@ BlogHorizon is a full-featured blogging platform built using the MERN stack. It 
 
 1. **Clone the repository**
    ```sh
-   git clone https://github.com/yourusername/BlogHorizon.git
+   git clone https://github.com/dakshilgorasiya/blogHorizon.git
    cd BlogHorizon
    ```
 
@@ -132,16 +132,6 @@ BlogHorizon is a full-featured blogging platform built using the MERN stack. It 
 | POST   | /api/v1/admin/delete-blog            | Delete a reported blog         |
 | PUT    | /api/v1/admin/mark-report-as-resolved/:id | Resolve a report        |
 | GET    | /api/v1/admin/verify-admin           | Verify admin access            |
-
-## Deployment
-
-You can deploy BlogHorizon using Docker:
-
-```sh
-docker-compose up --build
-```
-
-Alternatively, deploy on platforms like Vercel (frontend) and Render/Heroku (backend).
 
 ## Contributing
 
