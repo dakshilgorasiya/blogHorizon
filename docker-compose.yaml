@@ -1,0 +1,40 @@
+version: "1.1"
+
+services:
+  frontend:
+    build: ./frontend
+    container_name: react-ui
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - mern-network
+  
+  backend:
+    build: ./backend
+    container_name: node-api
+    restart: always
+    ports:
+      - "8000:8000"
+    depends_on:
+      - database
+    networks:
+      - mern-network
+
+  database:
+    image: mongo
+    container_name: mongo-db
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - mern-network
+    
+networks:
+  mern-network:
+    driver: bridge
+
+volumes:
+  mongo-data:

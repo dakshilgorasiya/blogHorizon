@@ -65,6 +65,17 @@ BlogHorizon is a full-featured blogging platform built using the MERN stack. It 
 4. **Environment Variables**
    Create a `.env` file in both `frontend` and `backend` directories with the necessary configurations (Same format as given in .env.sample).
 
+### Deployment with Docker
+
+BlogHorizon includes all necessary Docker files, making deployment simple using Docker Compose.
+
+1. **Ensure Docker and Docker Compose are installed.**
+2. **Navigate to the project root directory and run:**
+   ```sh
+   docker compose up -d
+   ```
+   This will start both the backend and frontend as detached containers.
+
 ## API Endpoints (Backend)
 
 ### User Endpoints
