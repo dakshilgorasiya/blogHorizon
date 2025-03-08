@@ -1,9 +1,9 @@
-import React, { useEffect, useState, useRef, useCallback } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { BlogCard } from "../components";
 import { server } from "../constants.js";
 import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, CircleChevronUp } from "lucide-react";
 import { setCurrentInterest } from "../features/constants/constantsSlice.js";
 import { setQuery } from "../features/constants/constantsSlice.js";
 
@@ -15,8 +15,6 @@ function HomePage() {
   const [loading, setLoading] = useState(true);
 
   const user = useSelector((state) => state.auth.user);
-
-  const userLoading = useSelector((state) => state.auth.loading);
 
   const userInterests = useSelector((state) => state.constants.userInterests);
 
@@ -32,8 +30,7 @@ function HomePage() {
 
   const query = useSelector((state) => state.constants.query);
 
-  const fetchBlogs = useCallback(async () => {
-    console.log(page);
+  const fetchBlogs = async () => {
     try {
       setLoading(true);
       const response = await axios
@@ -46,7 +43,7 @@ function HomePage() {
             ? `${server}/blog/get-blog-by-category`
             : `${server}/blog/get-all-blogs`,
           {
-            params: { category: currentInterest, query, page, limit: 1 },
+            params: { category: currentInterest, query, page, limit: 5 },
             headers: { Authorization: `Bearer ${user?.accessToken}` },
           }
         )
@@ -59,19 +56,20 @@ function HomePage() {
     } finally {
       setLoading(false);
     }
-  }, [currentInterest, page, query, user]);
+  };
 
   useEffect(() => {
     fetchBlogs();
     setLoading(false);
-  }, [currentInterest, user, page, query]);
+  }, [currentInterest, page, query]);
 
   useEffect(() => {
-    setPage(1);
+    if (page !== 1) {
+      setPage(1);
+    }
   }, [currentInterest, query]);
 
   const fetchMoreData = () => {
-    console.log("CALLED");
     setPage((prev) => prev + 1);
   };
 
@@ -159,7 +157,7 @@ function HomePage() {
           )}
         </div>
 
-        <div ref={observerRef} className="h-20" />
+        <div ref={observerRef} className="h-20 w-10" />
       </div>
     </>
   );

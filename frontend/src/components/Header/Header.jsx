@@ -7,7 +7,7 @@ import {
   getInterests,
   getUserInterests,
 } from "../../features/constants/constantsReducers.js";
-import { BadgePlus, LockKeyhole } from "lucide-react";
+import { CirclePlus, LockKeyhole } from "lucide-react";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import Tooltip from "@mui/material/Tooltip";
@@ -129,7 +129,7 @@ function Header() {
                 <div className="mr-5">
                   <Link to="/create-blog">
                     <Tooltip title="Create Blog" placement="left" arrow>
-                      <BadgePlus size={25} className="text-white" />
+                      <CirclePlus size={25} className="text-white" />
                     </Tooltip>
                   </Link>
                 </div>
