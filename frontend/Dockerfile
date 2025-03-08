@@ -21,6 +21,9 @@ RUN npm run build
 # Stage 2: Serve the app with Nginx
 FROM nginx
 
+# Copy custom Nginx configuration
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
 # Copy the build files to the nginx html folder
 COPY --from=build /app/dist/. /usr/share/nginx/html
 
