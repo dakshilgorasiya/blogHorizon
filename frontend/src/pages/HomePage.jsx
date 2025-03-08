@@ -159,6 +159,17 @@ function HomePage() {
 
         <div ref={observerRef} className="h-20 w-10" />
       </div>
+
+      <div className="sticky bottom-0 w-full">
+        <div className="absolute bottom-5 right-5 rounded-full">
+          <button
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            className="rounded-full bg-white text-black hover:bg-black hover:text-white"
+          >
+            <CircleChevronUp size={40} className="" />
+          </button>
+        </div>
+      </div>
     </>
   );
 }
