@@ -1,9 +1,8 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { BlogCard } from "../components";
 import { server } from "../constants.js";
 import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
-import Pagination from "@mui/material/Pagination";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { setCurrentInterest } from "../features/constants/constantsSlice.js";
 import { setQuery } from "../features/constants/constantsSlice.js";
@@ -12,8 +11,6 @@ function HomePage() {
   const dispatch = useDispatch();
 
   const [page, setPage] = useState(1);
-
-  const [totalPages, setTotalPages] = useState(0);
 
   const [loading, setLoading] = useState(true);
 
@@ -31,114 +28,41 @@ function HomePage() {
 
   const interestsRef = useRef(null); // Ref for scrolling
 
+  const observerRef = useRef(null); // Ref for IntersectionObserver
+
   const query = useSelector((state) => state.constants.query);
 
-  useEffect(() => {
-    const fetchBlogs = async () => {
-      try {
-        setLoading(true);
-        const response = await axios
-          .get(`${server}/blog/get-blog-by-category`, {
-            params: {
-              category: currentInterest,
-              page,
-              limit: 5,
-            },
-            headers: {
-              Authorization: `Bearer ${user?.accessToken}`,
-            },
-          })
-          .then((res) => res.data);
-        setBlogs(response.data.docs);
-        setTotalPages(response.data.totalPages);
-      } catch (error) {
-        console.log(error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    const fetchAllBlogs = async () => {
-      try {
-        setLoading(true);
-        const response = await axios
-          .get(`${server}/blog/get-all-blogs`, {
-            params: {
-              page,
-              limit: 5,
-            },
-            headers: {
-              Authorization: `Bearer ${user?.accessToken}`,
-            },
-          })
-          .then((res) => res.data);
-        setBlogs(response.data.docs);
-        setTotalPages(response.data.totalPages);
-      } catch (error) {
-        console.log(error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    const searchBlog = async () => {
-      try {
-        setLoading(true);
-        const response = await axios
-          .get(`${server}/blog/search-blog`, {
-            params: {
-              query,
-              page,
-              limit: 10,
-            },
-            headers: {
-              Authorization: `Bearer ${user?.accessToken}`,
-            },
-          })
-          .then((res) => res.data);
-        setBlogs(response.data.docs);
-        setTotalPages(response.data.totalPages);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-
-    const searchBlogCategory = async () => {
-      try {
-        setLoading(true);
-        const response = await axios
-          .get(`${server}/blog/search-blog-by-category`, {
-            params: {
-              query,
-              category: currentInterest,
-              page,
-              limit: 10,
-            },
-            headers: {
-              Authorization: `Bearer ${user?.accessToken}`,
-            },
-          })
-          .then((res) => res.data);
-        setBlogs(response.data.docs);
-        setTotalPages(response.data.totalPages);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-
-    if (query) {
-      if (currentInterest === "Latest") {
-        searchBlog();
-      } else {
-        searchBlogCategory();
-      }
-    } else {
-      if (currentInterest !== "Latest") {
-        fetchBlogs();
-      } else {
-        fetchAllBlogs();
-      }
+  const fetchBlogs = useCallback(async () => {
+    console.log(page);
+    try {
+      setLoading(true);
+      const response = await axios
+        .get(
+          query
+            ? currentInterest === "Latest"
+              ? `${server}/blog/search-blog`
+              : `${server}/blog/search-blog-by-category`
+            : currentInterest !== "Latest"
+            ? `${server}/blog/get-blog-by-category`
+            : `${server}/blog/get-all-blogs`,
+          {
+            params: { category: currentInterest, query, page, limit: 1 },
+            headers: { Authorization: `Bearer ${user?.accessToken}` },
+          }
+        )
+        .then((res) => res.data);
+      setBlogs((prev) =>
+        page === 1 ? response.data.docs : [...prev, ...response.data.docs]
+      );
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
     }
+  }, [currentInterest, page, query, user]);
+
+  useEffect(() => {
+    fetchBlogs();
     setLoading(false);
   }, [currentInterest, user, page, query]);
 
@@ -146,9 +70,26 @@ function HomePage() {
     setPage(1);
   }, [currentInterest, query]);
 
-  const handleChange = (event, value) => {
-    setPage(value);
+  const fetchMoreData = () => {
+    console.log("CALLED");
+    setPage((prev) => prev + 1);
   };
+
+  // Infinite Scroll
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !loading) {
+          fetchMoreData();
+        }
+      },
+      { threshold: 1 }
+    );
+
+    if (observerRef.current) observer.observe(observerRef.current);
+
+    return () => observer.disconnect();
+  }, [loading]);
 
   // Scroll functions
   const scrollLeft = () => {
@@ -218,25 +159,7 @@ function HomePage() {
           )}
         </div>
 
-        <div className="sm:w-11/12 my-2 p-5 max-w-5xl flex justify-center">
-          <Pagination
-            count={totalPages}
-            page={page}
-            onChange={handleChange}
-            sx={{
-              "& .MuiPaginationItem-root": {
-                color: "#252422",
-              },
-              "& .MuiPaginationItem-page.Mui-selected": {
-                backgroundColor: "#eb5e28", // red-500 hex code
-                color: "white",
-              },
-              "& .MuiPaginationItem-page.Mui-selected:hover": {
-                backgroundColor: "#403d39", // darker red on hover
-              },
-            }}
-          />
-        </div>
+        <div ref={observerRef} className="h-20" />
       </div>
     </>
   );
