@@ -33,7 +33,6 @@ export const BLOG_CATEGORY = [
 
 export const COOKIE_CONFIG = {
   httpOnly: true,
-  sameSite: true,
   secure: process.env.NODE_ENV === "production",
   maxAge: 1000 * 60 * 60 * 24 * 15, // 15 days
 };
