@@ -178,6 +178,11 @@ const getAllBlogs = asyncHandler(async (req, res) => {
       },
     },
     {
+      $sort: {
+        createdAt: -1,
+      }
+    },
+    {
       $project: {
         title: 1,
         tags: 1,
