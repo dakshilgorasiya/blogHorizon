@@ -246,7 +246,7 @@ function ForgotPassword() {
 
                   <Link
                     to="/login"
-                    className="block w-full text-center text-purple-600 hover:text-purple-700 font-medium hover:underline transition-colors duration-200 flex items-center justify-center space-x-2 py-2"
+                    className="w-full text-center text-purple-600 hover:text-purple-700 font-medium hover:underline transition-colors duration-200 flex items-center justify-center space-x-2 py-2"
                   >
                     <ArrowLeft size={16} />
                     <span>Back to Login</span>

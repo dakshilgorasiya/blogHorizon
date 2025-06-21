@@ -323,13 +323,23 @@ function CreateBlogPage({ update = false }) {
                         {content === "code" && <CodeEditor index={i} />}
                       </div>
 
-                      <div className="w-max flex justify-center ml-9 col-span-2">
+                      <div className="w-max flex justify-center ml-9 mt-5 col-span-2">
                         <button
                           onClick={() => removeField(i)}
-                          className="w-10 h-10 flex mt-[20px] items-center justify-center border-2 border-secondary rounded-full text-lg font-bold transition-all duration-300 hover:bg-secondary hover:text-white"
+                          className="group relative w-12 h-12 flex mt-[20px] items-center justify-center bg-white/80 backdrop-blur-md border-2 border-white/50 rounded-full transition-all duration-300 hover:scale-110 hover:bg-gradient-to-r hover:from-red-500 hover:to-red-600 hover:text-white hover:border-transparent hover:shadow-lg hover:shadow-red-500/25 active:scale-95 shadow-md"
+                          title="Delete Field"
                         >
-                          <Trash2Icon />
+                          <Trash2Icon size={16} className="stroke-2" />
+
+                          {/* Tooltip */}
+                          <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded-md px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">
+                            Delete Field
+                          </div>
+
+                          {/* Ripple effect */}
+                          <div className="absolute inset-0 rounded-full bg-gradient-to-r from-red-500 to-red-600 opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
                         </button>
+
                         <div className="w-auto">
                           <CreateNewField
                             actions={[
@@ -366,35 +376,70 @@ function CreateBlogPage({ update = false }) {
         <TagsInput />
       </div>
 
+      {/* Error Message */}
       {error && (
         <div className="flex justify-center m-10">
-          <p className="text-red-500 font-medium text-md">{error}</p>
+          <div className="bg-red-50/80 backdrop-blur-md border border-red-200/50 rounded-xl px-6 py-4 shadow-lg">
+            <p className="text-red-600 font-medium text-md flex items-center gap-2">
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  fillRule="evenodd"
+                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              {error}
+            </p>
+          </div>
         </div>
       )}
 
-      <div className="flex justify-center mb-10">
-        {loading ? (
-          <button
-            className="bg-gray-800 hover:bg-highlight text-white font-bold py-2 px-4 rounded-lg shadow-md cursor-not-allowed"
-            disabled
-          >
-            Loading...
-          </button>
-        ) : (
-          <button
-            type="button"
-            onClick={(e) => {
-              if (update) {
-                handleUpdate();
-              } else {
-                handleCreate();
-              }
-            }}
-            className="bg-gray-800 hover:bg-highlight text-white font-bold py-2 px-4 rounded-lg shadow-md"
-          >
-            {update ? "Update" : "Create"}
-          </button>
-        )}
+      <div className="flex justify-center mb-16 px-5">
+        <div className="bg-white/60 backdrop-blur-md rounded-2xl p-2 border border-white/40 shadow-lg">
+          {loading ? (
+            <button
+              className="group relative bg-gradient-to-r from-gray-400 to-gray-500 text-white font-bold py-4 px-12 rounded-xl shadow-lg cursor-not-allowed transition-all duration-300 flex items-center gap-3"
+              disabled
+            >
+              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+              Loading...
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={(e) => {
+                if (update) {
+                  handleUpdate();
+                } else {
+                  handleCreate();
+                }
+              }}
+              className="group relative bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold py-4 px-12 rounded-xl shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-purple-500/25 active:scale-95 flex items-center gap-3"
+            >
+              <span className="relative z-10">
+                {update ? "Update Content" : "Create Content"}
+              </span>
+
+              {/* Button glow effect */}
+              <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 opacity-0 group-hover:opacity-20 transition-opacity duration-300 blur-xl"></div>
+
+              {/* Success icon */}
+              <svg
+                className="w-5 h-5 relative z-10"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+            </button>
+          )}
+        </div>
       </div>
     </>
   );
